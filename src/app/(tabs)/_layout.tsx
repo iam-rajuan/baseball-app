@@ -92,6 +92,18 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="drills/category/[slug]"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="situations/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
