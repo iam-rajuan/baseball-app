@@ -13,6 +13,7 @@ import { DrillBanner } from '@/features/drills/components/drill-banner';
 import { EquipmentCard } from '@/features/drills/components/equipment-card';
 import { FocusPointCard } from '@/features/drills/components/focus-point-card';
 import { StepDirection } from '@/features/drills/components/step-direction';
+import { getCategoryIdFromName } from '@/features/drills/drill-media';
 import { drillsService } from '@/services';
 
 export default function DrillDetailScreen() {
@@ -44,9 +45,13 @@ export default function DrillDetailScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <PageHeader title="Drill Details" />
+      <PageHeader title={data.name} variant="section" />
       <ScrollView showsVerticalScrollIndicator={false} className="bg-background" contentContainerStyle={{ paddingBottom: 60 }}>
-        <DrillBanner />
+        <DrillBanner
+          title={data.name}
+          subtitle={data.category}
+          categoryId={getCategoryIdFromName(data.category)}
+        />
         
         <View className="px-5 py-8">
           <Text className="text-[34px] font-black leading-[42px] text-navy">{data.name}</Text>
@@ -109,5 +114,4 @@ export default function DrillDetailScreen() {
     </View>
   );
 }
-
 

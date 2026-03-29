@@ -5,9 +5,12 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
+import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { typography } from '@/constants/typography';
+import { getCategoryEyebrow } from '@/features/drills/drill-media';
+import { PlaceholderBanner } from '@/features/drills/components/placeholder-banner';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
@@ -45,6 +48,8 @@ export default function DrillCategoryScreen() {
 
   const category = categoryQuery.data;
   const drills = drillsQuery.data || [];
+  const freeDrills = drills.filter((drill) => drill.accessLevel === 'free');
+  const premiumDrills = drills.filter((drill) => drill.accessLevel === 'premium');
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
@@ -64,7 +69,7 @@ export default function DrillCategoryScreen() {
             {/* Top Eyebrow Section */}
             <View style={{ marginBottom: 20 }}>
               <Text style={{ fontSize: 10, fontWeight: '700', color: '#C2410C', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 6 }}>
-                Practice Drills
+                {getCategoryEyebrow(category.name)}
               </Text>
               <Text style={{ fontSize: 44, fontWeight: '900', textTransform: 'uppercase', lineHeight: 46, color: '#1A1A1A', fontFamily: typography.family.serif }}>
                 {category.name}
@@ -75,15 +80,31 @@ export default function DrillCategoryScreen() {
             </View>
 
             {/* Featured Image */}
-            <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
-              <Image
-                source={FEATURED_HITTING_IMAGE}
-                style={{ width: '100%', height: 210 }}
-                contentFit="cover"
-              />
-            </View>
+            {category.id === 'hitting' ? (
+              <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
+                <Image
+                  source={FEATURED_HITTING_IMAGE}
+                  style={{ width: '100%', height: 210 }}
+                  contentFit="cover"
+                />
+              </View>
+            ) : (
+              <View style={{ marginBottom: 28 }}>
+                <PlaceholderBanner title={category.name} subtitle={`${category.numberOfDrills} drills`} />
+              </View>
+            )}
+
+            {!drills.length ? (
+              <View style={{ marginBottom: 24 }}>
+                <EmptyState
+                  title="No drills yet"
+                  description="When drills are added from the admin dashboard, they will appear here automatically."
+                />
+              </View>
+            ) : null}
 
             {/* Included Drills Section */}
+            {freeDrills.length ? (
             <View style={{ marginBottom: 32 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
                 <View style={{ backgroundColor: '#FAF0E6', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5, marginRight: 10 }}>
@@ -93,7 +114,7 @@ export default function DrillCategoryScreen() {
               </View>
 
               <View style={{ gap: 12 }}>
-                {drills.filter(d => d.accessLevel === 'free').map((drill, index) => {
+                {freeDrills.map((drill, index) => {
                   let iconName: any = 'baseball-outline';
                   if (drill.id === 'soccer-ball-drill') iconName = 'ellipse-outline';
                   if (drill.id === 'connection-ball-drill') iconName = 'link';
@@ -114,8 +135,10 @@ export default function DrillCategoryScreen() {
                 })}
               </View>
             </View>
+            ) : null}
 
             {/* Premium Drills Section */}
+            {premiumDrills.length ? (
             <View style={{ marginBottom: 24 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
                 <View style={{ backgroundColor: '#FFF7ED', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5, marginRight: 10, borderWidth: 1, borderColor: '#FFEDD5' }}>
@@ -125,7 +148,7 @@ export default function DrillCategoryScreen() {
               </View>
 
               <View style={{ gap: 12 }}>
-                {drills.filter(d => d.accessLevel === 'premium').map((drill, index) => (
+                {premiumDrills.map((drill, index) => (
                   <Pressable
                     key={drill.id}
                     onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/premium')}
@@ -140,9 +163,10 @@ export default function DrillCategoryScreen() {
                 ))}
               </View>
             </View>
+            ) : null}
 
             {/* Unlock All Section Card (Glassmorphism) */}
-            {!isPremium && (
+            {!isPremium && premiumDrills.length > 0 && (
               <View style={{ marginTop: 12, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FAF4EA', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.85)', position: 'relative' }}>
 
                 {/* Background Teaser Content */}

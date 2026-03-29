@@ -4,11 +4,24 @@ import { delay } from '@/utils/delay';
 export const drillsService = {
   async getCategories() {
     await delay();
-    return drillCategories;
+    return drillCategories.map((category) => ({
+      ...category,
+      numberOfDrills: drills.filter(
+        (drill) => drill.category.toLowerCase() === category.name.toLowerCase(),
+      ).length,
+    }));
   },
   async getCategory(id: string) {
     await delay();
-    return drillCategories.find((item) => item.id === id) ?? null;
+    const category = drillCategories.find((item) => item.id === id) ?? null;
+    if (!category) return null;
+
+    return {
+      ...category,
+      numberOfDrills: drills.filter(
+        (drill) => drill.category.toLowerCase() === category.name.toLowerCase(),
+      ).length,
+    };
   },
   async getDrillsByCategory(category: string) {
     await delay();
