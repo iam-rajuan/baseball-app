@@ -29,7 +29,7 @@ export default function SupportScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
-      <PageHeader title="Help & support" />
+      <PageHeader title="Help & support" variant="settings" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}

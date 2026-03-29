@@ -7,7 +7,7 @@ import { PageHeader } from '@/components/layout/page-header';
 export default function AboutScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
-      <PageHeader title="About Us" />
+      <PageHeader title="About Us" variant="settings" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}

@@ -1,37 +1,50 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, StatusBar, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { typography } from '@/constants/typography';
 
 type PageHeaderProps = {
   title: string;
   rightSlot?: ReactNode;
   showBack?: boolean;
+  variant?: 'default' | 'settings';
 };
 
-export function PageHeader({ title, rightSlot, showBack = true }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  rightSlot,
+  showBack = true,
+  variant = 'default',
+}: PageHeaderProps) {
   const insets = useSafeAreaInsets();
-  const statusBarHeight = insets.top;
+  const isSettings = variant === 'settings';
+  const statusBarHeight = isSettings
+    ? Platform.OS === 'android'
+      ? StatusBar.currentHeight ?? 0
+      : 0
+    : insets.top;
 
   return (
     <View
       style={{
         paddingTop: statusBarHeight,
         backgroundColor: '#FFFFFF',
-        borderBottomWidth: 1,
+        borderBottomWidth: isSettings ? 0 : 1,
         borderColor: '#EFE7D9',
         zIndex: 100,
       }}
     >
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-        }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: isSettings ? 16 : 20,
+        paddingVertical: isSettings ? 4 : 10,
+      }}
       >
         <View style={{ width: 36 }}>
           {showBack ? (
@@ -45,7 +58,11 @@ export function PageHeader({ title, rightSlot, showBack = true }: PageHeaderProp
               }}
               onPress={() => router.back()}
             >
-              <Ionicons color="#0C1F4A" name="arrow-back" size={24} />
+              <Ionicons
+                color={isSettings ? '#1F3A5F' : '#0C1F4A'}
+                name={isSettings ? 'chevron-back' : 'arrow-back'}
+                size={24}
+              />
             </Pressable>
           ) : null}
         </View>
@@ -53,8 +70,8 @@ export function PageHeader({ title, rightSlot, showBack = true }: PageHeaderProp
           style={{
             fontSize: 18,
             fontWeight: '700',
-            color: '#0C1F4A',
-            fontFamily: 'serif',
+            color: isSettings ? '#1F3A5F' : '#0C1F4A',
+            fontFamily: isSettings ? typography.family.serif : 'serif',
           }}
         >
           {title}
