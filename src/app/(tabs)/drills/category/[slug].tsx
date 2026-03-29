@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { Loader } from '@/components/loader';
+import { PageHeader } from '@/components/layout/page-header';
 import { typography } from '@/constants/typography';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
@@ -44,22 +45,18 @@ export default function DrillCategoryScreen() {
 
   const category = categoryQuery.data;
   const drills = drillsQuery.data || [];
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA', paddingTop: statusBarHeight }}>
-      {/* ===== CUSTOM HEADER ===== */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
-        <Pressable onPress={() => router.back()} style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons color="#1F3A5F" name="chevron-back" size={24} />
-        </Pressable>
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F3A5F', fontFamily: typography.family.serif }}>
-          {category.name}
-        </Text>
-        <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons color="#1F3A5F" name="search" size={22} />
-        </Pressable>
-      </View>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+      <PageHeader
+        title={category.name}
+        variant="section"
+        rightSlot={(
+          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons color="#1F3A5F" name="search" size={22} />
+          </Pressable>
+        )}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={{ position: 'relative' }}>

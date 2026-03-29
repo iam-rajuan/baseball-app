@@ -32,7 +32,7 @@ const menuItems = [
 export default function SettingsScreen() {
   return (
     <View className="flex-1 bg-background">
-      <PageHeader title="SETTINGS" variant="settings" />
+      <PageHeader title="SETTINGS" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}

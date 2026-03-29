@@ -2,17 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  Text,
-  View,
-} from 'react-native';
+import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 
 import { Loader } from '@/components/loader';
+import { PageHeader } from '@/components/layout/page-header';
 import { typography } from '@/constants/typography';
 import { CategoryTile } from '@/features/drills/components/category-tile';
 import { drillsService } from '@/services';
@@ -31,36 +25,17 @@ export default function DrillsScreen() {
     );
   }
 
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
-
   return (
     <View className="flex-1 bg-[#FAF4EA]">
-      {/* ═══════ HEADER ═══════ */}
-      <View
-        style={{
-          paddingTop: statusBarHeight,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: '#FFFFFF',
-          paddingHorizontal: 16,
-          paddingVertical: 10,
-          zIndex: 10
-        }}
-      >
-        <Pressable
-          onPress={() => router.back()}
-          style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Ionicons color="#1F3A5F" name="chevron-back" size={24} />
-        </Pressable>
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F3A5F', fontFamily: typography.family.serif }}>
-          Drill Category
-        </Text>
-        <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons color="#1F3A5F" name="search" size={22} />
-        </Pressable>
-      </View>
+      <PageHeader
+        title="Drill Category"
+        variant="section"
+        rightSlot={(
+          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons color="#1F3A5F" name="search" size={22} />
+          </Pressable>
+        )}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={{ position: 'relative' }}>

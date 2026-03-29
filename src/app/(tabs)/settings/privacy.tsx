@@ -5,7 +5,7 @@ import { Screen } from '@/components/layout/screen';
 
 export default function PrivacyPolicyScreen() {
   return (
-    <Screen header={<PageHeader title="Privacy Policy" variant="settings" />} contentClassName="bg-[#F7F7F5]">
+    <Screen header={<PageHeader title="Privacy Policy" variant="section" />} contentClassName="bg-[#F7F7F5]">
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
         {[1, 2, 3, 4, 5].map((item) => (
           <View key={item} className="flex-row mb-6">
