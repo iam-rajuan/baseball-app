@@ -1,12 +1,18 @@
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button } from '@/components/button';
-import { OTPInput } from '@/components/form/otp-input';
 import { PageHeader } from '@/components/layout/page-header';
-import { Screen } from '@/components/layout/screen';
+import { OTPInput } from '@/components/form/otp-input';
 import { authService } from '@/services';
 import { useAppStore } from '@/store/app-store';
+import { LogoMark } from '@/components/logo-mark';
+import { typography } from '@/constants/typography';
 
 export default function OtpScreen() {
   const authEmail = useAppStore((state) => state.authEmail);
@@ -15,20 +21,127 @@ export default function OtpScreen() {
 
   const onContinue = async () => {
     await authService.verifyCode(authEmail, otpCode || '8284');
-    router.push('/payment');
+    router.replace('/payment');
   };
 
   return (
-    <Screen header={<PageHeader title="Drill Category" />} contentClassName="pt-8">
-      <Text className="text-[40px] font-bold leading-[44px] text-navy">Verify Code</Text>
-      <Text className="mt-2 text-lg text-navyMuted">Enter the 4-digit code sent to your email</Text>
-      <View className="mt-8">
-        <OTPInput length={4} onChange={setOtpCode} value={otpCode} />
-      </View>
-      <Text className="mt-5 text-center text-sm text-navyMuted">Didn’t receive the code? Resend</Text>
-      <View className="mt-6">
-        <Button label="Continue" onPress={onContinue} />
-      </View>
-    </Screen>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: '#FAF4EA' }}
+      edges={['top', 'left', 'right']}
+    >
+      <PageHeader title="Verification" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+      >
+        <View style={{ flex: 1, paddingHorizontal: 18, paddingTop: 10 }}>
+          {/* Logo Section */}
+          <View style={{ alignItems: 'center', marginTop: 10, marginBottom: 24 }}>
+            <LogoMark height={100} width={100} />
+            <Text
+              style={{
+                marginTop: 16,
+                fontSize: 28,
+                fontWeight: '900',
+                color: '#0C1F4A',
+                textTransform: 'uppercase',
+                fontFamily: typography.family.serif,
+                textAlign: 'center',
+              }}
+            >
+              Verify Code
+            </Text>
+            <Text
+              style={{
+                marginTop: 12,
+                fontSize: 16,
+                color: '#7D869A',
+                textAlign: 'center',
+                lineHeight: 24,
+              }}
+            >
+              Enter the 4-digit code sent to{'\n'}
+              <Text style={{ fontWeight: '700', color: '#0C1F4A' }}>{authEmail || 'your email'}</Text>
+            </Text>
+          </View>
+
+          {/* Form Card */}
+          <View
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 24,
+              padding: 24,
+              shadowColor: '#000',
+              shadowOpacity: 0.1,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 4,
+              borderWidth: 1,
+              borderColor: '#F0E8DB',
+            }}
+          >
+            <OTPInput length={4} onChange={setOtpCode} value={otpCode} />
+
+            <View style={{ marginTop: 24, alignItems: 'center' }}>
+              <Text style={{ fontSize: 14, color: '#7D869A' }}>
+                Didn’t receive the code?
+              </Text>
+              <Pressable onPress={() => {}}>
+                <Text
+                  style={{
+                    marginTop: 6,
+                    color: '#E35D21',
+                    fontWeight: '700',
+                  }}
+                >
+                  Resend Code
+                </Text>
+              </Pressable>
+            </View>
+
+            <Pressable
+              disabled={!otpCode || otpCode.length < 4}
+              onPress={onContinue}
+              style={{
+                marginTop: 24,
+                height: 56,
+                borderRadius: 28,
+                backgroundColor: '#0C1F4A',
+                justifyContent: 'center',
+                alignItems: 'center',
+                opacity: (!otpCode || otpCode.length < 4) ? 0.6 : 1,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '800',
+                  color: '#FFFFFF',
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                }}
+              >
+                Continue to Payment
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Bottom Help */}
+          <View style={{ marginTop: 20, alignItems: 'center' }}>
+            <Pressable onPress={() => router.back()}>
+              <Text
+                style={{
+                  color: '#7D869A',
+                  fontWeight: '600',
+                  textDecorationLine: 'underline',
+                }}
+              >
+                Change Email Address
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }

@@ -19,7 +19,15 @@ export function OTPInput({ value, onChange, length = 4 }: OtpInputProps) {
           ref={(ref) => {
             refs.current[index] = ref;
           }}
-          className="h-16 flex-1 rounded-[18px] border border-[#E8DED0] bg-surface text-center text-2xl font-bold text-navy"
+          className="h-16 flex-1 rounded-[16px] border border-[#F0E8DB] bg-[#FFFFFF] text-center text-2xl font-black text-[#0C1F4A]"
+          underlineColorAndroid="transparent"
+          style={{
+            shadowColor: '#000',
+            shadowOpacity: 0.05,
+            shadowRadius: 5,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 2,
+          }}
           keyboardType="number-pad"
           maxLength={1}
           onChangeText={(nextDigit) => {
