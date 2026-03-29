@@ -31,7 +31,7 @@ export default function DrillCategoryScreen() {
       const categoryCache = await drillsService.getCategory(routeSlug);
       return categoryCache ? drillsService.getDrillsByCategory(categoryCache.name) : [];
     },
-    staleTime: 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   if (categoryQuery.isLoading || drillsQuery.isLoading || !categoryQuery.data) {

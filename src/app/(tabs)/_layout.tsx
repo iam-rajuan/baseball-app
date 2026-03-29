@@ -5,6 +5,7 @@ import { View } from 'react-native';
 export default function TabsLayout() {
   return (
     <Tabs
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         animation: 'none',
@@ -88,24 +89,6 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="stats"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="drills/category/[slug]"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="situations/[id]"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="drills/detail/[id]"
         options={{
           href: null,
         }}

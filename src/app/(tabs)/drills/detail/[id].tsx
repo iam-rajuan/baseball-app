@@ -21,6 +21,7 @@ export default function DrillDetailScreen() {
   const { data, isLoading } = useQuery({
     queryKey: ['drill', routeId],
     queryFn: () => drillsService.getById(routeId),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   if (isLoading) {
