@@ -43,7 +43,7 @@ export function PageHeader({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: isSection ? 16 : 20,
-        paddingVertical: isSection ? 10 : 10,
+        paddingVertical: isSection ? 7 : 10,
       }}
       >
         <View style={{ width: 36 }}>

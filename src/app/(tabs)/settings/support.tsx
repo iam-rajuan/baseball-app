@@ -31,8 +31,9 @@ export default function SupportScreen() {
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="Help & support" variant="section" />
       <ScrollView
+        style={{ backgroundColor: '#F4E7D5' }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: 110, backgroundColor: '#F4E7D5' }}
       >
         {/* Illustration */}
         <View style={{ alignItems: 'center', paddingTop: 20, paddingBottom: 4 }}>
@@ -46,7 +47,7 @@ export default function SupportScreen() {
               marginTop: 8,
               fontSize: 15,
               fontWeight: '700',
-              color: '#F5CA7B',
+              color: '#5A4B3D',
               textAlign: 'center',
             }}
           >
