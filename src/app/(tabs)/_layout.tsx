@@ -104,6 +104,12 @@ export default function TabsLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="drills/detail/[id]"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
