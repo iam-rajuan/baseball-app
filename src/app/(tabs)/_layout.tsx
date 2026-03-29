@@ -62,7 +62,7 @@ export default function TabsLayout() {
         options={{
           title: 'Situations',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons color={color} name={focused ? 'reorder-three' : 'reorder-three-outline'} size={28} />
+            <Ionicons color={color} name={focused ? 'list' : 'list-outline'} size={26} />
           ),
         }}
       />
