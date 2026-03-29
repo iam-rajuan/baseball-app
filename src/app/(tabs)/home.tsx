@@ -98,8 +98,8 @@ export default function HomeScreen() {
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
               <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
             ))}
-            {['20%', '40%', '60%', '80%'].map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left, width: 1, backgroundColor: '#EAD9C0' }} />
+            {(['20%', '40%', '60%', '80%'] as const).map(left => (
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
             ))}
           </View>
 

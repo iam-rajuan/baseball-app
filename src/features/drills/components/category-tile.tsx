@@ -1,8 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
-import { Badge } from '@/components/badge';
-import { Card } from '@/components/card';
+import { typography } from '@/constants/typography';
 import type { DrillCategory } from '@/types';
 
 type CategoryTileProps = {
@@ -10,24 +9,65 @@ type CategoryTileProps = {
   onPress: () => void;
 };
 
+/**
+ * Pixel-Perfect Drill Category Tile (Reverted to White Card Spec)
+ * - Brand Serif typography for headings
+ * - Clean white card background with premium shadow
+ * - High-round corners (36px) as per design spec
+ */
+
+const iconMap: Record<string, string> = {
+  hitting: 'baseball',
+  'base-running': 'walk',
+  pitching: 'speedometer-outline',
+  infield: 'apps-outline',
+  outfield: 'radio-outline',
+  catcher: 'shield-outline',
+};
+
 export function CategoryTile({ item, onPress }: CategoryTileProps) {
+  const iconName = iconMap[item.id] || 'fitness-outline';
+
   return (
-    <Pressable onPress={onPress}>
-      <Card>
-        <View className="flex-row items-center gap-4">
-          <View className="h-11 w-11 items-center justify-center rounded-full bg-orangeSoft">
-            <Ionicons color="#F46A12" name={item.accentIcon as never} size={18} />
-          </View>
-          <View className="flex-1">
-            <Text className="text-lg font-bold text-navy">{item.name}</Text>
-            <Text className="mt-1 text-sm leading-5 text-navyMuted">{item.subtitle}</Text>
-          </View>
-          <View className="items-end gap-2">
-            <Badge label={`${item.numberOfDrills} drills`} />
-            {item.accessLevel === 'premium' ? <Badge label="locked" tone="default" /> : null}
-          </View>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        {
+          backgroundColor: '#FFFFFF', // Reverted to clean white as per original design
+          borderRadius: 36,
+          paddingHorizontal: 28,
+          paddingVertical: 32,
+          marginBottom: 24,
+          shadowColor: '#000',
+          shadowOpacity: 0.045,
+          shadowRadius: 15,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 3,
+          opacity: pressed ? 0.96 : 1,
+          transform: [{ scale: pressed ? 0.985 : 1 }],
+        },
+      ]}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
+        {/* Category Icon */}
+        <Ionicons color="#8B340B" name={iconName as any} size={36} />
+
+        {/* Drill Count Badge */}
+        <View style={{ backgroundColor: '#4D5D7C', paddingHorizontal: 14, paddingVertical: 7, borderRadius: 999 }}>
+          <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+            {`${item.numberOfDrills} drills`}
+          </Text>
         </View>
-      </Card>
+      </View>
+
+      <View>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#1A1A1A', fontFamily: typography.family.serif, marginBottom: 8 }}>
+          {item.name}
+        </Text>
+        <Text style={{ fontSize: 15.5, lineHeight: 23, color: '#6A563E', fontWeight: '400', maxWidth: '95%' }}>
+          {item.subtitle}
+        </Text>
+      </View>
     </Pressable>
   );
 }
