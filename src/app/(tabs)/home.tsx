@@ -80,8 +80,19 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* ===== TOP HEADER BAR ===== */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 12 }}>
+
+        {/* ═══════ NAVBAR ═══════ */}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 16,
+            paddingTop: 10,
+            paddingBottom: 10,
+          }}
+        >
           <View>
             <Text
               style={{
@@ -101,44 +112,46 @@ export default function HomeScreen() {
                 color: '#1F3A5F',
                 textTransform: 'uppercase',
                 letterSpacing: 1.2,
-                marginTop: 0,
+                marginTop: 1,
               }}
             >
               Baseball Academy
             </Text>
           </View>
-          <Pressable style={{ height: 40, width: 40, alignItems: 'center', justifyContent: 'center' }}>
+          <Pressable
+            style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}
+          >
             <Ionicons color="#1F3A5F" name="search" size={20} />
           </Pressable>
         </View>
 
-        {/* ===== HERO SECTION ===== */}
-        <View className="relative overflow-hidden" style={{ backgroundColor: '#F6EEDB' }}>
-          {/* Background grid pattern */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.4 }}>
+        {/* ═══════ HERO SECTION ═══════ */}
+        <View style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F6EEDB' }}>
+          {/* Grid pattern overlay */}
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
             <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 84, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 168, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 252, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 336, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 420, height: 1, backgroundColor: '#E6D5B8' }} />
-            <View style={{ position: 'absolute', left: 0, right: 0, top: 504, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 80, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 160, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 240, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 320, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 400, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 480, height: 1, backgroundColor: '#E6D5B8' }} />
             <View style={{ position: 'absolute', top: 0, bottom: 0, left: '20%', width: 1, backgroundColor: '#EAD9C0' }} />
             <View style={{ position: 'absolute', top: 0, bottom: 0, left: '40%', width: 1, backgroundColor: '#EAD9C0' }} />
             <View style={{ position: 'absolute', top: 0, bottom: 0, left: '60%', width: 1, backgroundColor: '#EAD9C0' }} />
             <View style={{ position: 'absolute', top: 0, bottom: 0, left: '80%', width: 1, backgroundColor: '#EAD9C0' }} />
           </View>
 
-          <View style={{ paddingHorizontal: 16, paddingBottom: 32, paddingTop: 24 }}>
-            {/* Subheading */}
+          <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 }}>
+            {/* Eyebrow */}
             <Text
               style={{
                 textAlign: 'center',
-                fontSize: 13,
-                lineHeight: 18,
-                fontWeight: '600',
+                fontSize: 11,
+                lineHeight: 14,
+                fontWeight: '700',
                 color: '#6A563E',
-                letterSpacing: 1.3,
+                letterSpacing: 1.5,
                 textTransform: 'uppercase',
               }}
             >
@@ -148,12 +161,12 @@ export default function HomeScreen() {
             {/* Main Heading */}
             <Text
               style={{
-                marginTop: 6,
+                marginTop: 4,
                 textAlign: 'center',
-                fontSize: 42,
+                fontSize: 40,
                 fontWeight: '900',
                 textTransform: 'uppercase',
-                lineHeight: 44,
+                lineHeight: 42,
                 color: '#1A1A1A',
                 fontFamily: 'serif',
               }}
@@ -162,56 +175,102 @@ export default function HomeScreen() {
             </Text>
 
             {/* Logo */}
-            <View className="mt-4 items-center">
-              <HomeLogo height={128} width={160} />
+            <View style={{ marginTop: 12, alignItems: 'center' }}>
+              <HomeLogo height={110} width={138} />
             </View>
 
-            {/* Pick Random button */}
+            {/* Pick Random */}
             <Pressable
-              style={{ marginTop: 24, height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center' }}
+              style={{
+                marginTop: 20,
+                height: 46,
+                borderRadius: 999,
+                backgroundColor: '#E35D21',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
               onPress={openRandomSituation}
             >
-              <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Pick Random</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>
+                Pick Random
+              </Text>
             </Pressable>
 
-            {/* Browse All button */}
+            {/* Browse All */}
             <Pressable
-              style={{ marginTop: 10, height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center' }}
+              style={{
+                marginTop: 10,
+                height: 46,
+                borderRadius: 999,
+                backgroundColor: '#E35D21',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
               onPress={() => router.push('/(tabs)/situations')}
             >
-              <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Browse All 40</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>
+                Browse All 40
+              </Text>
             </Pressable>
           </View>
         </View>
 
-        {/* ===== FEATURED SITUATION SLIDER ===== */}
-        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingBottom: 24 }}>
-          <View className="mb-3 flex-row items-center justify-between">
-            <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>
+        {/* ═══════ FEATURED SITUATION ═══════ */}
+        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
+          {/* Section header */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: '700',
+                letterSpacing: 1.0,
+                color: '#9F927A',
+                textTransform: 'uppercase',
+              }}
+            >
               Featured Situation
             </Text>
-            <View className="flex-row gap-2">
+            <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable
-                className="h-8 w-8 items-center justify-center rounded-full border border-[#E6D8BF] bg-white"
+                style={{
+                  height: 30,
+                  width: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 15,
+                  borderWidth: 1,
+                  borderColor: '#E6D8BF',
+                  backgroundColor: '#FFFFFF',
+                }}
                 disabled={activeSlide === 0}
                 onPress={() => scrollToSlide('prev')}
               >
-                <Ionicons color={activeSlide === 0 ? '#D0C4AF' : '#D66A1D'} name="chevron-back" size={16} />
+                <Ionicons color={activeSlide === 0 ? '#D0C4AF' : '#D66A1D'} name="chevron-back" size={14} />
               </Pressable>
               <Pressable
-                className="h-8 w-8 items-center justify-center rounded-full border border-[#E6D8BF] bg-white"
+                style={{
+                  height: 30,
+                  width: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 15,
+                  borderWidth: 1,
+                  borderColor: '#E6D8BF',
+                  backgroundColor: '#FFFFFF',
+                }}
                 disabled={activeSlide === sliderItems.length - 1}
                 onPress={() => scrollToSlide('next')}
               >
                 <Ionicons
                   color={activeSlide === sliderItems.length - 1 ? '#D0C4AF' : '#D66A1D'}
                   name="chevron-forward"
-                  size={16}
+                  size={14}
                 />
               </Pressable>
             </View>
           </View>
 
+          {/* Slider */}
           <FlatList
             ref={sliderRef}
             data={sliderItems}
@@ -226,20 +285,51 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <Pressable
                 onPress={() => router.push(`/situations/${item.id}`)}
-                style={{ width: slideWidth, marginRight: 12, borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingVertical: 20, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}
+                style={{
+                  width: slideWidth,
+                  marginRight: 12,
+                  borderRadius: 20,
+                  backgroundColor: '#FFFFFF',
+                  paddingHorizontal: 18,
+                  paddingVertical: 16,
+                  shadowColor: '#000',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 10,
+                  shadowOffset: { width: 0, height: 3 },
+                  elevation: 2,
+                }}
               >
-                <View className="flex-row items-center gap-4">
-                  <View className="items-center">
-                    <View className="h-[52px] w-[52px] items-center justify-center rounded-full bg-[#76B45D]">
-                      <Text className="text-[13px] font-bold uppercase text-white">{item.shortLabel}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+                  <View style={{ alignItems: 'center' }}>
+                    <View
+                      style={{
+                        height: 48,
+                        width: 48,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 24,
+                        backgroundColor: '#76B45D',
+                      }}
+                    >
+                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF', textTransform: 'uppercase' }}>
+                        {item.shortLabel}
+                      </Text>
                     </View>
-                    <View className="mt-1 h-[5px] w-[5px] rounded-full bg-[#76B45D]" />
+                    <View style={{ marginTop: 4, height: 5, width: 5, borderRadius: 3, backgroundColor: '#76B45D' }} />
                   </View>
-                  <View className="flex-1">
-                    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 0.9, color: '#B6BCD0', textTransform: 'uppercase' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={{
+                        fontSize: 9,
+                        fontWeight: '700',
+                        letterSpacing: 0.9,
+                        color: '#B6BCD0',
+                        textTransform: 'uppercase',
+                      }}
+                    >
                       Featured Situation
                     </Text>
-                    <Text style={{ marginTop: 2, fontSize: 22, fontWeight: '700', lineHeight: 26, color: '#21314F' }}>
+                    <Text style={{ marginTop: 2, fontSize: 21, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>
                       {item.title}
                     </Text>
                   </View>
@@ -249,14 +339,44 @@ export default function HomeScreen() {
           />
         </View>
 
-        {/* ===== SPECIFIC SITUATIONS ===== */}
-        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingBottom: 24, paddingTop: 24 }}>
-          <Text style={{ marginBottom: 12, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>
+        {/* ═══════ SPECIFIC SITUATIONS ═══════ */}
+        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
+          <Text
+            style={{
+              marginBottom: 10,
+              fontSize: 10,
+              fontWeight: '700',
+              letterSpacing: 1.0,
+              color: '#9F927A',
+              textTransform: 'uppercase',
+            }}
+          >
             Specific Situations
           </Text>
 
-          <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingBottom: 24, paddingTop: 20, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}>
-            <Text style={{ textAlign: 'center', fontSize: 20, fontWeight: '700', lineHeight: 26, color: '#21314F' }}>
+          <View
+            style={{
+              borderRadius: 20,
+              backgroundColor: '#FFFFFF',
+              paddingHorizontal: 18,
+              paddingBottom: 20,
+              paddingTop: 18,
+              shadowColor: '#000',
+              shadowOpacity: 0.05,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 3 },
+              elevation: 2,
+            }}
+          >
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 19,
+                fontWeight: '700',
+                lineHeight: 25,
+                color: '#21314F',
+              }}
+            >
               {specificSituation.title}
             </Text>
 
@@ -264,22 +384,25 @@ export default function HomeScreen() {
               <Image
                 contentFit="contain"
                 source={specificSituationImage}
-                style={{ width: '100%', height: 230, marginTop: 16 }}
+                style={{ width: '100%', height: 220, marginTop: 14 }}
               />
             </Pressable>
 
-            <View style={{ marginTop: 16, gap: 5 }}>
+            <View style={{ marginTop: 14, gap: 4 }}>
               {bulletItems.map((instruction) => (
-                <Text key={instruction.player} style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}>
-                  <Text style={{ fontWeight: '700', color: '#1E2438' }}>{instruction.player}: </Text>
+                <Text
+                  key={instruction.player}
+                  style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}
+                >
+                  <Text style={{ fontWeight: '700' }}>{instruction.player}: </Text>
                   {instruction.detail}
                 </Text>
               ))}
             </View>
           </View>
         </View>
+
       </ScrollView>
     </View>
   );
 }
-
