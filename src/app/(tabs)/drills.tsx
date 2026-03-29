@@ -24,7 +24,7 @@ export default function DrillsScreen() {
 
   if (isLoading || !data) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View className="flex-1 bg-[#FAF4EA]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
@@ -33,7 +33,7 @@ export default function DrillsScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
+    <View className="flex-1 bg-[#FAF4EA]" style={{ paddingTop: statusBarHeight }}>
       {/* ═══════ HEADER ═══════ */}
       <View
         style={{
@@ -72,17 +72,17 @@ export default function DrillsScreen() {
             ))}
           </View>
 
-          <Animated.View entering={SlideInDown.duration(600).springify().damping(18)} style={{ paddingHorizontal: 20, paddingTop: 20 }}>
+          <Animated.View entering={SlideInDown.duration(600).springify().damping(18)} style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
             {/* Top Eyebrow Section */}
             <View style={{ marginBottom: 28 }}>
               <Text
                 style={{
                   fontSize: 10,
                   fontWeight: '700',
-                  color: '#9F927A',
-                  letterSpacing: 1.0,
+                  color: '#C2410C',
+                  letterSpacing: 1.5,
                   textTransform: 'uppercase',
-                  marginBottom: 4
+                  marginBottom: 6
                 }}
               >
                 Practice Drills
@@ -99,15 +99,7 @@ export default function DrillsScreen() {
               >
                 Train By Category
               </Text>
-              <Text
-                style={{
-                  marginTop: 12,
-                  fontSize: 14,
-                  lineHeight: 22,
-                  color: '#6A563E',
-                  fontWeight: '400'
-                }}
-              >
+              <Text className="mt-3 text-[15px] leading-[24px] text-[#6A563E] font-normal">
                 {`Start with the included drill library, then unlock\npremium position-specific work and expanded drill packs with in-app purchases.`}
               </Text>
             </View>

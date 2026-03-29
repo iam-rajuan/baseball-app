@@ -31,43 +31,25 @@ export function CategoryTile({ item, onPress }: CategoryTileProps) {
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [
-        {
-          backgroundColor: '#FFFDFC',
-          borderRadius: 30,
-          borderWidth: 1.5,
-          borderColor: '#D9D1C3',
-          paddingHorizontal: 24,
-          paddingTop: 22,
-          paddingBottom: 24,
-          marginBottom: 20,
-          shadowColor: '#000',
-          shadowOpacity: 0.04,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 2,
-          opacity: pressed ? 0.96 : 1,
-          transform: [{ scale: pressed ? 0.985 : 1 }],
-        },
-      ]}
+      className="bg-white rounded-[20px] p-5 mb-4 shadow-sm active:opacity-95 active:scale-[0.985]"
     >
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18 }}>
+      <View className="flex-row justify-between items-start mb-3">
         {/* Category Icon */}
-        <Ionicons color="#A34712" name={iconName as any} size={30} />
+        <Ionicons color="#C2410C" name={iconName as any} size={28} />
 
         {/* Drill Count Badge */}
-        <View style={{ backgroundColor: '#546686', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 }}>
-          <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' }}>
-            {`${item.numberOfDrills} drills`}
+        <View className="bg-[#3F4E6B] px-3 py-1 rounded-full">
+          <Text className="text-white text-[12px] font-bold uppercase">
+            {`${item.numberOfDrills} DRILLS`}
           </Text>
         </View>
       </View>
 
       <View>
-        <Text style={{ fontSize: 30, fontWeight: '900', color: '#1E1A17', fontFamily: typography.family.serif, marginBottom: 10 }}>
+        <Text style={{ fontFamily: typography.family.serif }} className="text-[20px] font-semibold text-[#1F2937] mb-1">
           {item.name}
         </Text>
-        <Text style={{ fontSize: 15, lineHeight: 22, color: '#665C4E', fontWeight: '400', maxWidth: '96%' }}>
+        <Text className="text-[14px] leading-[22px] text-[#6B7280]">
           {item.subtitle}
         </Text>
       </View>
