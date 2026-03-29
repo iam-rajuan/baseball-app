@@ -1,12 +1,16 @@
 import { Text, View } from 'react-native';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { Card } from '@/components/card';
 import { Screen } from '@/components/layout/screen';
 import { Section } from '@/components/section';
 
 export default function StatsScreen() {
+  const insets = useSafeAreaInsets();
+  
   return (
-    <Screen contentClassName="pt-4">
+    <Screen contentClassName="pt-4" contentStyle={{ paddingTop: insets.top + 16 }}>
       <Section eyebrow="Performance Tracking" title="Stats">
         <Text className="text-sm leading-6 text-navyMuted">
           Placeholder analytics styled to match the academy dashboard until live backend metrics are connected.

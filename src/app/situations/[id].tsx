@@ -52,9 +52,9 @@ export default function SituationDetailsScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
       {/* ═ HEADER ═ */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
+      <View style={{ paddingTop: statusBarHeight, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
         <Pressable onPress={() => router.back()} style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons color="#1F3A5F" name="chevron-back" size={24} />
         </Pressable>
@@ -72,8 +72,8 @@ export default function SituationDetailsScreen() {
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
               <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
             ))}
-            {['20%', '40%', '60%', '80%'].map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left, width: 1, backgroundColor: '#EAD9C0' }} />
+            {(['20%', '40%', '60%', '80%'] as const).map(left => (
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
             ))}
           </View>
 

@@ -26,24 +26,24 @@ export default function DrillDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
+      <View className="flex-1 bg-background">
         <PageHeader title="Drill Details" />
         <Loader />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!data) {
     return (
-      <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
+      <View className="flex-1 bg-background">
         <PageHeader title="Drill Details" />
         <EmptyState title="Drill unavailable" description="This drill could not be found." />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface" edges={['top', 'left', 'right']}>
+    <View className="flex-1 bg-background">
       <PageHeader title="Drill Details" />
       <ScrollView showsVerticalScrollIndicator={false} className="bg-background" contentContainerStyle={{ paddingBottom: 60 }}>
         <DrillBanner />
@@ -106,7 +106,7 @@ export default function DrillDetailScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
