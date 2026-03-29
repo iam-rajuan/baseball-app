@@ -134,8 +134,8 @@ export default function HomeScreen() {
             <Text
               style={{
                 textAlign: 'center',
-                fontSize: 11,
-                lineHeight: 16,
+                fontSize: 13,
+                lineHeight: 18,
                 fontWeight: '600',
                 color: '#6A563E',
                 letterSpacing: 1.3,
@@ -150,10 +150,10 @@ export default function HomeScreen() {
               style={{
                 marginTop: 6,
                 textAlign: 'center',
-                fontSize: 34,
+                fontSize: 42,
                 fontWeight: '900',
                 textTransform: 'uppercase',
-                lineHeight: 36,
+                lineHeight: 44,
                 color: '#1A1A1A',
                 fontFamily: 'serif',
               }}
@@ -163,7 +163,7 @@ export default function HomeScreen() {
 
             {/* Logo */}
             <View className="mt-4 items-center">
-              <HomeLogo height={96} width={120} />
+              <HomeLogo height={128} width={160} />
             </View>
 
             {/* Pick Random button */}
