@@ -156,6 +156,21 @@ export const drills: Drill[] = [
     image: 'contact',
   },
   {
+    id: 'connection-ball-drill',
+    name: 'Connection Ball Drill',
+    category: 'Hitting',
+    description: 'Maintain proper arm structure and body-barrel connection during the turn.',
+    steps: [
+      'Place the connection ball in the trailing arm pit.',
+      'Execute a full turn without dropping the ball until extension.',
+      'Focus on rotational power and staying "inside" the ball.',
+    ],
+    equipment: ['Bat', 'Connection ball', 'Tee or front-toss'],
+    focusPoints: ['Arm structure', 'Rotational sequence', 'Compact turn'],
+    accessLevel: 'free',
+    image: 'connection',
+  },
+  {
     id: 'target-smash-drill',
     name: 'Target Smash Drill',
     category: 'Hitting',

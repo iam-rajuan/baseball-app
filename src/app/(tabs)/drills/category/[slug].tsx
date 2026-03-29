@@ -26,11 +26,12 @@ export default function DrillCategoryScreen() {
   });
 
   const drillsQuery = useQuery({
-    queryKey: ['drill-list', routeSlug],
+    queryKey: ['drill-list', routeSlug, 'v1'], // Bumped key to bust cache
     queryFn: async () => {
-      const category = await drillsService.getCategory(routeSlug);
-      return category ? drillsService.getDrillsByCategory(category.name) : [];
+      const categoryCache = await drillsService.getCategory(routeSlug);
+      return categoryCache ? drillsService.getDrillsByCategory(categoryCache.name) : [];
     },
+    staleTime: 0,
   });
 
   if (categoryQuery.isLoading || drillsQuery.isLoading || !categoryQuery.data) {
@@ -105,19 +106,25 @@ export default function DrillCategoryScreen() {
               </View>
 
               <View style={{ gap: 12 }}>
-                {drills.filter(d => d.accessLevel === 'free').map((drill, index) => (
-                  <Pressable 
-                    key={drill.id} 
-                    onPress={() => router.push(`/drills/detail/${drill.id}`)}
-                    style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
-                  >
-                    <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FAF4EA', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
-                      <Ionicons name="baseball-outline" size={20} color="#C2410C" />
-                    </View>
-                    <Text style={{ flex: 1, fontSize: 17, fontWeight: '700', color: '#1F2937' }}>{drill.name}</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#CBD2E0" />
-                  </Pressable>
-                ))}
+                {drills.filter(d => d.accessLevel === 'free').map((drill, index) => {
+                  let iconName: any = 'baseball-outline';
+                  if (drill.id === 'soccer-ball-drill') iconName = 'ellipse-outline';
+                  if (drill.id === 'connection-ball-drill') iconName = 'link';
+
+                  return (
+                    <Pressable 
+                      key={drill.id} 
+                      onPress={() => router.push(`/drills/detail/${drill.id}`)}
+                      style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
+                    >
+                      <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FAF4EA', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                        <Ionicons name={iconName} size={20} color="#C2410C" />
+                      </View>
+                      <Text style={{ flex: 1, fontSize: 17, fontWeight: '700', color: '#1F2937' }}>{drill.name}</Text>
+                      <Ionicons name="chevron-forward" size={18} color="#CBD2E0" />
+                    </Pressable>
+                  );
+                })}
               </View>
             </View>
 
