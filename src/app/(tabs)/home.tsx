@@ -78,25 +78,67 @@ export default function HomeScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        {/* ===== NAVBAR ===== */}
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10 }}>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+      {/* ===== NAVBAR (Fixed) ===== */}
+      <View
+        style={{
+          paddingTop: statusBarHeight,
+          backgroundColor: '#FFFFFF',
+          borderBottomWidth: 1,
+          borderColor: '#EFE7D9',
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+          }}
+        >
           <View>
-            <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F3A5F', fontFamily: 'serif', fontStyle: 'italic' }}>Marietta</Text>
-            <Text style={{ fontSize: 10, fontWeight: '600', color: '#1F3A5F', textTransform: 'uppercase', letterSpacing: 1.2, marginTop: 1 }}>Baseball Academy</Text>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: '#0C1F4A',
+                fontFamily: 'serif',
+                fontStyle: 'italic',
+              }}
+            >
+              Marietta
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: '600',
+                color: '#0C1F4A',
+                textTransform: 'uppercase',
+                letterSpacing: 1.2,
+                marginTop: 1,
+              }}
+            >
+              Baseball Academy
+            </Text>
           </View>
           <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons color="#1F3A5F" name="search" size={20} />
+            <Ionicons color="#0C1F4A" name="search" size={20} />
           </Pressable>
         </View>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
 
         {/* ===== HERO SECTION ===== */}
-        <View style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F6EEDB' }}>
+        <View style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#FAF4EA' }}>
           {/* Grid pattern */}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#EAD9C0' }} />
             ))}
             {(['20%', '40%', '60%', '80%'] as const).map(left => (
               <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
@@ -117,7 +159,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== FEATURED SITUATION ===== */}
-        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
+        <View style={{ backgroundColor: '#FAF4EA', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>Featured Situation</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -161,7 +203,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== SPECIFIC SITUATIONS ===== */}
-        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
+        <View style={{ backgroundColor: '#FAF4EA', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
           <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>Specific Situations</Text>
           {specificSituation && (
             <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>

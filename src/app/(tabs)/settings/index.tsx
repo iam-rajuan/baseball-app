@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PageHeader } from '@/components/layout/page-header';
@@ -31,12 +31,11 @@ const menuItems = [
 
 export default function SettingsScreen() {
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
+    <View className="flex-1 bg-background">
       <PageHeader title="SETTINGS" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
-        style={{ flex: 1, backgroundColor: '#FAF4EA' }}
       >
         {/* Logo Section */}
         <View style={{ alignItems: 'center', paddingTop: 28, paddingBottom: 10 }}>
@@ -148,6 +147,6 @@ export default function SettingsScreen() {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

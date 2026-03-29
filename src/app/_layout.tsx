@@ -7,6 +7,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
+import * as NavigationBar from 'expo-navigation-bar';
+import { Platform, View } from 'react-native';
+
 import { queryClient } from '@/lib/query-client';
 import { navigationTheme } from '@/theme';
 
@@ -15,12 +18,17 @@ SplashScreen.preventAutoHideAsync().catch(() => null);
 export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => null);
+
+    if (Platform.OS === 'android') {
+      NavigationBar.setBackgroundColorAsync('#F7F7F5');
+      NavigationBar.setButtonStyleAsync('dark');
+    }
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={navigationTheme}>
-        <StatusBar style="light" />
+        <StatusBar style="dark" backgroundColor="#FFFFFF" />
         <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="(tabs)" />

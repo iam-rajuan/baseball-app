@@ -22,9 +22,9 @@ export function Screen({
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
+    <View className="flex-1 bg-background">
       {header}
       {scrollable ? <ScrollView showsVerticalScrollIndicator={false}>{content}</ScrollView> : content}
-    </SafeAreaView>
+    </View>
   );
 }

@@ -6,12 +6,11 @@ import { PageHeader } from '@/components/layout/page-header';
 
 export default function AboutScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF4EA' }} edges={['top', 'left', 'right']}>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
       <PageHeader title="About Us" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
-        style={{ flex: 1, backgroundColor: '#FAF4EA' }}
       >
         {/* Logo + Name + Version */}
         <View style={{ alignItems: 'center', paddingTop: 28 }}>
@@ -212,6 +211,6 @@ export default function AboutScreen() {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

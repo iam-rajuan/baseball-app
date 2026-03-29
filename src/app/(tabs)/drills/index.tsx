@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import {
   Platform,
@@ -33,10 +34,11 @@ export default function DrillsScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View className="flex-1 bg-[#FAF4EA]" style={{ paddingTop: statusBarHeight }}>
+    <View className="flex-1 bg-[#FAF4EA]">
       {/* ═══════ HEADER ═══════ */}
       <View
         style={{
+          paddingTop: statusBarHeight,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -131,91 +133,135 @@ export default function DrillsScreen() {
               ))}
             </View>
 
-            {/* Unlock All Premium Section */}
+            {/* Unlock All Premium Section (Glassmorphism) */}
             <View
               style={{
                 marginTop: 20,
                 borderRadius: 24,
-                backgroundColor: '#FFFFFF',
-                paddingHorizontal: 20,
-                paddingVertical: 24,
-                alignItems: 'center',
+                overflow: 'hidden',
+                backgroundColor: '#FAF4EA',
+                borderWidth: 1.5,
+                borderColor: 'rgba(255,255,255,0.85)',
                 shadowColor: '#000',
-                shadowOpacity: 0.05,
-                shadowRadius: 15,
-                shadowOffset: { width: 0, height: 6 },
-                elevation: 4
+                shadowOpacity: 0.08,
+                shadowRadius: 20,
+                shadowOffset: { width: 0, height: 10 },
+                elevation: 6,
+                position: 'relative',
               }}
             >
+              {/* Background Teaser Content */}
+              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 20, paddingHorizontal: 20, opacity: 0.35 }}>
+                {['Velocity Shredder', "Catcher's Framing Pro", 'Elite Arm Care', 'Advanced Pitch Tunnelling', 'Situational Defense'].map((item, i) => (
+                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
+                    <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                      <Ionicons name="lock-closed" size={18} color="#A0AABF" />
+                    </View>
+                    <Text style={{ flex: 1, fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>{item}</Text>
+                    <Ionicons name="chevron-forward" size={18} color="#A0AABF" />
+                  </View>
+                ))}
+              </View>
+
+              {/* Blur Overlay */}
+              <BlurView
+                intensity={100}
+                tint="light"
+                experimentalBlurMethod="dimezisBlurView"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: 'rgba(255,255,255,0.55)'
+                }}
+              />
+
+              {/* Foreground Content */}
               <View
                 style={{
-                  height: 52,
-                  width: 52,
-                  borderRadius: 26,
-                  backgroundColor: '#E35D21',
+                  paddingHorizontal: 20,
+                  paddingVertical: 32,
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 16
+                  justifyContent: 'center'
                 }}
               >
-                <Ionicons color="#FFFFFF" name="lock-closed" size={24} />
-              </View>
-
-              <Text
-                style={{
-                  textAlign: 'center',
-                  fontSize: 28,
-                  fontWeight: '900',
-                  lineHeight: 32,
-                  color: '#1A1A1A',
-                  fontFamily: typography.family.serif,
-                  textTransform: 'uppercase'
-                }}
-              >
-                {`Unlock All\nPremium Drills`}
-              </Text>
-
-              <Text
-                style={{
-                  marginTop: 12,
-                  textAlign: 'center',
-                  fontSize: 13,
-                  lineHeight: 20,
-                  color: '#7D869A',
-                  fontWeight: '400',
-                  paddingHorizontal: 10
-                }}
-              >
-                {`Unlock every premium drill at once, including premium position categories and all locked drills in the original six categories, for $99.99.`}
-              </Text>
-
-              <View style={{ marginTop: 20, width: '100%', gap: 10 }}>
-                <Pressable
-                  style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center' }}
-                  onPress={() => router.push('/auth/email')}
+                <View
+                  style={{
+                    height: 52,
+                    width: 52,
+                    borderRadius: 26,
+                    backgroundColor: '#E35D21',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 16,
+                    shadowColor: '#E35D21',
+                    shadowOpacity: 0.3,
+                    shadowRadius: 10,
+                    shadowOffset: { width: 0, height: 4 },
+                    elevation: 4
+                  }}
                 >
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>UNLOCK ALL $99.99</Text>
-                </Pressable>
-                <Pressable
-                  style={{ height: 48, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#B6BCD0', justifyContent: 'center', alignItems: 'center' }}
-                  onPress={() => router.push('/auth/email')}
-                >
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F' }}>RESTORE PURCHASES</Text>
-                </Pressable>
-              </View>
+                  <Ionicons color="#FFFFFF" name="lock-closed" size={24} />
+                </View>
 
-              <Text
-                style={{
-                  marginTop: 16,
-                  textAlign: 'center',
-                  fontSize: 10,
-                  fontWeight: '700',
-                  color: '#1F3A5F',
-                  textTransform: 'none'
-                }}
-              >
-                All premium drills were unlocked in demo mode. Connect StoreKit next.
-              </Text>
+                <Text
+                  style={{
+                    textAlign: 'center',
+                    fontSize: 24,
+                    fontWeight: '900',
+                    lineHeight: 28,
+                    color: '#1A1A1A',
+                    fontFamily: typography.family.serif,
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Unlock All{'\n'}Premium Drills
+                </Text>
+
+                <Text
+                  style={{
+                    marginTop: 12,
+                    textAlign: 'center',
+                    fontSize: 13,
+                    lineHeight: 20,
+                    color: '#374151',
+                    fontWeight: '600',
+                    paddingHorizontal: 10
+                  }}
+                >
+                  Unlock every premium drill at once, including position categories and all locked drills in the library, for $99.99.
+                </Text>
+
+                <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
+                  <Pressable
+                    style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
+                    onPress={() => router.push('/auth/email')}
+                  >
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK ALL $99.99</Text>
+                  </Pressable>
+                  <Pressable
+                    style={{ height: 48, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#B6BCD0', justifyContent: 'center', alignItems: 'center' }}
+                    onPress={() => router.push('/auth/email')}
+                  >
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>RESTORE PURCHASES</Text>
+                  </Pressable>
+                </View>
+
+                <Text
+                  style={{
+                    marginTop: 16,
+                    textAlign: 'center',
+                    fontSize: 10,
+                    fontWeight: '700',
+                    color: '#4B5563',
+                    opacity: 0.8
+                  }}
+                >
+                  All premium drills were unlocked in demo mode. Connect StoreKit next.
+                </Text>
+              </View>
             </View>
           </View>
         </View>

@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
@@ -11,7 +12,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
@@ -47,7 +47,7 @@ export default function EmailScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF4EA' }} edges={['top', 'left', 'right']}>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
       <PageHeader title="Sign In" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -58,11 +58,11 @@ export default function EmailScreen() {
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-        <View style={{ flex: 1, paddingHorizontal: 18 }}>
-          {/* Top Spacing + Logo */}
-          <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 24 }}>
-            <LogoMark height={100} width={100} />
-          </View>
+          <View style={{ flex: 1, paddingHorizontal: 18 }}>
+            {/* Top Spacing + Logo */}
+            <View style={{ alignItems: 'center', marginTop: 20, marginBottom: 24 }}>
+              <LogoMark height={100} width={100} />
+            </View>
 
             {/* Title */}
             <Text
@@ -119,8 +119,8 @@ export default function EmailScreen() {
                       borderColor: errors.email
                         ? '#E35D21'
                         : value.length > 0
-                        ? '#0C1F4A'
-                        : '#E8DFD1',
+                          ? '#0C1F4A'
+                          : '#E8DFD1',
                     }}
                   >
                     <Ionicons
@@ -233,7 +233,7 @@ export default function EmailScreen() {
 
             {/* Restore Button */}
             <Pressable
-              onPress={() => {}}
+              onPress={() => { }}
               style={{
                 height: 52,
                 borderRadius: 14,
@@ -267,6 +267,6 @@ export default function EmailScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }

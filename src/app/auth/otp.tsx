@@ -7,12 +7,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { PageHeader } from '@/components/layout/page-header';
 import { OTPInput } from '@/components/form/otp-input';
-import { authService } from '@/services';
-import { useAppStore } from '@/store/app-store';
+import { PageHeader } from '@/components/layout/page-header';
 import { LogoMark } from '@/components/logo-mark';
 import { typography } from '@/constants/typography';
+import { authService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 
 export default function OtpScreen() {
   const authEmail = useAppStore((state) => state.authEmail);
@@ -25,10 +25,7 @@ export default function OtpScreen() {
   };
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: '#FAF4EA' }}
-      edges={['top', 'left', 'right']}
-    >
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
       <PageHeader title="Verification" />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -86,7 +83,7 @@ export default function OtpScreen() {
               <Text style={{ fontSize: 14, color: '#7D869A' }}>
                 Didn’t receive the code?
               </Text>
-              <Pressable onPress={() => {}}>
+              <Pressable onPress={() => { }}>
                 <Text
                   style={{
                     marginTop: 6,
@@ -142,6 +139,6 @@ export default function OtpScreen() {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -20,6 +20,15 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.mariettabaseballacademy"
     },
+    "androidStatusBar": {
+      "backgroundColor": "#FFFFFF",
+      "barStyle": "dark-content",
+      "translucent": true
+    },
+    "androidNavigationBar": {
+      "backgroundColor": "#F7F7F5",
+      "barStyle": "dark-content"
+    },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"

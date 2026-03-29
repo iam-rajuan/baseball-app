@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
+import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
-import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated';
 
 import { Loader } from '@/components/loader';
 import { typography } from '@/constants/typography';
@@ -89,8 +89,8 @@ export default function DrillCategoryScreen() {
 
             {/* Featured Image */}
             <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
-              <Image 
-                source={FEATURED_HITTING_IMAGE} 
+              <Image
+                source={FEATURED_HITTING_IMAGE}
                 style={{ width: '100%', height: 210 }}
                 contentFit="cover"
               />
@@ -112,8 +112,8 @@ export default function DrillCategoryScreen() {
                   if (drill.id === 'connection-ball-drill') iconName = 'link';
 
                   return (
-                    <Pressable 
-                      key={drill.id} 
+                    <Pressable
+                      key={drill.id}
                       onPress={() => router.push(`/drills/detail/${drill.id}`)}
                       style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
                     >
@@ -139,8 +139,8 @@ export default function DrillCategoryScreen() {
 
               <View style={{ gap: 12 }}>
                 {drills.filter(d => d.accessLevel === 'premium').map((drill, index) => (
-                  <Pressable 
-                    key={drill.id} 
+                  <Pressable
+                    key={drill.id}
                     onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/premium')}
                     style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
                   >
@@ -154,18 +154,59 @@ export default function DrillCategoryScreen() {
               </View>
             </View>
 
-            {/* Unlock All Section Card */}
+            {/* Unlock All Section Card (Glassmorphism) */}
             {!isPremium && (
-              <View style={{ marginTop: 12, borderRadius: 28, backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingVertical: 32, alignItems: 'center', shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 6, borderWidth: 1, borderColor: '#F0E8DB' }}>
-                <Text style={{ textAlign: 'center', fontSize: 32, fontWeight: '900', lineHeight: 36, color: '#1A1A1A', fontFamily: typography.family.serif, marginBottom: 16 }}>
-                  Unlock all drills
-                </Text>
-                <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 22, color: '#9CAAC0', fontWeight: '500', marginBottom: 28, paddingHorizontal: 10 }}>
-                  Get access to our full library of 50+ professional hitting and fielding drills.
-                </Text>
-                <Pressable onPress={() => router.push('/auth/email')} style={{ width: '100%', height: 60, borderRadius: 30, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
-                  <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: 1 }}>Upgrade - $99.99</Text>
-                </Pressable>
+              <View style={{ marginTop: 12, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FAF4EA', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.85)', position: 'relative' }}>
+
+                {/* Background Teaser Content */}
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 24, paddingHorizontal: 20 }}>
+                  {[1, 2, 3, 4].map((_, i) => (
+                    <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, opacity: 0.35 }}>
+                      <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
+                        <Ionicons name="lock-closed" size={18} color="#A0AABF" />
+                      </View>
+                      <View style={{ flex: 1, height: 14, backgroundColor: '#0C1F4A', borderRadius: 7, opacity: 0.3 }} />
+                    </View>
+                  ))}
+                </View>
+
+                {/* Blur Overlay */}
+                <BlurView
+                  intensity={100}
+                  tint="light"
+                  experimentalBlurMethod="dimezisBlurView"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255,255,255,0.55)'
+                  }}
+                />
+
+                {/* Foreground Content */}
+                <View
+                  style={{
+                    paddingHorizontal: 20,
+                    paddingVertical: 32,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <View style={{ height: 48, width: 48, borderRadius: 24, backgroundColor: '#E35D21', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                    <Ionicons color="#FFFFFF" name="lock-closed" size={22} />
+                  </View>
+                  <Text style={{ textAlign: 'center', fontSize: 24, fontWeight: '900', lineHeight: 28, color: '#1A1A1A', fontFamily: typography.family.serif, marginBottom: 16 }}>
+                    Unlock all drills
+                  </Text>
+                  <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 22, color: '#374151', fontWeight: '600', marginBottom: 28, paddingHorizontal: 10 }}>
+                    Get access to our full library of 50+ professional hitting and fielding drills.
+                  </Text>
+                  <Pressable onPress={() => router.push('/auth/email')} style={{ width: '100%', height: 60, borderRadius: 30, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
+                    <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: 1 }}>Upgrade - $99.99</Text>
+                  </Pressable>
+                </View>
               </View>
             )}
           </View>

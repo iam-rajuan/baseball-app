@@ -1,4 +1,4 @@
-import { Text, View, ScrollView } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';

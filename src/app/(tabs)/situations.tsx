@@ -18,6 +18,8 @@ import { settingsService, situationsService } from '@/services';
 const specificSituationImage = require('../../../assets/images/specific-situation.png');
 
 export default function SituationsTabScreen() {
+  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
+
   const { data: situations, isLoading: situationsLoading } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
@@ -29,33 +31,70 @@ export default function SituationsTabScreen() {
 
   if (situationsLoading || settingsLoading || !situations || !appSettings) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#FAF4EA', paddingTop: statusBarHeight }}>
         <Loader />
       </View>
     );
   }
 
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
-      {/* ===== HEADER ===== */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
-        <View>
-          <Text style={{ fontSize: 20, fontWeight: '700', color: '#1F3A5F', fontFamily: 'serif', fontStyle: 'italic' }}>Marietta</Text>
-          <Text style={{ fontSize: 10, fontWeight: '600', color: '#1F3A5F', textTransform: 'uppercase', letterSpacing: 1.2, marginTop: 1 }}>Baseball Academy</Text>
+    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+      {/* ===== HEADER (Fixed) ===== */}
+      <View
+        style={{
+          paddingTop: statusBarHeight,
+          backgroundColor: '#FFFFFF',
+          borderBottomWidth: 1,
+          borderColor: '#EFE7D9',
+          zIndex: 10,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+          }}
+        >
+          <View>
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: '700',
+                color: '#0C1F4A',
+                fontFamily: 'serif',
+                fontStyle: 'italic',
+              }}
+            >
+              Marietta
+            </Text>
+            <Text
+              style={{
+                fontSize: 10,
+                fontWeight: '600',
+                color: '#0C1F4A',
+                textTransform: 'uppercase',
+                letterSpacing: 1.2,
+                marginTop: 1,
+              }}
+            >
+              Baseball Academy
+            </Text>
+          </View>
+          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons color="#0C1F4A" name="search" size={20} />
+          </Pressable>
         </View>
-        <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons color="#1F3A5F" name="search" size={20} />
-        </Pressable>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={{ position: 'relative' }}>
+        <View style={{ position: 'relative', backgroundColor: '#FAF4EA' }}>
           {/* Grid pattern */}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#EAD9C0' }} />
             ))}
             {['20%', '40%', '60%', '80%'].map(left => (
               <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any as number, width: 1, backgroundColor: '#EAD9C0' }} />
