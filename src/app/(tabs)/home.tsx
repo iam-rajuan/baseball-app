@@ -39,7 +39,7 @@ export default function HomeScreen() {
 
   if (situationsLoading || settingsLoading || !situations || !appSettings) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#FAF4EA', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
@@ -78,7 +78,7 @@ export default function HomeScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#EDE2D0', paddingTop: statusBarHeight }}>
+    <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: statusBarHeight }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         {/* ===== TOP HEADER BAR ===== */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 12 }}>
@@ -113,20 +113,20 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== HERO SECTION ===== */}
-        <View className="relative overflow-hidden" style={{ backgroundColor: '#EDE2D0' }}>
+        <View className="relative overflow-hidden" style={{ backgroundColor: '#F6EEDB' }}>
           {/* Background grid pattern */}
-          <View className="absolute inset-0 opacity-50">
-            <View className="absolute inset-x-0 top-0 h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[84px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[168px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[252px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[336px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[420px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-x-0 top-[504px] h-px bg-[#EADBBE]" />
-            <View className="absolute inset-y-0 left-[20%] w-px bg-[#EDE1C9]" />
-            <View className="absolute inset-y-0 left-[40%] w-px bg-[#EDE1C9]" />
-            <View className="absolute inset-y-0 left-[60%] w-px bg-[#EDE1C9]" />
-            <View className="absolute inset-y-0 left-[80%] w-px bg-[#EDE1C9]" />
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.4 }}>
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 84, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 168, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 252, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 336, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 420, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', left: 0, right: 0, top: 504, height: 1, backgroundColor: '#E6D5B8' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: '20%', width: 1, backgroundColor: '#EAD9C0' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: '40%', width: 1, backgroundColor: '#EAD9C0' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: '60%', width: 1, backgroundColor: '#EAD9C0' }} />
+            <View style={{ position: 'absolute', top: 0, bottom: 0, left: '80%', width: 1, backgroundColor: '#EAD9C0' }} />
           </View>
 
           <View style={{ paddingHorizontal: 16, paddingBottom: 32, paddingTop: 24 }}>
@@ -185,7 +185,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== FEATURED SITUATION SLIDER ===== */}
-        <View style={{ backgroundColor: '#EDE2D0', paddingHorizontal: 16, paddingBottom: 24 }}>
+        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingBottom: 24 }}>
           <View className="mb-3 flex-row items-center justify-between">
             <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>
               Featured Situation
@@ -250,7 +250,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== SPECIFIC SITUATIONS ===== */}
-        <View style={{ backgroundColor: '#EDE2D0', paddingHorizontal: 16, paddingBottom: 24, paddingTop: 24 }}>
+        <View style={{ backgroundColor: '#F6EEDB', paddingHorizontal: 16, paddingBottom: 24, paddingTop: 24 }}>
           <Text style={{ marginBottom: 12, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>
             Specific Situations
           </Text>
