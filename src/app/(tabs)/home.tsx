@@ -39,7 +39,7 @@ export default function HomeScreen() {
 
   if (situationsLoading || settingsLoading || !situations || !appSettings) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
@@ -78,7 +78,7 @@ export default function HomeScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       {/* ===== NAVBAR (Fixed) ===== */}
       <View
         style={{
@@ -134,19 +134,19 @@ export default function HomeScreen() {
       >
 
         {/* ===== HERO SECTION ===== */}
-        <View style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#FAF4EA' }}>
+        <View style={{ position: 'relative', overflow: 'hidden', backgroundColor: '#F4E7D5' }}>
           {/* Grid pattern */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
             {(['20%', '40%', '60%', '80%'] as const).map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
           </View>
 
           <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 24 }}>
-            <Text style={{ textAlign: 'center', fontSize: 11, lineHeight: 14, fontWeight: '700', color: '#6A563E', letterSpacing: 1.5, textTransform: 'uppercase' }}>{appSettings.homeEyebrow}</Text>
+            <Text style={{ textAlign: 'center', fontSize: 11, lineHeight: 14, fontWeight: '700', color: '#5A4B3D', letterSpacing: 1.5, textTransform: 'uppercase' }}>{appSettings.homeEyebrow}</Text>
             <Text style={{ marginTop: 4, textAlign: 'center', fontSize: 40, fontWeight: '900', textTransform: 'uppercase', lineHeight: 42, color: '#1A1A1A', fontFamily: 'serif' }}>{appSettings.homeTitle}</Text>
             <View style={{ marginTop: 12, alignItems: 'center' }}><HomeLogo height={110} width={138} /></View>
             <Pressable style={{ marginTop: 20, height: 46, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center' }} onPress={openRandomSituation}>
@@ -159,7 +159,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== FEATURED SITUATION ===== */}
-        <View style={{ backgroundColor: '#FAF4EA', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
+        <View style={{ backgroundColor: '#F4E7D5', paddingHorizontal: 16, paddingTop: 16, paddingBottom: 20 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <Text style={{ fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>Featured Situation</Text>
             <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -193,7 +193,7 @@ export default function HomeScreen() {
                     <View style={{ marginTop: 4, height: 5, width: 5, borderRadius: 3, backgroundColor: '#76B45D' }} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 0.9, color: '#B6BCD0', textTransform: 'uppercase' }}>Featured Situation</Text>
+                    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 0.9, color: '#5A4B3D', textTransform: 'uppercase' }}>Featured Situation</Text>
                     <Text style={{ marginTop: 2, fontSize: 21, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{item.title}</Text>
                   </View>
                 </View>
@@ -203,7 +203,7 @@ export default function HomeScreen() {
         </View>
 
         {/* ===== SPECIFIC SITUATIONS ===== */}
-        <View style={{ backgroundColor: '#FAF4EA', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
+        <View style={{ backgroundColor: '#F4E7D5', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}>
           <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>Specific Situations</Text>
           {specificSituation && (
             <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>

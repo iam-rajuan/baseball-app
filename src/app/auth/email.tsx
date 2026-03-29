@@ -47,7 +47,7 @@ export default function EmailScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="Sign In" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -81,7 +81,7 @@ export default function EmailScreen() {
               style={{
                 marginTop: 12,
                 fontSize: 15,
-                color: '#7D869A',
+                color: '#3F3328',
                 lineHeight: 22,
               }}
             >
@@ -94,7 +94,7 @@ export default function EmailScreen() {
                 style={{
                   fontSize: 12,
                   fontWeight: '700',
-                  color: '#9CAAC0',
+                  color: '#3F3328',
                   textTransform: 'uppercase',
                   letterSpacing: 1.2,
                   marginBottom: 8,
@@ -221,7 +221,7 @@ export default function EmailScreen() {
               <Text
                 style={{
                   fontSize: 12,
-                  color: '#B0B8C5',
+                  color: '#5A4B3D',
                   fontWeight: '600',
                   marginHorizontal: 16,
                 }}
@@ -258,8 +258,8 @@ export default function EmailScreen() {
             {/* Footer Note */}
             <View style={{ alignItems: 'center', marginTop: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Ionicons name="lock-closed" size={13} color="#B0B8C5" />
-                <Text style={{ fontSize: 12, color: '#B0B8C5', fontWeight: '500' }}>
+                <Ionicons name="lock-closed" size={13} color="#5A4B3D" />
+                <Text style={{ fontSize: 12, color: '#5A4B3D', fontWeight: '500' }}>
                   Your data is private and secure
                 </Text>
               </View>

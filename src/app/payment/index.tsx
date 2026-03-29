@@ -49,12 +49,12 @@ export default function PaymentScreen() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF4EA' }} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['top', 'left', 'right']}>
       <PageHeader title="Payment" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
-        style={{ flex: 1, backgroundColor: '#FAF4EA' }}
+        style={{ flex: 1, backgroundColor: '#F4E7D5' }}
       >
         {/* Selected Plan Card */}
         <View
@@ -101,7 +101,7 @@ export default function PaymentScreen() {
 
           <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10 }}>
             <Text style={{ fontSize: 32, fontWeight: '800', color: '#0C1F4A' }}>$99</Text>
-            <Text style={{ fontSize: 14, fontWeight: '400', color: '#9CAAC0', marginLeft: 4 }}>/ lifetime access</Text>
+            <Text style={{ fontSize: 14, fontWeight: '400', color: '#5A4B3D', marginLeft: 4 }}>/ lifetime access</Text>
           </View>
 
           <View style={{ marginTop: 20, gap: 12 }}>
@@ -184,7 +184,7 @@ export default function PaymentScreen() {
               name="cardNumber"
               render={({ field: { onChange, value } }) => (
                 <View>
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#9CAAC0', marginBottom: 6 }}>
+                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
                     Card Number
                   </Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -215,7 +215,7 @@ export default function PaymentScreen() {
                 name="expiry"
                 render={({ field: { onChange, value } }) => (
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#9CAAC0', marginBottom: 6 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
                       Expiry
                     </Text>
                     <TextInput
@@ -238,7 +238,7 @@ export default function PaymentScreen() {
                 name="cvv"
                 render={({ field: { onChange, value } }) => (
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#9CAAC0', marginBottom: 6 }}>
+                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
                       CVV
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>

@@ -7,12 +7,12 @@ import { PageHeader } from '@/components/layout/page-header';
 
 export default function PaymentSuccessScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FAF4EA' }} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['top', 'left', 'right']}>
       <PageHeader title="Payment" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110, flexGrow: 1 }}
-        style={{ flex: 1, backgroundColor: '#FAF4EA' }}
+        style={{ flex: 1, backgroundColor: '#F4E7D5' }}
       >
         {/* Success Icon */}
         <View style={{ alignItems: 'center', paddingTop: 40 }}>
@@ -106,7 +106,7 @@ export default function PaymentSuccessScreen() {
                 fontSize: 10.5,
                 fontWeight: '700',
                 letterSpacing: 1.2,
-                color: '#9CAAC0',
+                color: '#5A4B3D',
                 textTransform: 'uppercase',
               }}
             >

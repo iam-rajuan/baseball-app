@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout/page-header';
 
 export default function AboutScreen() {
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="About Us" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -109,7 +109,7 @@ export default function AboutScreen() {
               fontSize: 10.5,
               fontWeight: '700',
               letterSpacing: 1.5,
-              color: '#9CAAC0',
+              color: '#5A4B3D',
               textTransform: 'uppercase',
               marginBottom: 8,
             }}
@@ -126,10 +126,10 @@ export default function AboutScreen() {
           >
             Marietta Baseball Academy, LLC
           </Text>
-          <Text style={{ fontSize: 14, color: '#9CAAC0', lineHeight: 20 }}>
+          <Text style={{ fontSize: 14, color: '#5A4B3D', lineHeight: 20 }}>
             8735 Dunwoody Place #4622
           </Text>
-          <Text style={{ fontSize: 14, color: '#9CAAC0', lineHeight: 20 }}>
+          <Text style={{ fontSize: 14, color: '#5A4B3D', lineHeight: 20 }}>
             Atlanta, GA 30350
           </Text>
 
@@ -203,7 +203,7 @@ export default function AboutScreen() {
           <Text
             style={{
               fontSize: 11,
-              color: '#B0B8C5',
+              color: '#5A4B3D',
               textAlign: 'center',
             }}
           >

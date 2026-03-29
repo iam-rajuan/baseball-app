@@ -28,7 +28,7 @@ export default function SupportScreen() {
   });
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="Help & support" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}

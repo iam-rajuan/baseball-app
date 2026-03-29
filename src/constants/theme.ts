@@ -1,5 +1,5 @@
 export const colors = {
-  background: '#FAF4EA',
+  background: '#F4E7D5',
   surface: '#FFFFFF',
   navy: '#0C1F4A',
   navyMuted: '#5A6987',
@@ -7,7 +7,7 @@ export const colors = {
   orangeSoft: '#FFE4D2',
   border: '#E9E0D2',
   success: '#1C9C5C',
-  textMuted: '#7D869A',
+  textMuted: '#5A4B3D',
 };
 
 export const spacing = {

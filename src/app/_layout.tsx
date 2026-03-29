@@ -20,7 +20,7 @@ export default function RootLayout() {
     SplashScreen.hideAsync().catch(() => null);
 
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#F7F7F5');
+      NavigationBar.setBackgroundColorAsync('#F4E7D5');
       NavigationBar.setButtonStyleAsync('dark');
     }
   }, []);

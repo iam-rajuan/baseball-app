@@ -25,7 +25,7 @@ export default function OtpScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="Verification" />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -52,7 +52,7 @@ export default function OtpScreen() {
               style={{
                 marginTop: 12,
                 fontSize: 16,
-                color: '#7D869A',
+                color: '#5A4B3D',
                 textAlign: 'center',
                 lineHeight: 24,
               }}
@@ -80,7 +80,7 @@ export default function OtpScreen() {
             <OTPInput length={4} onChange={setOtpCode} value={otpCode} />
 
             <View style={{ marginTop: 24, alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: '#7D869A' }}>
+              <Text style={{ fontSize: 14, color: '#5A4B3D' }}>
                 Didn’t receive the code?
               </Text>
               <Pressable onPress={() => { }}>
@@ -128,7 +128,7 @@ export default function OtpScreen() {
             <Pressable onPress={() => router.back()}>
               <Text
                 style={{
-                  color: '#7D869A',
+                  color: '#5A4B3D',
                   fontWeight: '600',
                   textDecorationLine: 'underline',
                 }}

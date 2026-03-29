@@ -19,14 +19,14 @@ export default function DrillsScreen() {
 
   if (isLoading || !data) {
     return (
-      <View className="flex-1 bg-[#FAF4EA]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#FAF4EA]">
+    <View className="flex-1 bg-[#F4E7D5]">
       <PageHeader
         title="Drill Category"
         variant="section"
@@ -40,12 +40,12 @@ export default function DrillsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         <View style={{ position: 'relative' }}>
           {/* Seamless Grid Backdrop */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
             {(['20%', '40%', '60%', '80%'] as const).map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
           </View>
 
@@ -76,7 +76,7 @@ export default function DrillsScreen() {
               >
                 Train By Category
               </Text>
-              <Text className="mt-3 text-[15px] leading-[24px] text-[#6A563E] font-normal">
+              <Text className="mt-3 text-[15px] leading-[24px] text-[#5A4B3D] font-normal">
                 {`Start with the included drill library, then unlock\npremium position-specific work and expanded drill packs with in-app purchases.`}
               </Text>
             </View>

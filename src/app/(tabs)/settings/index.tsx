@@ -31,11 +31,12 @@ const menuItems = [
 
 export default function SettingsScreen() {
   return (
-    <View className="flex-1 bg-background">
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="SETTINGS" variant="section" />
       <ScrollView
+        style={{ backgroundColor: '#F4E7D5' }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 110 }}
+        contentContainerStyle={{ paddingBottom: 110, backgroundColor: '#F4E7D5' }}
       >
         {/* Logo Section */}
         <View style={{ alignItems: 'center', paddingTop: 28, paddingBottom: 10 }}>
@@ -61,7 +62,7 @@ export default function SettingsScreen() {
               fontSize: 11,
               fontWeight: '700',
               letterSpacing: 2.5,
-              color: '#B0B8C5',
+              color: '#5A4B3D',
               textTransform: 'uppercase',
             }}
           >
@@ -139,7 +140,7 @@ export default function SettingsScreen() {
               fontSize: 10,
               fontWeight: '700',
               letterSpacing: 2,
-              color: '#C0C6CE',
+              color: '#5A4B3D',
               textTransform: 'uppercase',
             }}
           >

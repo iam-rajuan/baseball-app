@@ -37,7 +37,7 @@ export default function DrillCategoryScreen() {
 
   if (categoryQuery.isLoading || drillsQuery.isLoading || !categoryQuery.data) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#FAF4EA', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
@@ -47,7 +47,7 @@ export default function DrillCategoryScreen() {
   const drills = drillsQuery.data || [];
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader
         title={category.name}
         variant="section"
@@ -59,17 +59,7 @@ export default function DrillCategoryScreen() {
       />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={{ position: 'relative' }}>
-          {/* Seamless Grid Backdrop */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
-            {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
-            ))}
-            {(['20%', '40%', '60%', '80%'] as const).map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
-            ))}
-          </View>
-
+        <View>
           <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
             {/* Top Eyebrow Section */}
             <View style={{ marginBottom: 20 }}>
@@ -79,7 +69,7 @@ export default function DrillCategoryScreen() {
               <Text style={{ fontSize: 44, fontWeight: '900', textTransform: 'uppercase', lineHeight: 46, color: '#1A1A1A', fontFamily: typography.family.serif }}>
                 {category.name}
               </Text>
-              <Text style={{ marginTop: 8, fontSize: 15, lineHeight: 22, color: '#6A563E', fontWeight: '400' }}>
+              <Text style={{ marginTop: 8, fontSize: 15, lineHeight: 22, color: '#5A4B3D', fontWeight: '400' }}>
                 {category.subtitle}
               </Text>
             </View>

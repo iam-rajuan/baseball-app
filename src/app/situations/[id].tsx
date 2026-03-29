@@ -32,7 +32,7 @@ export default function SituationDetailsScreen() {
 
   if (situationLoading || settingsLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F6EEDB', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
       </View>
     );
@@ -40,7 +40,7 @@ export default function SituationDetailsScreen() {
 
   if (!situation) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F6EEDB', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', justifyContent: 'center', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, color: '#6A563E' }}>Situation not found</Text>
         <Pressable onPress={() => router.back()} style={{ marginTop: 20, padding: 10, backgroundColor: '#E35D21', borderRadius: 8 }}>
           <Text style={{ color: 'white', fontWeight: 'bold' }}>Go Back</Text>
@@ -52,7 +52,7 @@ export default function SituationDetailsScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       {/* ═ HEADER ═ */}
       <View style={{ paddingTop: statusBarHeight, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
         <Pressable onPress={() => router.back()} style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
@@ -68,12 +68,12 @@ export default function SituationDetailsScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
         <View style={{ position: 'relative' }}>
           {/* Grid pattern */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
             {(['20%', '40%', '60%', '80%'] as const).map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any, width: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
           </View>
 

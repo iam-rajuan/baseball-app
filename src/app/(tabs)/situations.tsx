@@ -31,14 +31,14 @@ export default function SituationsTabScreen() {
 
   if (situationsLoading || settingsLoading || !situations || !appSettings) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#FAF4EA', paddingTop: statusBarHeight }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight }}>
         <Loader />
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#FAF4EA' }}>
+    <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       {/* ===== HEADER (Fixed) ===== */}
       <View
         style={{
@@ -90,20 +90,20 @@ export default function SituationsTabScreen() {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={{ position: 'relative', backgroundColor: '#FAF4EA' }}>
+        <View style={{ position: 'relative', backgroundColor: '#F4E7D5' }}>
           {/* Grid pattern */}
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.35 }}>
+          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
             {[0, 80, 160, 240, 320, 400, 480].map(top => (
-              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
             {['20%', '40%', '60%', '80%'].map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any as number, width: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any as number, width: 1.5, backgroundColor: '#D8C3A6' }} />
             ))}
           </View>
 
           <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
             <View style={{ marginBottom: 24 }}>
-              <Text style={{ fontSize: 11, lineHeight: 14, fontWeight: '700', color: '#6A563E', letterSpacing: 1.5, textTransform: 'uppercase' }}>Master the Game</Text>
+              <Text style={{ fontSize: 11, lineHeight: 14, fontWeight: '700', color: '#5A4B3D', letterSpacing: 1.5, textTransform: 'uppercase' }}>Master the Game</Text>
               <Text style={{ marginTop: 4, fontSize: 34, fontWeight: '900', textTransform: 'uppercase', lineHeight: 36, color: '#1A1A1A', fontFamily: 'serif' }}>Defensive Situations</Text>
             </View>
 
