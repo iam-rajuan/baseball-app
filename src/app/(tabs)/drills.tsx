@@ -9,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated';
+
 
 import { Loader } from '@/components/loader';
 import { typography } from '@/constants/typography';
@@ -72,7 +72,7 @@ export default function DrillsScreen() {
             ))}
           </View>
 
-          <Animated.View entering={SlideInDown.duration(600).springify().damping(18)} style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
             {/* Top Eyebrow Section */}
             <View style={{ marginBottom: 28 }}>
               <Text
@@ -122,18 +122,17 @@ export default function DrillsScreen() {
             {/* Drill Categories List */}
             <View>
               {data.map((item, index) => (
-                <Animated.View key={item.id} entering={FadeInDown.delay(index * 60).duration(500)}>
+                <View key={item.id}>
                   <CategoryTile
                     item={item}
                     onPress={() => router.push(`/drills/category/${item.id}`)}
                   />
-                </Animated.View>
+                </View>
               ))}
             </View>
 
             {/* Unlock All Premium Section */}
-            <Animated.View
-              entering={FadeInDown.delay(300).duration(800)}
+            <View
               style={{
                 marginTop: 20,
                 borderRadius: 24,
@@ -217,8 +216,8 @@ export default function DrillsScreen() {
               >
                 All premium drills were unlocked in demo mode. Connect StoreKit next.
               </Text>
-            </Animated.View>
-          </Animated.View>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </View>

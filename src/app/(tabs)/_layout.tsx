@@ -7,6 +7,8 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        animation: 'none',
+        lazy: false,
         tabBarStyle: {
           position: 'absolute',
           left: 0,

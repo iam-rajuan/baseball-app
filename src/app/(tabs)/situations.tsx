@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import Animated, { FadeInDown, SlideInDown } from 'react-native-reanimated';
+
 
 import { Loader } from '@/components/loader';
 import { settingsService, situationsService } from '@/services';
@@ -58,11 +58,11 @@ export default function SituationsTabScreen() {
               <View key={top} style={{ position: 'absolute', left: 0, right: 0, top, height: 1, backgroundColor: '#E6D5B8' }} />
             ))}
             {['20%', '40%', '60%', '80%'].map(left => (
-              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left, width: 1, backgroundColor: '#EAD9C0' }} />
+              <View key={left} style={{ position: 'absolute', top: 0, bottom: 0, left: left as any as number, width: 1, backgroundColor: '#EAD9C0' }} />
             ))}
           </View>
 
-          <Animated.View entering={SlideInDown.duration(700).springify().damping(18)} style={{ paddingHorizontal: 16, paddingTop: 20 }}>
+          <View style={{ paddingHorizontal: 16, paddingTop: 20 }}>
             <View style={{ marginBottom: 24 }}>
               <Text style={{ fontSize: 11, lineHeight: 14, fontWeight: '700', color: '#6A563E', letterSpacing: 1.5, textTransform: 'uppercase' }}>Master the Game</Text>
               <Text style={{ marginTop: 4, fontSize: 34, fontWeight: '900', textTransform: 'uppercase', lineHeight: 36, color: '#1A1A1A', fontFamily: 'serif' }}>Defensive Situations</Text>
@@ -70,7 +70,7 @@ export default function SituationsTabScreen() {
 
             <View style={{ gap: 24 }}>
               {(situations || []).map((situation, index) => (
-                <Animated.View key={situation.id} entering={FadeInDown.delay(index * 80).duration(600)}>
+                <View key={situation.id}>
                   <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>{`Situation ${index + 1}`}</Text>
                   <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
                     <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{situation.title}</Text>
@@ -89,10 +89,10 @@ export default function SituationsTabScreen() {
                       <Text style={{ fontSize: 13, fontWeight: '700', color: '#E35D21' }}>View Full Playbook</Text>
                     </Pressable>
                   </View>
-                </Animated.View>
+                </View>
               ))}
             </View>
-          </Animated.View>
+          </View>
         </View>
       </ScrollView>
     </View>
