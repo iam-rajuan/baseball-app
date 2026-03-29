@@ -8,7 +8,7 @@ import { LogoMark } from '@/components/logo-mark';
 export default function SplashRoute() {
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.replace('/(tabs)/playbook');
+      router.replace('/(tabs)/home');
     }, 1500);
 
     return () => clearTimeout(timer);

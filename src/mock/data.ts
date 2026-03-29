@@ -1,4 +1,4 @@
-import type { Drill, DrillCategory, LegalPages, Situation } from '@/types';
+import type { AppSettings, Drill, DrillCategory, LegalPages, Situation } from '@/types';
 
 export const situations: Situation[] = [
   {
@@ -193,4 +193,14 @@ export const legalPages: LegalPages = {
     company: ['Marietta Baseball Academy, LLC', '8735 Dunwoody Place #4622', 'Atlanta, GA 30350'],
     contact: ['www.mbaseballacademy.com', 'support@mbaseballacademy.com', '© 2024 Marietta Baseball Academy. All rights reserved.'],
   },
+};
+
+export const defaultAppSettings: AppSettings = {
+  homeEyebrow: 'EVERY PLAYER HAS A ROLE ON EVERY PLAY',
+  homeTitle: 'DEFENSIVE SITUATIONS',
+  homePrimaryCta: 'FEATURED SITUATIONS',
+  homeSecondaryCta: 'SPECIFIC SITUATIONS',
+  featuredSectionTitle: 'Grounder to SS',
+  featuredSectionSubtitle: 'Fly ball to LF - No Runners on',
+  situationImageUri: null,
 };

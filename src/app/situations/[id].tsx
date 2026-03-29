@@ -7,8 +7,8 @@ import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';
-import { FieldDiagram } from '@/features/playbook/components/field-diagram';
-import { situationsService } from '@/services';
+import { SituationArtwork } from '@/components/situation-artwork';
+import { settingsService, situationsService } from '@/services';
 
 export default function SituationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -16,6 +16,10 @@ export default function SituationDetailsScreen() {
   const { data, isLoading } = useQuery({
     queryKey: ['situation', routeId],
     queryFn: () => situationsService.getById(routeId),
+  });
+  const { data: appSettings } = useQuery({
+    queryKey: ['app-settings'],
+    queryFn: settingsService.getAppSettings,
   });
 
   return (
@@ -32,7 +36,10 @@ export default function SituationDetailsScreen() {
             </Text>
             <Text className="mt-2 text-[34px] font-bold leading-10 text-navy">{data.title}</Text>
             <View className="mt-4">
-              <FieldDiagram variant={data.diagramVariant} />
+              <SituationArtwork
+                diagramVariant={data.diagramVariant}
+                imageUri={appSettings?.situationImageUri}
+              />
             </View>
           </Card>
           <Card>

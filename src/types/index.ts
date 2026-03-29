@@ -48,6 +48,16 @@ export type LegalPages = {
   };
 };
 
+export type AppSettings = {
+  homeEyebrow: string;
+  homeTitle: string;
+  homePrimaryCta: string;
+  homeSecondaryCta: string;
+  featuredSectionTitle: string;
+  featuredSectionSubtitle: string;
+  situationImageUri: string | null;
+};
+
 export type UserProfile = {
   email: string;
   isPremium: boolean;
