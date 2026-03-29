@@ -24,6 +24,11 @@ export default function PaymentSuccessScreen() {
               backgroundColor: '#E8752A',
               alignItems: 'center',
               justifyContent: 'center',
+              shadowColor: '#E8752A',
+              shadowOpacity: 0.35,
+              shadowRadius: 24,
+              shadowOffset: { width: 0, height: 10 },
+              elevation: 16,
             }}
           >
             <View
