@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
 import * as NavigationBar from 'expo-navigation-bar';
-import { Platform, View } from 'react-native';
+import { Platform } from 'react-native';
 
 import { queryClient } from '@/lib/query-client';
 import { navigationTheme } from '@/theme';
@@ -20,7 +20,6 @@ export default function RootLayout() {
     SplashScreen.hideAsync().catch(() => null);
 
     if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync('#F4E7D5');
       NavigationBar.setButtonStyleAsync('dark');
     }
   }, []);
@@ -29,23 +28,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={navigationTheme}>
         <StatusBar style="dark" backgroundColor="#FFFFFF" />
-        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="situations/index" />
-          <Stack.Screen name="situations/[id]" />
-          <Stack.Screen name="drills/category/[slug]" />
-          <Stack.Screen name="drills/detail/[id]" />
-          <Stack.Screen name="premium/index" />
-          <Stack.Screen name="auth/email" />
-          <Stack.Screen name="auth/otp" />
-          <Stack.Screen name="payment/index" />
-          <Stack.Screen name="payment/success" />
-          <Stack.Screen name="support" />
-          <Stack.Screen name="legal/terms" />
-          <Stack.Screen name="legal/privacy" />
-          <Stack.Screen name="about" />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }} />
       </ThemeProvider>
     </QueryClientProvider>
   );

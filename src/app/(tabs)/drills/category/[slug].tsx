@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { BlurView } from 'expo-blur';
+import { BlurTargetView, BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useRef } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
@@ -17,9 +18,10 @@ import { useAppStore } from '@/store/app-store';
 /**
  * Hitting action image (stored in assets/images)
  */
-const FEATURED_HITTING_IMAGE = require('../../../../../assets/images/hitting-featured.png');
+const FEATURED_HITTING_IMAGE = require('../../../../../assets/images/hitting-featured.jpg');
 
 export default function DrillCategoryScreen() {
+  const premiumBlurTargetRef = useRef<View | null>(null);
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const routeSlug = slug ?? '';
   const isPremium = useAppStore((state) => state.isPremium);
@@ -151,7 +153,7 @@ export default function DrillCategoryScreen() {
                 {premiumDrills.map((drill, index) => (
                   <Pressable
                     key={drill.id}
-                    onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/premium')}
+                    onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/auth/email')}
                     style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
                   >
                     <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FAF4EA', alignItems: 'center', justifyContent: 'center', marginRight: 14, opacity: 0.6 }}>
@@ -170,7 +172,7 @@ export default function DrillCategoryScreen() {
               <View style={{ marginTop: 12, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FAF4EA', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 20, shadowOffset: { width: 0, height: 10 }, elevation: 6, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.85)', position: 'relative' }}>
 
                 {/* Background Teaser Content */}
-                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 24, paddingHorizontal: 20 }}>
+                <BlurTargetView ref={premiumBlurTargetRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 24, paddingHorizontal: 20 }}>
                   {[1, 2, 3, 4].map((_, i) => (
                     <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16, opacity: 0.35 }}>
                       <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
@@ -179,13 +181,14 @@ export default function DrillCategoryScreen() {
                       <View style={{ flex: 1, height: 14, backgroundColor: '#0C1F4A', borderRadius: 7, opacity: 0.3 }} />
                     </View>
                   ))}
-                </View>
+                </BlurTargetView>
 
                 {/* Blur Overlay */}
                 <BlurView
+                  blurMethod="dimezisBlurViewSdk31Plus"
+                  blurTarget={premiumBlurTargetRef}
                   intensity={100}
                   tint="light"
-                  experimentalBlurMethod="dimezisBlurView"
                   style={{
                     position: 'absolute',
                     top: 0,

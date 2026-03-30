@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { BlurView } from 'expo-blur';
+import { BlurTargetView, BlurView } from 'expo-blur';
 import { router } from 'expo-router';
+import { useRef } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 
@@ -12,6 +13,8 @@ import { CategoryTile } from '@/features/drills/components/category-tile';
 import { drillsService } from '@/services';
 
 export default function DrillsScreen() {
+  const premiumBlurTargetRef = useRef<View | null>(null);
+
   const { data, isLoading } = useQuery({
     queryKey: ['drill-categories'],
     queryFn: drillsService.getCategories,
@@ -126,7 +129,7 @@ export default function DrillsScreen() {
               }}
             >
               {/* Background Teaser Content */}
-              <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 20, paddingHorizontal: 20, opacity: 0.35 }}>
+              <BlurTargetView ref={premiumBlurTargetRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 20, paddingHorizontal: 20, opacity: 0.35 }}>
                 {['Velocity Shredder', "Catcher's Framing Pro", 'Elite Arm Care', 'Advanced Pitch Tunnelling', 'Situational Defense'].map((item, i) => (
                   <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
                     <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
@@ -136,13 +139,14 @@ export default function DrillsScreen() {
                     <Ionicons name="chevron-forward" size={18} color="#A0AABF" />
                   </View>
                 ))}
-              </View>
+              </BlurTargetView>
 
               {/* Blur Overlay */}
               <BlurView
+                blurMethod="dimezisBlurViewSdk31Plus"
+                blurTarget={premiumBlurTargetRef}
                 intensity={100}
                 tint="light"
-                experimentalBlurMethod="dimezisBlurView"
                 style={{
                   position: 'absolute',
                   top: 0,
