@@ -1,11 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import { Controller, useForm } from 'react-hook-form';
-import { ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { reportService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 
 const supportImage = require('../../../../assets/images/support-illustration.png');
 
@@ -17,6 +19,7 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function SupportScreen() {
+  const authEmail = useAppStore((state) => state.authEmail);
   const {
     control,
     handleSubmit,
@@ -26,6 +29,17 @@ export default function SupportScreen() {
     defaultValues: { title: '', body: '' },
     resolver: zodResolver(schema),
   });
+
+  const onSubmit = async (values: FormValues) => {
+    await reportService.submit({
+      email: authEmail || 'mobile-user@mbaseballacademy.com',
+      title: values.title,
+      message: values.body,
+      user: 'Mobile User',
+    });
+
+    reset();
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
@@ -146,6 +160,22 @@ export default function SupportScreen() {
               </View>
             )}
           />
+
+          <Pressable
+            onPress={handleSubmit(onSubmit)}
+            style={{
+              marginTop: 28,
+              backgroundColor: '#0C1F4A',
+              borderRadius: 14,
+              height: 54,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '700' }}>
+              Submit Support Request
+            </Text>
+          </Pressable>
         </View>
       </ScrollView>
     </View>

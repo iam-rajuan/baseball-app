@@ -11,18 +11,42 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { Platform } from 'react-native';
 
 import { queryClient } from '@/lib/query-client';
+import { authService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 import { navigationTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function RootLayout() {
+  const hydrateSession = useAppStore((state) => state.hydrateSession);
+  const clearSession = useAppStore((state) => state.clearSession);
+
   useEffect(() => {
-    SplashScreen.hideAsync().catch(() => null);
+    const bootstrapSession = async () => {
+      try {
+        const token = await authService.getStoredToken();
+
+        if (!token) {
+          clearSession();
+          return;
+        }
+
+        const profile = await authService.getProfile();
+        hydrateSession(profile);
+      } catch {
+        await authService.clearStoredToken().catch(() => null);
+        clearSession();
+      } finally {
+        SplashScreen.hideAsync().catch(() => null);
+      }
+    };
 
     if (Platform.OS === 'android') {
       NavigationBar.setButtonStyleAsync('dark');
     }
-  }, []);
+
+    void bootstrapSession();
+  }, [clearSession, hydrateSession]);
 
   return (
     <QueryClientProvider client={queryClient}>

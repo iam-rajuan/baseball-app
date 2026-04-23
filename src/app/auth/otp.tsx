@@ -18,10 +18,12 @@ export default function OtpScreen() {
   const authEmail = useAppStore((state) => state.authEmail);
   const otpCode = useAppStore((state) => state.otpCode);
   const setOtpCode = useAppStore((state) => state.setOtpCode);
+  const hydrateSession = useAppStore((state) => state.hydrateSession);
 
   const onContinue = async () => {
-    await authService.verifyCode(authEmail, otpCode || '8284');
-    router.replace('/payment');
+    const result = await authService.verifyCode(authEmail, otpCode);
+    hydrateSession(result.user);
+    router.replace(result.user.isPremium ? '/(tabs)/drills' : '/payment');
   };
 
   return (
@@ -83,7 +85,7 @@ export default function OtpScreen() {
               <Text style={{ fontSize: 14, color: '#5A4B3D' }}>
                 Didn’t receive the code?
               </Text>
-              <Pressable onPress={() => { }}>
+              <Pressable onPress={() => authService.sendCode(authEmail)}>
                 <Text
                   style={{
                     marginTop: 6,

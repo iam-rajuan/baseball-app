@@ -17,7 +17,7 @@ import { z } from 'zod';
 
 import { PageHeader } from '@/components/layout/page-header';
 import { LogoMark } from '@/components/logo-mark';
-import { authService } from '@/services';
+import { authService, paymentService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 const schema = z.object({
@@ -28,6 +28,8 @@ type FormValues = z.infer<typeof schema>;
 
 export default function EmailScreen() {
   const setAuthEmail = useAppStore((state) => state.setAuthEmail);
+  const unlockPremium = useAppStore((state) => state.unlockPremium);
+  const completeAuth = useAppStore((state) => state.completeAuth);
   const {
     control,
     handleSubmit,
@@ -233,7 +235,15 @@ export default function EmailScreen() {
 
             {/* Restore Button */}
             <Pressable
-              onPress={() => { }}
+              onPress={async () => {
+                const result = await paymentService.restorePurchase();
+
+                if (result.restored) {
+                  unlockPremium();
+                  completeAuth();
+                  router.replace('/(tabs)/drills');
+                }
+              }}
               style={{
                 height: 52,
                 borderRadius: 14,

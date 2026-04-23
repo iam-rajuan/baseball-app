@@ -33,10 +33,7 @@ export default function DrillCategoryScreen() {
 
   const drillsQuery = useQuery({
     queryKey: ['drill-list', routeSlug, 'v1'], // Bumped key to bust cache
-    queryFn: async () => {
-      const categoryCache = await drillsService.getCategory(routeSlug);
-      return categoryCache ? drillsService.getDrillsByCategory(categoryCache.name) : [];
-    },
+    queryFn: () => drillsService.getDrillsByCategoryId(routeSlug),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 

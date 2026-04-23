@@ -1,13 +1,11 @@
-import { situations } from '@/mock/data';
-import { delay } from '@/utils/delay';
+import { apiClient, unwrap } from '@/lib/api-client';
+import type { Situation } from '@/types';
 
 export const situationsService = {
-  async getAll() {
-    await delay();
-    return situations;
+  async getAll(): Promise<Situation[]> {
+    return unwrap<Situation[]>(apiClient.get('/situations'));
   },
-  async getById(id: string) {
-    await delay();
-    return situations.find((item) => item.id === id) ?? null;
+  async getById(id: string): Promise<Situation> {
+    return unwrap<Situation>(apiClient.get(`/situations/${id}`));
   },
 };

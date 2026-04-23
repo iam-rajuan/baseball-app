@@ -39,8 +39,8 @@ export default function PaymentScreen() {
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = async () => {
-    const result = await paymentService.submitMockPayment();
+  const onSubmit = async ({ email, country }: FormValues) => {
+    const result = await paymentService.submitPayment(email, country);
     if (result.success) {
       unlockPremium();
       completeAuth();
