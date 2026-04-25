@@ -6,6 +6,7 @@ import { useRef } from 'react';
 import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 
 
+import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { typography } from '@/constants/typography';
@@ -15,15 +16,26 @@ import { drillsService } from '@/services';
 export default function DrillsScreen() {
   const premiumBlurTargetRef = useRef<View | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['drill-categories'],
     queryFn: drillsService.getCategories,
   });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
+      </View>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+        <EmptyState
+          title="Could not load drills"
+          description={`${error?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+        />
       </View>
     );
   }

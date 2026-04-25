@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 
+import { EmptyState } from '@/components/empty-state';
 
 import { Loader } from '@/components/loader';
 import { settingsService, situationsService } from '@/services';
@@ -20,19 +21,30 @@ const specificSituationImage = require('../../../assets/images/specific-situatio
 export default function SituationsTabScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
-  const { data: situations, isLoading: situationsLoading } = useQuery({
+  const { data: situations, isLoading: situationsLoading, error: situationsError } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
-  const { data: appSettings, isLoading: settingsLoading } = useQuery({
+  const { data: appSettings, isLoading: settingsLoading, error: settingsError } = useQuery({
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
 
-  if (situationsLoading || settingsLoading || !situations || !appSettings) {
+  if (situationsLoading || settingsLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight }}>
         <Loader />
+      </View>
+    );
+  }
+
+  if (situationsError || settingsError || !situations || !appSettings) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight, paddingHorizontal: 16, justifyContent: 'center' }}>
+        <EmptyState
+          title="Could not load situations"
+          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+        />
       </View>
     );
   }

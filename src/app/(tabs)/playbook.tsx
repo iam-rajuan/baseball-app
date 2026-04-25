@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
+import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { LogoMark } from '@/components/logo-mark';
 import { Screen } from '@/components/layout/screen';
@@ -13,15 +14,26 @@ import { FieldDiagram } from '@/features/playbook/components/field-diagram';
 import { situationsService } from '@/services';
 
 export default function PlaybookScreen() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <Screen>
         <Loader />
+      </Screen>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <Screen>
+        <EmptyState
+          title="Could not load playbook"
+          description={`${error?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+        />
       </Screen>
     );
   }

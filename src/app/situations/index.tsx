@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/card';
+import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';
@@ -10,19 +11,24 @@ import { SituationArtwork } from '@/components/situation-artwork';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsListScreen() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
-  const { data: appSettings } = useQuery({
+  const { data: appSettings, error: settingsError } = useQuery({
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
 
   return (
     <Screen header={<PageHeader title="Defensive Situations" />} contentClassName="pt-5">
-      {isLoading || !data ? (
+      {isLoading ? (
         <Loader />
+      ) : error || settingsError || !data ? (
+        <EmptyState
+          title="Could not load situations"
+          description={`${error?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+        />
       ) : (
         <View className="gap-4">
           {data.map((situation) => (

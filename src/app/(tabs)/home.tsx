@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native';
 
+import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
 import { settingsService, situationsService } from '@/services';
 import type { Situation } from '@/types';
@@ -28,14 +29,25 @@ export default function HomeScreen() {
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
 
-  const { data: situations, isLoading: situationsLoading } = useQuery({
+  const { data: situations, isLoading: situationsLoading, error: situationsError } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
-  const { data: appSettings, isLoading: settingsLoading } = useQuery({
+  const { data: appSettings, isLoading: settingsLoading, error: settingsError } = useQuery({
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
+
+  if (situationsError || settingsError) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+        <EmptyState
+          title="Could not load home"
+          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+        />
+      </View>
+    );
+  }
 
   if (situationsLoading || settingsLoading || !situations || !appSettings) {
     return (
