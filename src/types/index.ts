@@ -13,6 +13,8 @@ export type Situation = {
   featured: boolean;
   diagramVariant: 'infield' | 'outfield';
   instructions: SituationInstruction[];
+  image?: string;
+  imageUrl?: string;
 };
 
 export type DrillCategory = {
@@ -21,6 +23,10 @@ export type DrillCategory = {
   subtitle: string;
   numberOfDrills: number;
   image: string;
+  imageUrl?: string;
+  coverUrl?: string;
+  coverPhotoUrl?: string;
+  iconUrl?: string;
   accessLevel: AccessLevel;
   accentIcon: string;
 };
@@ -35,6 +41,9 @@ export type Drill = {
   focusPoints: string[];
   accessLevel: AccessLevel;
   image: string;
+  imageUrl?: string;
+  coverUrl?: string;
+  coverPhotoUrl?: string;
 };
 
 export type LegalPages = {
@@ -56,6 +65,7 @@ export type AppSettings = {
   featuredSectionTitle: string;
   featuredSectionSubtitle: string;
   situationImageUri: string | null;
+  situationImageUrl?: string;
 };
 
 export type UserProfile = {

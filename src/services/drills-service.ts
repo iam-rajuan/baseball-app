@@ -1,16 +1,26 @@
 import { apiClient, unwrap } from '@/lib/api-client';
 import type { Drill, DrillCategory } from '@/types';
 
+const toStringValue = (value: unknown) => (typeof value === 'string' ? value : '');
+const unwrapItems = <T>(value: T[] | { items: T[] }) => (Array.isArray(value) ? value : value.items);
+
 export const drillsService = {
   async getCategories(): Promise<DrillCategory[]> {
-    const items = await unwrap<Record<string, unknown>[]>(apiClient.get('/drill-categories'));
+    const result = await unwrap<Record<string, unknown>[] | { items: Record<string, unknown>[] }>(
+      apiClient.get('/drill-categories'),
+    );
+    const items = unwrapItems(result);
 
     return items.map((category) => ({
       id: String(category.id),
       name: String(category.name),
       subtitle: String(category.subtitle),
       numberOfDrills: Number(category.numberOfDrills),
-      image: String(category.image),
+      image: toStringValue(category.image || category.imageUrl || category.coverPhotoUrl || category.coverUrl),
+      imageUrl: toStringValue(category.imageUrl),
+      coverUrl: toStringValue(category.coverUrl),
+      coverPhotoUrl: toStringValue(category.coverPhotoUrl),
+      iconUrl: toStringValue(category.iconUrl),
       accessLevel: String(category.accessLevel) as 'free' | 'premium',
       accentIcon: String(category.accentIcon),
     }));
@@ -23,26 +33,34 @@ export const drillsService = {
       name: String(category.name),
       subtitle: String(category.subtitle),
       numberOfDrills: Number(category.numberOfDrills),
-      image: String(category.image),
+      image: toStringValue(category.image || category.imageUrl || category.coverPhotoUrl || category.coverUrl),
+      imageUrl: toStringValue(category.imageUrl),
+      coverUrl: toStringValue(category.coverUrl),
+      coverPhotoUrl: toStringValue(category.coverPhotoUrl),
+      iconUrl: toStringValue(category.iconUrl),
       accessLevel: String(category.accessLevel) as 'free' | 'premium',
       accentIcon: String(category.accentIcon),
     };
   },
   async getDrillsByCategoryId(categoryId: string): Promise<Drill[]> {
-    const items = await unwrap<Record<string, unknown>[]>(
+    const result = await unwrap<Record<string, unknown>[] | { items: Record<string, unknown>[] }>(
       apiClient.get(`/drills?categoryId=${categoryId}`),
     );
+    const items = unwrapItems(result);
 
     return items.map((drill) => ({
       id: String(drill.id),
       name: String(drill.name),
-      category: String(drill.categoryName),
+      category: toStringValue(drill.categoryName),
       description: String(drill.description),
       steps: Array.isArray(drill.steps) ? drill.steps.map(String) : [],
       equipment: Array.isArray(drill.equipment) ? drill.equipment.map(String) : [],
       focusPoints: Array.isArray(drill.focusPoints) ? drill.focusPoints.map(String) : [],
       accessLevel: String(drill.accessLevel) as 'free' | 'premium',
-      image: String(drill.cover),
+      image: toStringValue(drill.imageUrl || drill.coverPhotoUrl || drill.coverUrl || drill.cover),
+      imageUrl: toStringValue(drill.imageUrl),
+      coverUrl: toStringValue(drill.coverUrl),
+      coverPhotoUrl: toStringValue(drill.coverPhotoUrl),
     }));
   },
   async getById(id: string): Promise<Drill> {
@@ -51,13 +69,16 @@ export const drillsService = {
     return {
       id: String(drill.id),
       name: String(drill.name),
-      category: String(drill.category),
+      category: toStringValue(drill.categoryName),
       description: String(drill.description),
       steps: Array.isArray(drill.steps) ? drill.steps.map(String) : [],
       equipment: Array.isArray(drill.equipment) ? drill.equipment.map(String) : [],
       focusPoints: Array.isArray(drill.focusPoints) ? drill.focusPoints.map(String) : [],
       accessLevel: String(drill.accessLevel) as 'free' | 'premium',
-      image: String(drill.cover),
+      image: toStringValue(drill.imageUrl || drill.coverPhotoUrl || drill.coverUrl || drill.cover),
+      imageUrl: toStringValue(drill.imageUrl),
+      coverUrl: toStringValue(drill.coverUrl),
+      coverPhotoUrl: toStringValue(drill.coverPhotoUrl),
     };
   },
 };
