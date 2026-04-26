@@ -48,10 +48,13 @@ export type Drill = {
 
 export type LegalPages = {
   privacyPolicy: string[];
+  privacyPolicyHtml?: string;
   terms: string[];
+  termsHtml?: string;
   aboutUs: {
     headline: string;
     body: string;
+    bodyHtml?: string;
     company: string[];
     contact: string[];
   };
