@@ -28,6 +28,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [lastRandomSituationId, setLastRandomSituationId] = useState<string | null>(null);
 
   const {
     data: situations,
@@ -95,6 +96,7 @@ export default function HomeScreen() {
   const bulletItems = specificSituation?.instructions?.slice(0, 9) || [];
   const specificSituationImageUri = specificSituation?.imageUrl || specificSituation?.image;
   const slideWidth = width - 32;
+  const situationCountLabel = situations.length > 99 ? '99+' : String(situations.length);
 
   const handleSliderScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const nextIndex = Math.round(event.nativeEvent.contentOffset.x / slideWidth);
@@ -116,7 +118,12 @@ export default function HomeScreen() {
   };
 
   const openRandomSituation = () => {
-    const randomSituation = situations[Math.floor(Math.random() * situations.length)];
+    const randomPool =
+      situations.length > 1
+        ? situations.filter((situation) => situation.id !== lastRandomSituationId)
+        : situations;
+    const randomSituation = randomPool[Math.floor(Math.random() * randomPool.length)];
+    setLastRandomSituationId(randomSituation.id);
     router.push(`/situations/${randomSituation.id}`);
   };
 
@@ -206,7 +213,7 @@ export default function HomeScreen() {
               <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Pick Random</Text>
             </Pressable>
             <Pressable style={{ marginTop: 10, height: 46, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center' }} onPress={() => router.push('/(tabs)/situations')}>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>Browse All 40</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF' }}>{`Browse All ${situationCountLabel}`}</Text>
             </Pressable>
           </View>
         </View>
