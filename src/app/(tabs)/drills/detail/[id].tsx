@@ -40,9 +40,27 @@ export default function DrillDetailScreen() {
     );
   }
 
+  const focusPoints = data.focusPoints
+    .map((point) => {
+      if (typeof point !== 'string') {
+        return {
+          title: point.title.trim(),
+          description: point.description.trim(),
+        };
+      }
+
+      const parts = point.split(':');
+
+      return {
+        title: parts[0]?.trim() ?? '',
+        description: parts.slice(1).join(':').trim(),
+      };
+    })
+    .filter((point) => point.title || point.description);
+
   return (
     <View className="flex-1 bg-background">
-      <PageHeader title={data.name} variant="section" />
+      <PageHeader title="Drill Details" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="bg-background"
@@ -62,6 +80,7 @@ export default function DrillDetailScreen() {
           title={data.name}
           subtitle={data.category}
           categoryId={getCategoryIdFromName(data.category)}
+          imageUri={data.image}
         />
         
         <View className="px-5 py-8">
@@ -82,44 +101,41 @@ export default function DrillDetailScreen() {
             </Text>
           </View>
 
-          {/* Equipment Needed */}
-          <View className="mt-10">
-            <EquipmentCard equipment={data.equipment} />
-          </View>
-
-          {/* Step-by-Step Directions */}
-          <View className="mt-10">
-            <Text className="text-[11px] font-bold uppercase tracking-[1.6px] text-navyMuted">
-              Step-by-Step Directions
-            </Text>
-            <View className="mt-5 gap-5">
-              {data.steps.map((step, index) => (
-                <StepDirection key={index} index={index + 1} text={step} />
-              ))}
+          {data.equipment.length ? (
+            <View className="mt-10">
+              <EquipmentCard equipment={data.equipment} />
             </View>
-          </View>
+          ) : null}
 
-          {/* Key Focus Points */}
-          <View className="mt-12">
-            <Text className="text-[11px] font-bold uppercase tracking-[1.6px] text-navyMuted mb-5">
-              Key Focus Points
-            </Text>
-            <View className="gap-4">
-              {data.focusPoints.map((point, index) => {
-                const parts = point.split(':');
-                if (parts.length < 2) return null;
-                const title = parts[0].trim();
-                const description = parts.slice(1).join(':').trim();
-                return (
-                  <FocusPointCard 
-                    key={index} 
-                    title={title} 
-                    description={description} 
+          {data.steps.length ? (
+            <View className="mt-10">
+              <Text className="text-[11px] font-bold uppercase tracking-[1.6px] text-navyMuted">
+                Step-by-Step Directions
+              </Text>
+              <View className="mt-5 gap-5">
+                {data.steps.map((step, index) => (
+                  <StepDirection key={index} index={index + 1} text={step} />
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {focusPoints.length ? (
+            <View className="mt-12">
+              <Text className="text-[11px] font-bold uppercase tracking-[1.6px] text-navyMuted mb-5">
+                Key Focus Points
+              </Text>
+              <View className="gap-4">
+                {focusPoints.map((point, index) => (
+                  <FocusPointCard
+                    key={index}
+                    title={point.title}
+                    description={point.description}
                   />
-                );
-              })}
+                ))}
+              </View>
             </View>
-          </View>
+          ) : null}
         </View>
       </ScrollView>
     </View>

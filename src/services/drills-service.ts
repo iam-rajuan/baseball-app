@@ -1,4 +1,4 @@
-import { apiClient, unwrap } from '@/lib/api-client';
+import { apiClient, resolveApiAssetUrl, unwrap } from '@/lib/api-client';
 import { cachedOrMock, readCachedValue, writeCachedValue } from '@/lib/offline-cache';
 import {
   drillCategories as mockDrillCategories,
@@ -8,10 +8,28 @@ import type { Drill, DrillCategory } from '@/types';
 
 const toStringValue = (value: unknown) => (typeof value === 'string' ? value : '');
 const unwrapItems = <T>(value: T[] | { items: T[] }) => (Array.isArray(value) ? value : value.items);
+const mapFocusPoints = (value: unknown): Drill['focusPoints'] =>
+  Array.isArray(value)
+    ? value
+        .map((item) => {
+          if (typeof item === 'string') return item;
+
+          if (item && typeof item === 'object') {
+            const point = item as Record<string, unknown>;
+            return {
+              title: toStringValue(point.title),
+              description: toStringValue(point.description),
+            };
+          }
+
+          return '';
+        })
+        .filter((item) => (typeof item === 'string' ? item.trim() : item.title || item.description))
+    : [];
 
 const cacheKeys = {
-  categories: 'drills:categories',
-  categoryDrills: (categoryId: string) => `drills:category:${categoryId}`,
+  categories: 'drills:v2:categories',
+  categoryDrills: (categoryId: string) => `drills:v2:category:${categoryId}`,
 };
 
 const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
@@ -19,11 +37,11 @@ const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
   name: String(category.name),
   subtitle: String(category.subtitle),
   numberOfDrills: Number(category.numberOfDrills),
-  image: toStringValue(category.image || category.imageUrl || category.coverPhotoUrl || category.coverUrl),
-  imageUrl: toStringValue(category.imageUrl),
-  coverUrl: toStringValue(category.coverUrl),
-  coverPhotoUrl: toStringValue(category.coverPhotoUrl),
-  iconUrl: toStringValue(category.iconUrl),
+  image: resolveApiAssetUrl(toStringValue(category.image || category.imageUrl || category.coverPhotoUrl || category.coverUrl)),
+  imageUrl: resolveApiAssetUrl(toStringValue(category.imageUrl)),
+  coverUrl: resolveApiAssetUrl(toStringValue(category.coverUrl)),
+  coverPhotoUrl: resolveApiAssetUrl(toStringValue(category.coverPhotoUrl)),
+  iconUrl: resolveApiAssetUrl(toStringValue(category.iconUrl)),
   accessLevel: String(category.accessLevel) as 'free' | 'premium',
   accentIcon: String(category.accentIcon),
 });
@@ -35,12 +53,13 @@ const mapDrill = (drill: Record<string, unknown>): Drill => ({
   description: String(drill.description),
   steps: Array.isArray(drill.steps) ? drill.steps.map(String) : [],
   equipment: Array.isArray(drill.equipment) ? drill.equipment.map(String) : [],
-  focusPoints: Array.isArray(drill.focusPoints) ? drill.focusPoints.map(String) : [],
+  focusPoints: mapFocusPoints(drill.focusPoints),
+  listIcon: toStringValue(drill.listIcon) || 'baseball-outline',
   accessLevel: String(drill.accessLevel) as 'free' | 'premium',
-  image: toStringValue(drill.imageUrl || drill.coverPhotoUrl || drill.coverUrl || drill.cover),
-  imageUrl: toStringValue(drill.imageUrl),
-  coverUrl: toStringValue(drill.coverUrl),
-  coverPhotoUrl: toStringValue(drill.coverPhotoUrl),
+  image: resolveApiAssetUrl(toStringValue(drill.imageUrl || drill.coverPhotoUrl || drill.coverUrl || drill.cover)),
+  imageUrl: resolveApiAssetUrl(toStringValue(drill.imageUrl)),
+  coverUrl: resolveApiAssetUrl(toStringValue(drill.coverUrl)),
+  coverPhotoUrl: resolveApiAssetUrl(toStringValue(drill.coverPhotoUrl)),
 });
 
 const getMockDrillsByCategoryId = (categoryId: string) => {

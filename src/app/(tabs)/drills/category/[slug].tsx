@@ -52,6 +52,9 @@ export default function DrillCategoryScreen() {
   const drills = drillsQuery.data || [];
   const freeDrills = drills.filter((drill) => drill.accessLevel === 'free');
   const premiumDrills = drills.filter((drill) => drill.accessLevel === 'premium');
+  const categoryImageSource = /^https?:\/\//.test(category.image)
+    ? { uri: category.image }
+    : FEATURED_HITTING_IMAGE;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
@@ -93,10 +96,10 @@ export default function DrillCategoryScreen() {
             </View>
 
             {/* Featured Image */}
-            {category.id === 'hitting' ? (
+            {category.id === 'hitting' || /^https?:\/\//.test(category.image) ? (
               <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
                 <Image
-                  source={FEATURED_HITTING_IMAGE}
+                  source={categoryImageSource}
                   style={{ width: '100%', height: 210 }}
                   contentFit="cover"
                 />
@@ -127,10 +130,8 @@ export default function DrillCategoryScreen() {
               </View>
 
               <View style={{ gap: 12 }}>
-                {freeDrills.map((drill, index) => {
-                  let iconName: any = 'baseball-outline';
-                  if (drill.id === 'soccer-ball-drill') iconName = 'ellipse-outline';
-                  if (drill.id === 'connection-ball-drill') iconName = 'link';
+                {freeDrills.map((drill) => {
+                  const iconName = (drill.listIcon || 'baseball-outline') as any;
 
                   return (
                     <Pressable
@@ -161,14 +162,14 @@ export default function DrillCategoryScreen() {
               </View>
 
               <View style={{ gap: 12 }}>
-                {premiumDrills.map((drill, index) => (
+                {premiumDrills.map((drill) => (
                   <Pressable
                     key={drill.id}
                     onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/auth/email')}
                     style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
                   >
                     <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FAF4EA', alignItems: 'center', justifyContent: 'center', marginRight: 14, opacity: 0.6 }}>
-                      <Ionicons name="lock-closed" size={18} color="#CBD2E0" />
+                      <Ionicons name={(isPremium ? drill.listIcon : 'lock-closed') as any} size={18} color="#CBD2E0" />
                     </View>
                     <Text style={{ flex: 1, fontSize: 17, fontWeight: '700', color: '#1F2937', opacity: 0.6 }}>{drill.name}</Text>
                     <Ionicons name="chevron-forward" size={18} color="#CBD2E0" />

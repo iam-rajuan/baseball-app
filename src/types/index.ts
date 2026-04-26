@@ -38,7 +38,8 @@ export type Drill = {
   description: string;
   steps: string[];
   equipment: string[];
-  focusPoints: string[];
+  focusPoints: Array<string | { title: string; description: string }>;
+  listIcon?: string;
   accessLevel: AccessLevel;
   image: string;
   imageUrl?: string;
