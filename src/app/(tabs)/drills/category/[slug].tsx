@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { BlurTargetView, BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useRef } from 'react';
-import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { useCallback, useRef } from 'react';
+import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
@@ -34,8 +34,11 @@ export default function DrillCategoryScreen() {
   const drillsQuery = useQuery({
     queryKey: ['drill-list', routeSlug, 'v1'], // Bumped key to bust cache
     queryFn: () => drillsService.getDrillsByCategoryId(routeSlug),
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
+  const isRefreshing = categoryQuery.isFetching || drillsQuery.isFetching;
+  const refreshCategory = useCallback(async () => {
+    await Promise.all([categoryQuery.refetch(), drillsQuery.refetch()]);
+  }, [categoryQuery, drillsQuery]);
 
   if (categoryQuery.isLoading || drillsQuery.isLoading || !categoryQuery.data) {
     return (
@@ -62,7 +65,18 @@ export default function DrillCategoryScreen() {
         )}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={refreshCategory}
+            refreshing={isRefreshing}
+            tintColor="#E35D21"
+          />
+        )}
+      >
         <View>
           <View style={{ paddingHorizontal: 16, paddingVertical: 24 }}>
             {/* Top Eyebrow Section */}

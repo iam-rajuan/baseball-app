@@ -5,6 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import {
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -13,24 +14,19 @@ import {
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Loader } from '@/components/loader';
-import { settingsService, situationsService } from '@/services';
-
-const specificSituationImage = require('../../../assets/images/specific-situation.png');
+import { situationsService } from '@/services';
 
 export default function SituationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const routeId = id ?? '';
   
-  const { data: situation, isLoading: situationLoading } = useQuery({
+  const { data: situation, isLoading: situationLoading, isFetching, refetch } = useQuery({
     queryKey: ['situation', routeId],
     queryFn: () => situationsService.getById(routeId),
-  });
-  const { data: appSettings, isLoading: settingsLoading } = useQuery({
-    queryKey: ['app-settings'],
-    queryFn: settingsService.getAppSettings,
+    refetchInterval: 1000 * 20,
   });
 
-  if (situationLoading || settingsLoading) {
+  if (situationLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <Loader />
@@ -50,6 +46,7 @@ export default function SituationDetailsScreen() {
   }
 
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
+  const situationImageSource = situation.imageUrl || situation.image;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
@@ -65,7 +62,20 @@ export default function SituationDetailsScreen() {
         <View style={{ width: 36 }} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 60 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={() => {
+              void refetch();
+            }}
+            refreshing={isFetching}
+            tintColor="#E35D21"
+          />
+        )}
+      >
         <View style={{ position: 'relative' }}>
           {/* Grid pattern */}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
@@ -84,7 +94,15 @@ export default function SituationDetailsScreen() {
 
             <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingBottom: 30, paddingTop: 24, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 15, shadowOffset: { width: 0, height: 5 }, elevation: 3 }}>
               <Text style={{ textAlign: 'center', fontSize: 26, fontWeight: '900', textTransform: 'uppercase', lineHeight: 30, color: '#1A1A1A', fontFamily: 'serif' }}>{situation.title}</Text>
-              <Image contentFit="contain" source={specificSituationImage} style={{ width: '100%', height: 260, marginTop: 20 }} />
+              {situationImageSource ? (
+                <View style={{ marginTop: 20, borderRadius: 20, overflow: 'hidden', backgroundColor: '#F8F2E8' }}>
+                  <Image
+                    contentFit="cover"
+                    source={{ uri: situationImageSource }}
+                    style={{ width: '100%', aspectRatio: 16 / 9 }}
+                  />
+                </View>
+              ) : null}
               <View style={{ marginTop: 24 }}>
                 <Text style={{ fontSize: 10, fontWeight: '700', color: '#9F927A', letterSpacing: 1.0, textTransform: 'uppercase', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', paddingBottom: 4 }}>Player Instructions</Text>
                 <View style={{ gap: 8 }}>

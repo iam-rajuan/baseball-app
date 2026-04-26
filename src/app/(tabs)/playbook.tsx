@@ -11,6 +11,7 @@ import { LogoMark } from '@/components/logo-mark';
 import { Screen } from '@/components/layout/screen';
 import { Section } from '@/components/section';
 import { FieldDiagram } from '@/features/playbook/components/field-diagram';
+import { getActiveApiBaseUrl } from '@/lib/api-client';
 import { situationsService } from '@/services';
 
 export default function PlaybookScreen() {
@@ -32,7 +33,7 @@ export default function PlaybookScreen() {
       <Screen>
         <EmptyState
           title="Could not load playbook"
-          description={`${error?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+          description={`${error?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
       </Screen>
     );

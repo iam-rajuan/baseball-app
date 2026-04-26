@@ -1,9 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useLocalSearchParams, router } from 'expo-router';
-import { ScrollView, Text, View, Pressable } from 'react-native';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
@@ -19,10 +17,9 @@ import { drillsService } from '@/services';
 export default function DrillDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const routeId = id ?? '';
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['drill', routeId],
     queryFn: () => drillsService.getById(routeId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   if (isLoading) {
@@ -46,7 +43,21 @@ export default function DrillDetailScreen() {
   return (
     <View className="flex-1 bg-background">
       <PageHeader title={data.name} variant="section" />
-      <ScrollView showsVerticalScrollIndicator={false} className="bg-background" contentContainerStyle={{ paddingBottom: 60 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="bg-background"
+        contentContainerStyle={{ paddingBottom: 60 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={() => {
+              void refetch();
+            }}
+            refreshing={isFetching}
+            tintColor="#E35D21"
+          />
+        )}
+      >
         <DrillBanner
           title={data.name}
           subtitle={data.category}
@@ -114,4 +125,3 @@ export default function DrillDetailScreen() {
     </View>
   );
 }
-

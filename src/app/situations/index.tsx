@@ -8,6 +8,7 @@ import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';
 import { SituationArtwork } from '@/components/situation-artwork';
+import { getActiveApiBaseUrl } from '@/lib/api-client';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsListScreen() {
@@ -27,7 +28,7 @@ export default function SituationsListScreen() {
       ) : error || settingsError || !data ? (
         <EmptyState
           title="Could not load situations"
-          description={`${error?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+          description={`${error?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
       ) : (
         <View className="gap-4">

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { BlurTargetView, BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { useRef } from 'react';
-import { Platform, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 
 
 import { EmptyState } from '@/components/empty-state';
@@ -11,12 +11,13 @@ import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { typography } from '@/constants/typography';
 import { CategoryTile } from '@/features/drills/components/category-tile';
+import { getActiveApiBaseUrl } from '@/lib/api-client';
 import { drillsService } from '@/services';
 
 export default function DrillsScreen() {
   const premiumBlurTargetRef = useRef<View | null>(null);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ['drill-categories'],
     queryFn: drillsService.getCategories,
   });
@@ -34,7 +35,7 @@ export default function DrillsScreen() {
       <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load drills"
-          description={`${error?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+          description={`${error?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
       </View>
     );
@@ -52,7 +53,20 @@ export default function DrillsScreen() {
         )}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={() => {
+              void refetch();
+            }}
+            refreshing={isFetching}
+            tintColor="#E35D21"
+          />
+        )}
+      >
         <View style={{ position: 'relative' }}>
           {/* Seamless Grid Backdrop */}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>

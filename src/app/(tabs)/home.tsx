@@ -2,13 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -18,32 +19,61 @@ import {
 
 import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
-import { settingsService, situationsService } from '@/services';
+import { getActiveApiBaseUrl } from '@/lib/api-client';
+import { featuredSituationsService, settingsService, situationsService } from '@/services';
 import type { Situation } from '@/types';
 import HomeLogo from '../../../assets/svg/home-logo.svg';
-
-const specificSituationImage = require('../../../assets/images/specific-situation.png');
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
 
-  const { data: situations, isLoading: situationsLoading, error: situationsError } = useQuery({
+  const {
+    data: situations,
+    isLoading: situationsLoading,
+    error: situationsError,
+    isFetching: situationsFetching,
+    refetch: refetchSituations,
+  } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
-  const { data: appSettings, isLoading: settingsLoading, error: settingsError } = useQuery({
+  const {
+    data: appSettings,
+    isLoading: settingsLoading,
+    error: settingsError,
+    isFetching: settingsFetching,
+    refetch: refetchSettings,
+  } = useQuery({
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
+  const {
+    data: backendFeaturedSituations,
+    isFetching: featuredFetching,
+    refetch: refetchFeaturedSituations,
+  } = useQuery({
+    queryKey: ['featured-situations'],
+    queryFn: featuredSituationsService.getAll,
+    refetchInterval: 1000 * 20,
+  });
+  const isRefreshing = situationsFetching || settingsFetching || featuredFetching;
+
+  const refreshHome = useCallback(async () => {
+    await Promise.all([
+      refetchSituations(),
+      refetchSettings(),
+      refetchFeaturedSituations(),
+    ]);
+  }, [refetchFeaturedSituations, refetchSettings, refetchSituations]);
 
   if (situationsError || settingsError) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load home"
-          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
       </View>
     );
@@ -57,10 +87,13 @@ export default function HomeScreen() {
     );
   }
 
-  const featuredSituations = (situations || []).filter((item) => item.featured);
+  const featuredSituations = backendFeaturedSituations?.length
+    ? backendFeaturedSituations
+    : (situations || []).filter((item) => item.featured);
   const sliderItems = featuredSituations.length ? featuredSituations : (situations || []);
   const specificSituation = (situations || []).find((item) => !item.featured) ?? (situations || [])[0];
   const bulletItems = specificSituation?.instructions?.slice(0, 9) || [];
+  const specificSituationImageUri = specificSituation?.imageUrl || specificSituation?.image;
   const slideWidth = width - 32;
 
   const handleSliderScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -143,6 +176,14 @@ export default function HomeScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={refreshHome}
+            refreshing={isRefreshing}
+            tintColor="#E35D21"
+          />
+        )}
       >
 
         {/* ===== HERO SECTION ===== */}
@@ -199,13 +240,19 @@ export default function HomeScreen() {
               <Pressable onPress={() => router.push(`/situations/${item.id}`)} style={{ width: slideWidth, marginRight: 12, borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                   <View style={{ alignItems: 'center' }}>
-                    <View style={{ height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#76B45D' }}>
-                      <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF', textTransform: 'uppercase' }}>{item.shortLabel}</Text>
+                    <View style={{ height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#76B45D', overflow: 'hidden' }}>
+                      {item.imageUrl || item.image ? (
+                        <Image
+                          contentFit="cover"
+                          source={{ uri: item.imageUrl || item.image }}
+                          style={{ height: 48, width: 48 }}
+                        />
+                      ) : (
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF', textTransform: 'uppercase' }}>{item.shortLabel}</Text>
+                      )}
                     </View>
-                    <View style={{ marginTop: 4, height: 5, width: 5, borderRadius: 3, backgroundColor: '#76B45D' }} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 9, fontWeight: '700', letterSpacing: 0.9, color: '#5A4B3D', textTransform: 'uppercase' }}>Featured Situation</Text>
                     <Text style={{ marginTop: 2, fontSize: 21, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{item.title}</Text>
                   </View>
                 </View>
@@ -220,9 +267,18 @@ export default function HomeScreen() {
           {specificSituation && (
             <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
               <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{specificSituation.title}</Text>
-              <Pressable onPress={() => router.push(`/situations/${specificSituation.id}`)}>
-                <Image contentFit="contain" source={specificSituationImage} style={{ width: '100%', height: 220, marginTop: 14 }} />
-              </Pressable>
+              {specificSituationImageUri ? (
+                <Pressable
+                  onPress={() => router.push(`/situations/${specificSituation.id}`)}
+                  style={{ marginTop: 14, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F8F2E8' }}
+                >
+                  <Image
+                    contentFit="cover"
+                    source={{ uri: specificSituationImageUri }}
+                    style={{ width: '100%', aspectRatio: 16 / 9 }}
+                  />
+                </Pressable>
+              ) : null}
               <View style={{ marginTop: 14, gap: 4 }}>
                 {bulletItems.map((instruction) => (
                   <Text key={instruction.player} style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}>

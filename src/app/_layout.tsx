@@ -1,14 +1,14 @@
 import '../global.css';
 
 import { ThemeProvider } from '@react-navigation/native';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
 import * as NavigationBar from 'expo-navigation-bar';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import { queryClient } from '@/lib/query-client';
 import { authService } from '@/services';
@@ -47,6 +47,14 @@ export default function RootLayout() {
 
     void bootstrapSession();
   }, [clearSession, hydrateSession]);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (status) => {
+      focusManager.setFocused(status === 'active');
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

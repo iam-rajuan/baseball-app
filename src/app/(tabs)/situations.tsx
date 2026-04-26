@@ -2,9 +2,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
+import { useCallback } from 'react';
 import {
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -14,21 +16,37 @@ import {
 import { EmptyState } from '@/components/empty-state';
 
 import { Loader } from '@/components/loader';
+import { getActiveApiBaseUrl } from '@/lib/api-client';
 import { settingsService, situationsService } from '@/services';
-
-const specificSituationImage = require('../../../assets/images/specific-situation.png');
 
 export default function SituationsTabScreen() {
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
-  const { data: situations, isLoading: situationsLoading, error: situationsError } = useQuery({
+  const {
+    data: situations,
+    isLoading: situationsLoading,
+    error: situationsError,
+    isFetching: situationsFetching,
+    refetch: refetchSituations,
+  } = useQuery({
     queryKey: ['situations'],
     queryFn: situationsService.getAll,
   });
-  const { data: appSettings, isLoading: settingsLoading, error: settingsError } = useQuery({
+  const {
+    data: appSettings,
+    isLoading: settingsLoading,
+    error: settingsError,
+    isFetching: settingsFetching,
+    refetch: refetchSettings,
+  } = useQuery({
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
+  const isRefreshing = situationsFetching || settingsFetching;
+
+  const refreshSituations = useCallback(async () => {
+    await Promise.all([refetchSituations(), refetchSettings()]);
+  }, [refetchSettings, refetchSituations]);
 
   if (situationsLoading || settingsLoading) {
     return (
@@ -43,7 +61,7 @@ export default function SituationsTabScreen() {
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load situations"
-          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}`}
+          description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
       </View>
     );
@@ -101,7 +119,18 @@ export default function SituationsTabScreen() {
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={(
+          <RefreshControl
+            colors={['#E35D21']}
+            onRefresh={refreshSituations}
+            refreshing={isRefreshing}
+            tintColor="#E35D21"
+          />
+        )}
+      >
         <View style={{ position: 'relative', backgroundColor: '#F4E7D5' }}>
           {/* Grid pattern */}
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.3 }}>
@@ -125,9 +154,18 @@ export default function SituationsTabScreen() {
                   <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>{`Situation ${index + 1}`}</Text>
                   <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
                     <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{situation.title}</Text>
-                    <Pressable onPress={() => router.push(`/situations/${situation.id}`)}>
-                      <Image contentFit="contain" source={specificSituationImage} style={{ width: '100%', height: 220, marginTop: 14 }} />
-                    </Pressable>
+                    {situation.imageUrl || situation.image ? (
+                      <Pressable
+                        onPress={() => router.push(`/situations/${situation.id}`)}
+                        style={{ marginTop: 14, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F8F2E8' }}
+                      >
+                        <Image
+                          contentFit="cover"
+                          source={{ uri: situation.imageUrl || situation.image }}
+                          style={{ width: '100%', aspectRatio: 16 / 9 }}
+                        />
+                      </Pressable>
+                    ) : null}
                     <View style={{ marginTop: 14, gap: 4 }}>
                       {situation.instructions.slice(0, 5).map((instruction) => (
                         <Text key={instruction.player} style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}>

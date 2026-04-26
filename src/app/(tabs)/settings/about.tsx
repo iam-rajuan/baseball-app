@@ -1,10 +1,28 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@tanstack/react-query';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PageHeader } from '@/components/layout/page-header';
+import { settingsService } from '@/services';
 
 export default function AboutScreen() {
+  const { data } = useQuery({
+    queryKey: ['legal-pages'],
+    queryFn: settingsService.getLegalPages,
+  });
+
+  const aboutUs = data?.aboutUs;
+  const companyLines = aboutUs?.company ?? [
+    'Marietta Baseball Academy, LLC',
+    '8735 Dunwoody Place #4622',
+    'Atlanta, GA 30350',
+  ];
+  const contactLines = aboutUs?.contact ?? [
+    'www.mbaseballacademy.com',
+    'support@mbaseballacademy.com',
+    '© 2024 Marietta Baseball Academy. All rights reserved.',
+  ];
+
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
       <PageHeader title="About Us" variant="section" />
@@ -57,7 +75,7 @@ export default function AboutScreen() {
                 textTransform: 'uppercase',
               }}
             >
-              Version 2.4.0 Elite
+              {aboutUs?.headline ?? 'Version 2.4.0 Elite'}
             </Text>
           </View>
         </View>
@@ -84,9 +102,8 @@ export default function AboutScreen() {
               fontWeight: '400',
             }}
           >
-            Master the diamond with the most comprehensive tactical simulator designed for elite
-            athletes. Baseball Defensive Situations bridges the gap between raw talent and strategic
-            mastery, providing real-time positioning feedback for every possible play.
+            {aboutUs?.body ??
+              'Master the diamond with the most comprehensive tactical simulator designed for elite athletes. Baseball Defensive Situations bridges the gap between raw talent and strategic mastery, providing real-time positioning feedback for every possible play.'}
           </Text>
         </View>
 
@@ -124,14 +141,13 @@ export default function AboutScreen() {
               marginBottom: 6,
             }}
           >
-            Marietta Baseball Academy, LLC
+            {companyLines[0] ?? 'Marietta Baseball Academy, LLC'}
           </Text>
-          <Text style={{ fontSize: 14, color: '#5A4B3D', lineHeight: 20 }}>
-            8735 Dunwoody Place #4622
-          </Text>
-          <Text style={{ fontSize: 14, color: '#5A4B3D', lineHeight: 20 }}>
-            Atlanta, GA 30350
-          </Text>
+          {companyLines.slice(1).map((line) => (
+            <Text key={line} style={{ fontSize: 14, color: '#5A4B3D', lineHeight: 20 }}>
+              {line}
+            </Text>
+          ))}
 
           {/* Divider */}
           <View style={{ height: 1, backgroundColor: '#EDE6D9', marginTop: 20, marginBottom: 18 }} />
@@ -150,7 +166,7 @@ export default function AboutScreen() {
                 color: '#0C1F4A',
               }}
             >
-              www.mbaseballacademy.com
+              {contactLines[0] ?? 'www.mbaseballacademy.com'}
             </Text>
           </Pressable>
 
@@ -168,7 +184,7 @@ export default function AboutScreen() {
                 color: '#0C1F4A',
               }}
             >
-              support@mbaseballacademy.com
+              {contactLines[1] ?? 'support@mbaseballacademy.com'}
             </Text>
           </Pressable>
         </View>
@@ -207,7 +223,7 @@ export default function AboutScreen() {
               textAlign: 'center',
             }}
           >
-            © 2024 Marietta Baseball Academy. All rights reserved.
+            {contactLines[2] ?? '© 2024 Marietta Baseball Academy. All rights reserved.'}
           </Text>
         </View>
       </ScrollView>
