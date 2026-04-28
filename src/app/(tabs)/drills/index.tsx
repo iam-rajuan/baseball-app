@@ -127,7 +127,7 @@ export default function DrillsScreen() {
 
             {/* Drill Categories List */}
             <View>
-              {data.map((item, index) => (
+              {data.map((item) => (
                 <View key={item.id}>
                   <CategoryTile
                     item={item}

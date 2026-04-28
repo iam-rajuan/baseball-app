@@ -43,7 +43,7 @@ const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
   coverPhotoUrl: resolveApiAssetUrl(toStringValue(category.coverPhotoUrl)),
   iconUrl: resolveApiAssetUrl(toStringValue(category.iconUrl)),
   accessLevel: String(category.accessLevel) as 'free' | 'premium',
-  accentIcon: String(category.accentIcon),
+  accentIcon: toStringValue(category.accentIcon) || 'baseball-outline',
 });
 
 const mapDrill = (drill: Record<string, unknown>): Drill => ({

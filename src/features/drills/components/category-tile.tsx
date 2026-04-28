@@ -16,17 +16,35 @@ type CategoryTileProps = {
  * - High-round corners (36px) as per design spec
  */
 
-const iconMap: Record<string, string> = {
-  hitting: 'baseball',
-  'base-running': 'walk',
-  pitching: 'speedometer-outline',
-  infield: 'apps-outline',
-  outfield: 'radio-outline',
-  catcher: 'shield-outline',
+const fallbackCategoryIcons = [
+  'baseball-outline',
+  'walk-outline',
+  'speedometer-outline',
+  'radio-button-on-outline',
+  'locate-outline',
+  'grid-outline',
+  'aperture-outline',
+  'shield-outline',
+  'hand-left-outline',
+  'barbell-outline',
+  'fitness-outline',
+  'stopwatch-outline',
+  'eye-outline',
+  'compass-outline',
+  'analytics-outline',
+  'trophy-outline',
+  'flame-outline',
+  'lock-closed-outline',
+  'medkit-outline',
+] as const;
+
+const getFallbackIcon = (id: string) => {
+  const hash = Array.from(id).reduce((total, character) => total + character.charCodeAt(0), 0);
+  return fallbackCategoryIcons[hash % fallbackCategoryIcons.length] ?? 'baseball-outline';
 };
 
 export function CategoryTile({ item, onPress }: CategoryTileProps) {
-  const iconName = iconMap[item.id] || 'fitness-outline';
+  const iconName = item.accentIcon || getFallbackIcon(item.id);
 
   return (
     <Pressable
