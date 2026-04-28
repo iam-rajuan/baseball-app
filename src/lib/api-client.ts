@@ -1,25 +1,34 @@
 import axios, { isAxiosError } from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { Platform } from 'react-native';
 
-const configuredApiBaseUrl =
-  process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1';
+const getRequiredEnv = (key: string) => {
+  const value = process.env[key]?.trim();
 
-const unique = <T>(items: T[]) => Array.from(new Set(items));
-
-const buildApiBaseUrlCandidates = () => {
-  const candidates = [configuredApiBaseUrl];
-
-  if (__DEV__ && Platform.OS === 'android') {
-    candidates.push(
-      // Physical device with `adb reverse tcp:5000 tcp:5000`.
-      'http://127.0.0.1:5000/api/v1',
-      // Android emulator host machine alias.
-      'http://10.0.2.2:5000/api/v1',
-    );
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
   }
 
-  return unique(candidates);
+  return value;
+};
+
+const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+
+const configuredApiBaseUrl = trimTrailingSlash(
+  getRequiredEnv('EXPO_PUBLIC_API_BASE_URL'),
+);
+
+const unique = <T>(items: T[]) => Array.from(new Set(items));
+const splitCsv = (value?: string) =>
+  value
+    ?.split(',')
+    .map((item) => trimTrailingSlash(item.trim()))
+    .filter(Boolean) ?? [];
+
+const buildApiBaseUrlCandidates = () => {
+  return unique([
+    configuredApiBaseUrl,
+    ...splitCsv(process.env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES),
+  ]);
 };
 
 const apiBaseUrlCandidates = buildApiBaseUrlCandidates();
