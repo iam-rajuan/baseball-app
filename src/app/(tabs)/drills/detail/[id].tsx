@@ -11,7 +11,9 @@ import { DrillBanner } from '@/features/drills/components/drill-banner';
 import { EquipmentCard } from '@/features/drills/components/equipment-card';
 import { FocusPointCard } from '@/features/drills/components/focus-point-card';
 import { StepDirection } from '@/features/drills/components/step-direction';
+import { YouTubeVideo, getYouTubeWebView } from '@/features/drills/components/youtube-video';
 import { getCategoryIdFromName } from '@/features/drills/drill-media';
+import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
 import { drillsService } from '@/services';
 
 export default function DrillDetailScreen() {
@@ -57,6 +59,7 @@ export default function DrillDetailScreen() {
       };
     })
     .filter((point) => point.title || point.description);
+  const hasYouTubeVideo = Boolean(toYouTubeEmbedUrl(data.youtubeUrl) && getYouTubeWebView());
 
   return (
     <View className="flex-1 bg-background">
@@ -100,6 +103,15 @@ export default function DrillDetailScreen() {
               {data.description}
             </Text>
           </View>
+
+          {hasYouTubeVideo ? (
+            <View className="mt-8">
+              <Text className="mb-4 text-[11px] font-bold uppercase tracking-[1.6px] text-navyMuted">
+                Drill Video
+              </Text>
+              <YouTubeVideo url={data.youtubeUrl} />
+            </View>
+          ) : null}
 
           {data.equipment.length ? (
             <View className="mt-10">

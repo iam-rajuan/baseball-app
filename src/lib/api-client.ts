@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from 'axios';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 const getRequiredEnv = (key: string) => {
@@ -24,11 +25,31 @@ const splitCsv = (value?: string) =>
     .map((item) => trimTrailingSlash(item.trim()))
     .filter(Boolean) ?? [];
 
+const getAndroidEmulatorHostUrl = (value: string) => {
+  if (Platform.OS !== 'android' || !__DEV__) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      url.hostname = '10.0.2.2';
+      return trimTrailingSlash(url.toString());
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
 const buildApiBaseUrlCandidates = () => {
   return unique([
     configuredApiBaseUrl,
+    getAndroidEmulatorHostUrl(configuredApiBaseUrl),
     ...splitCsv(process.env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES),
-  ]);
+  ].filter(Boolean) as string[]);
 };
 
 const apiBaseUrlCandidates = buildApiBaseUrlCandidates();

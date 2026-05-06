@@ -42,6 +42,7 @@ export type Drill = {
   listIcon?: string;
   accessLevel: AccessLevel;
   image: string;
+  youtubeUrl?: string | null;
   imageUrl?: string;
   coverUrl?: string;
   coverPhotoUrl?: string;

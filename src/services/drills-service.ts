@@ -28,8 +28,8 @@ const mapFocusPoints = (value: unknown): Drill['focusPoints'] =>
     : [];
 
 const cacheKeys = {
-  categories: 'drills:v2:categories',
-  categoryDrills: (categoryId: string) => `drills:v2:category:${categoryId}`,
+  categories: 'drills:v3:categories',
+  categoryDrills: (categoryId: string) => `drills:v3:category:${categoryId}`,
 };
 
 const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
@@ -57,6 +57,7 @@ const mapDrill = (drill: Record<string, unknown>): Drill => ({
   listIcon: toStringValue(drill.listIcon) || 'baseball-outline',
   accessLevel: String(drill.accessLevel) as 'free' | 'premium',
   image: resolveApiAssetUrl(toStringValue(drill.imageUrl || drill.coverPhotoUrl || drill.coverUrl || drill.cover)),
+  youtubeUrl: toStringValue(drill.youtubeUrl) || null,
   imageUrl: resolveApiAssetUrl(toStringValue(drill.imageUrl)),
   coverUrl: resolveApiAssetUrl(toStringValue(drill.coverUrl)),
   coverPhotoUrl: resolveApiAssetUrl(toStringValue(drill.coverPhotoUrl)),
