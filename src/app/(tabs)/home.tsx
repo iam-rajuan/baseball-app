@@ -18,10 +18,10 @@ import {
 } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
-import { Loader } from '@/components/loader';
-import { getActiveApiBaseUrl } from '@/lib/api-client';
-import { featuredSituationsService, settingsService, situationsService } from '@/services';
-import type { Situation } from '@/types';
+import { SkeletonLoader } from '@/components/skeleton-loader';
+import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { drillsService, featuredSituationsService, settingsService, situationsService } from '@/services';
+import type { Drill, Situation } from '@/types';
 import HomeLogo from '../../../assets/svg/home-logo.svg';
 
 export default function HomeScreen() {
@@ -59,15 +59,38 @@ export default function HomeScreen() {
     queryFn: featuredSituationsService.getAll,
     refetchInterval: 1000 * 20,
   });
-  const isRefreshing = situationsFetching || settingsFetching || featuredFetching;
+  const {
+    data: newDrills,
+    isLoading: newDrillsLoading,
+    error: newDrillsError,
+    isFetching: newDrillsFetching,
+    refetch: refetchNewDrills,
+  } = useQuery({
+    queryKey: ['new-drills'],
+    queryFn: () => drillsService.getNewDrills(5),
+  });
+  const isRefreshing = situationsFetching || settingsFetching || featuredFetching || newDrillsFetching;
 
   const refreshHome = useCallback(async () => {
     await Promise.all([
       refetchSituations(),
       refetchSettings(),
       refetchFeaturedSituations(),
+      refetchNewDrills(),
     ]);
-  }, [refetchFeaturedSituations, refetchSettings, refetchSituations]);
+  }, [refetchFeaturedSituations, refetchNewDrills, refetchSettings, refetchSituations]);
+
+  const isInitialRecoverableError =
+    (!situations || !appSettings) &&
+    (isRecoverableApiError(situationsError) || isRecoverableApiError(settingsError));
+
+  if (situationsLoading || settingsLoading || isInitialRecoverableError || !situations || !appSettings) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+        <SkeletonLoader />
+      </View>
+    );
+  }
 
   if (situationsError || settingsError) {
     return (
@@ -76,14 +99,6 @@ export default function HomeScreen() {
           title="Could not load home"
           description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
         />
-      </View>
-    );
-  }
-
-  if (situationsLoading || settingsLoading || !situations || !appSettings) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
-        <Loader />
       </View>
     );
   }
@@ -97,6 +112,30 @@ export default function HomeScreen() {
   const specificSituationImageUri = specificSituation?.imageUrl || specificSituation?.image;
   const slideWidth = width - 32;
   const situationCountLabel = situations.length > 99 ? '99+' : String(situations.length);
+  const renderNewDrill = (drill: Drill) => (
+    <Pressable
+      key={drill.id}
+      onPress={() => router.push(`/drills/detail/${drill.id}`)}
+      style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 18, backgroundColor: '#FFFFFF', padding: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}
+    >
+      {drill.image ? (
+        <Image
+          contentFit="cover"
+          source={{ uri: drill.image }}
+          style={{ height: 54, width: 72, borderRadius: 14, backgroundColor: '#F8F2E8' }}
+        />
+      ) : (
+        <View style={{ height: 54, width: 72, borderRadius: 14, backgroundColor: '#F8F2E8', alignItems: 'center', justifyContent: 'center' }}>
+          <Ionicons color="#C2410C" name={(drill.listIcon || 'baseball-outline') as any} size={22} />
+        </View>
+      )}
+      <View style={{ flex: 1, marginLeft: 12 }}>
+        <Text style={{ fontSize: 16, fontWeight: '800', color: '#21314F' }}>{drill.name}</Text>
+        <Text style={{ marginTop: 3, fontSize: 12, fontWeight: '600', color: '#7B6D5C' }}>{drill.category}</Text>
+      </View>
+      <Ionicons color="#CBD2E0" name="chevron-forward" size={18} />
+    </Pressable>
+  );
 
   const handleSliderScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const nextIndex = Math.round(event.nativeEvent.contentOffset.x / slideWidth);
@@ -266,6 +305,34 @@ export default function HomeScreen() {
               </Pressable>
             )}
           />
+        </View>
+
+        {/* ===== NEW DRILLS ===== */}
+        <View style={{ backgroundColor: '#F4E7D5', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
+          <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>New Drills</Text>
+          {newDrillsLoading ? (
+            <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
+              <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
+            </View>
+          ) : newDrillsError && isRecoverableApiError(newDrillsError) ? (
+            <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
+              <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
+            </View>
+          ) : newDrillsError ? (
+            <EmptyState
+              title="Could not load new drills"
+              description={newDrillsError.message}
+            />
+          ) : newDrills?.length ? (
+            <View style={{ gap: 10 }}>
+              {newDrills.map(renderNewDrill)}
+            </View>
+          ) : (
+            <EmptyState
+              title="No new drills yet"
+              description="Drills created from the admin dashboard will appear here."
+            />
+          )}
         </View>
 
         {/* ===== SPECIFIC SITUATIONS ===== */}

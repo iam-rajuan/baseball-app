@@ -7,11 +7,11 @@ import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View 
 
 
 import { EmptyState } from '@/components/empty-state';
-import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
+import { SkeletonLoader } from '@/components/skeleton-loader';
 import { typography } from '@/constants/typography';
 import { CategoryTile } from '@/features/drills/components/category-tile';
-import { getActiveApiBaseUrl } from '@/lib/api-client';
+import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { drillsService } from '@/services';
 
 function FrostedCard({ children }: { children: ReactNode }) {
@@ -38,10 +38,10 @@ export default function DrillsScreen() {
     queryFn: drillsService.getCategories,
   });
 
-  if (isLoading) {
+  if (isLoading || (!data && isRecoverableApiError(error))) {
     return (
       <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
-        <Loader />
+        <SkeletonLoader />
       </View>
     );
   }
@@ -143,14 +143,21 @@ export default function DrillsScreen() {
 
             {/* Drill Categories List */}
             <View>
-              {data.map((item) => (
-                <View key={item.id}>
-                  <CategoryTile
-                    item={item}
-                    onPress={() => router.push(`/drills/category/${item.id}`)}
-                  />
-                </View>
-              ))}
+              {data.length ? (
+                data.map((item) => (
+                  <View key={item.id}>
+                    <CategoryTile
+                      item={item}
+                      onPress={() => router.push(`/drills/category/${item.id}`)}
+                    />
+                  </View>
+                ))
+              ) : (
+                <EmptyState
+                  title="No drill categories yet"
+                  description="Categories created from the admin dashboard will appear here."
+                />
+              )}
             </View>
 
             {/* Unlock All Premium Section (Apple Frosted Glass) */}
@@ -240,18 +247,6 @@ export default function DrillsScreen() {
                       </Pressable>
                     </View>
 
-                    <Text
-                      style={{
-                        marginTop: 16,
-                        textAlign: 'center',
-                        fontSize: 10,
-                        fontWeight: '700',
-                        color: '#4B5563',
-                        opacity: 0.8
-                      }}
-                    >
-                      All premium drills were unlocked in demo mode. Connect StoreKit next.
-                    </Text>
                   </View>
               </FrostedCard>
             </View>

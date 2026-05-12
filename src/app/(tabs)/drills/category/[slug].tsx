@@ -7,18 +7,14 @@ import { useCallback, type ReactNode } from 'react';
 import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
-import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
+import { SkeletonLoader } from '@/components/skeleton-loader';
 import { typography } from '@/constants/typography';
 import { getCategoryEyebrow } from '@/features/drills/drill-media';
 import { PlaceholderBanner } from '@/features/drills/components/placeholder-banner';
+import { isRecoverableApiError } from '@/lib/api-client';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
-
-/**
- * Hitting action image (stored in assets/images)
- */
-const FEATURED_HITTING_IMAGE = require('../../../../../assets/images/hitting-featured.jpg');
 
 function FrostedCard({ children }: { children: ReactNode }) {
   if (Platform.OS === 'android') {
@@ -37,7 +33,6 @@ function FrostedCard({ children }: { children: ReactNode }) {
 }
 
 export default function DrillCategoryScreen() {
-
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const routeSlug = slug ?? '';
   const isPremium = useAppStore((state) => state.isPremium);
@@ -47,30 +42,73 @@ export default function DrillCategoryScreen() {
     queryFn: () => drillsService.getCategory(routeSlug),
   });
 
-  const drillsQuery = useQuery({
-    queryKey: ['drill-list', routeSlug, 'v1'], // Bumped key to bust cache
-    queryFn: () => drillsService.getDrillsByCategoryId(routeSlug),
+  const freeDrillsQuery = useQuery({
+    queryKey: ['drill-list', routeSlug, 'free'],
+    queryFn: () => drillsService.getDrillsByCategoryAndAccessLevel(routeSlug, 'free'),
   });
-  const isRefreshing = categoryQuery.isFetching || drillsQuery.isFetching;
-  const refreshCategory = useCallback(async () => {
-    await Promise.all([categoryQuery.refetch(), drillsQuery.refetch()]);
-  }, [categoryQuery, drillsQuery]);
 
-  if (categoryQuery.isLoading || drillsQuery.isLoading || !categoryQuery.data) {
+  const premiumDrillsQuery = useQuery({
+    queryKey: ['drill-list', routeSlug, 'premium'],
+    queryFn: () => drillsService.getDrillsByCategoryAndAccessLevel(routeSlug, 'premium'),
+  });
+
+  const isRefreshing =
+    categoryQuery.isFetching || freeDrillsQuery.isFetching || premiumDrillsQuery.isFetching;
+
+  const refreshCategory = useCallback(async () => {
+    await Promise.all([
+      categoryQuery.refetch(),
+      freeDrillsQuery.refetch(),
+      premiumDrillsQuery.refetch(),
+    ]);
+  }, [categoryQuery, freeDrillsQuery, premiumDrillsQuery]);
+
+  if (categoryQuery.isLoading || freeDrillsQuery.isLoading || premiumDrillsQuery.isLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
-        <Loader />
+        <SkeletonLoader />
+      </View>
+    );
+  }
+
+  if (
+    (!categoryQuery.data || !freeDrillsQuery.data || !premiumDrillsQuery.data) &&
+    (
+      isRecoverableApiError(categoryQuery.error) ||
+      isRecoverableApiError(freeDrillsQuery.error) ||
+      isRecoverableApiError(premiumDrillsQuery.error)
+    )
+  ) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+        <SkeletonLoader />
+      </View>
+    );
+  }
+
+  if (categoryQuery.error || freeDrillsQuery.error || premiumDrillsQuery.error || !categoryQuery.data) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+        <EmptyState
+          title="Could not load drills"
+          description={
+            categoryQuery.error?.message ??
+            freeDrillsQuery.error?.message ??
+            premiumDrillsQuery.error?.message ??
+            'Request failed'
+          }
+        />
       </View>
     );
   }
 
   const category = categoryQuery.data;
-  const drills = drillsQuery.data || [];
-  const freeDrills = drills.filter((drill) => drill.accessLevel === 'free');
-  const premiumDrills = drills.filter((drill) => drill.accessLevel === 'premium');
-  const categoryImageSource = /^https?:\/\//.test(category.image)
+  const freeDrills = freeDrillsQuery.data ?? [];
+  const premiumDrills = premiumDrillsQuery.data ?? [];
+  const hasAnyDrills = freeDrills.length > 0 || premiumDrills.length > 0;
+  const categoryImageSource = category.image && /^https?:\/\//.test(category.image)
     ? { uri: category.image }
-    : FEATURED_HITTING_IMAGE;
+    : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
@@ -112,7 +150,7 @@ export default function DrillCategoryScreen() {
             </View>
 
             {/* Featured Image */}
-            {category.id === 'hitting' || /^https?:\/\//.test(category.image) ? (
+            {categoryImageSource ? (
               <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
                 <Image
                   source={categoryImageSource}
@@ -126,7 +164,7 @@ export default function DrillCategoryScreen() {
               </View>
             )}
 
-            {!drills.length ? (
+            {!hasAnyDrills ? (
               <View style={{ marginBottom: 24 }}>
                 <EmptyState
                   title="No drills yet"

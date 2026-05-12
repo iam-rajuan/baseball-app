@@ -6,12 +6,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
 import { EmptyState } from '@/components/empty-state';
-import { Loader } from '@/components/loader';
 import { LogoMark } from '@/components/logo-mark';
 import { Screen } from '@/components/layout/screen';
 import { Section } from '@/components/section';
+import { SkeletonLoader } from '@/components/skeleton-loader';
 import { FieldDiagram } from '@/features/playbook/components/field-diagram';
-import { getActiveApiBaseUrl } from '@/lib/api-client';
+import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { situationsService } from '@/services';
 
 export default function PlaybookScreen() {
@@ -20,10 +20,10 @@ export default function PlaybookScreen() {
     queryFn: situationsService.getAll,
   });
 
-  if (isLoading) {
+  if (isLoading || (!data && isRecoverableApiError(error))) {
     return (
       <Screen>
-        <Loader />
+        <SkeletonLoader />
       </Screen>
     );
   }
@@ -40,6 +40,7 @@ export default function PlaybookScreen() {
   }
 
   const featured = data.find((item) => item.featured) ?? data[0];
+  const situationCountLabel = data.length > 99 ? '99+' : String(data.length);
   const randomSituation = () => {
     const next = data[Math.floor(Math.random() * data.length)];
     router.push(`/situations/${next.id}`);
@@ -71,7 +72,7 @@ export default function PlaybookScreen() {
         </View>
         <View className="mt-6 gap-3">
           <Button label="Pick Random" onPress={randomSituation} />
-          <Button label="Browse All 40" onPress={() => router.push('/situations')} />
+          <Button label={`Browse All ${situationCountLabel}`} onPress={() => router.push('/situations')} />
         </View>
       </View>
 

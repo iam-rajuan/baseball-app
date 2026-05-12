@@ -4,11 +4,11 @@ import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/card';
 import { EmptyState } from '@/components/empty-state';
-import { Loader } from '@/components/loader';
 import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';
+import { SkeletonLoader } from '@/components/skeleton-loader';
 import { SituationArtwork } from '@/components/situation-artwork';
-import { getActiveApiBaseUrl } from '@/lib/api-client';
+import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsListScreen() {
@@ -23,8 +23,8 @@ export default function SituationsListScreen() {
 
   return (
     <Screen header={<PageHeader title="Defensive Situations" />} contentClassName="pt-5">
-      {isLoading ? (
-        <Loader />
+      {isLoading || (!data && isRecoverableApiError(error)) ? (
+        <SkeletonLoader />
       ) : error || settingsError || !data ? (
         <EmptyState
           title="Could not load situations"

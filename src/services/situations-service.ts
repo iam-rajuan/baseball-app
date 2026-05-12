@@ -1,8 +1,6 @@
-import { apiClient, resolveApiAssetUrl, unwrap } from '@/lib/api-client';
-import { cachedOrMock, readCachedValue, writeCachedValue } from '@/lib/offline-cache';
-import { situations as mockSituations } from '@/mock/data';
-import type { Situation } from '@/types';
-import { featuredSituationsCacheKey } from './featured-situations-service';
+import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
+import { writeCachedValue } from '@/lib/offline-cache';
+import type { PaginatedResult, Situation } from '@/types';
 
 const cacheKeys = {
   all: 'situations:all',
@@ -22,36 +20,38 @@ const mapSituation = (item: Record<string, unknown>): Situation => ({
   imageUrl: resolveApiAssetUrl(typeof item.imageUrl === 'string' ? item.imageUrl : ''),
 });
 
+const fetchAllPages = async <T>(
+  fetchPage: (page: number) => Promise<PaginatedResult<T>>,
+) => {
+  const firstPage = await fetchPage(1);
+  const items = [...firstPage.items];
+
+  for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+    const nextPage = await fetchPage(page);
+    items.push(...nextPage.items);
+  }
+
+  return items;
+};
+
 export const situationsService = {
   async getAll(): Promise<Situation[]> {
-    try {
-      const result = await unwrap<Situation[] | { items: Record<string, unknown>[] }>(
-        apiClient.get('/situations'),
+    const mappedItems = await fetchAllPages(async (page) => {
+      const result = await unwrapPaginated<Record<string, unknown>>(
+        apiClient.get('/situations', { params: { page, limit: 100 } }),
       );
-      const items = Array.isArray(result) ? result : result.items;
-      const mappedItems = items.map((item) => mapSituation(item as Record<string, unknown>));
 
-      await writeCachedValue(cacheKeys.all, mappedItems);
-      return mappedItems;
-    } catch {
-      return cachedOrMock(cacheKeys.all, mockSituations);
-    }
+      return {
+        ...result,
+        items: result.items.map((item) => mapSituation(item)),
+      };
+    });
+
+    await writeCachedValue(cacheKeys.all, mappedItems);
+    return mappedItems;
   },
   async getById(id: string): Promise<Situation> {
-    try {
-      const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));
-      return mapSituation(result);
-    } catch {
-      const cachedItems = await readCachedValue<Situation[]>(cacheKeys.all);
-      const cachedFeaturedItems = await readCachedValue<Situation[]>(featuredSituationsCacheKey);
-      const fallbackItems = [...(cachedItems ?? []), ...(cachedFeaturedItems ?? []), ...mockSituations];
-      const fallbackItem = fallbackItems.find((item) => item.id === id);
-
-      if (fallbackItem) {
-        return fallbackItem;
-      }
-
-      throw new Error('Situation not found offline');
-    }
+    const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));
+    return mapSituation(result);
   },
 };

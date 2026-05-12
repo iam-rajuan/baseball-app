@@ -8,7 +8,7 @@ const env = {
     process.env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES,
 } as const;
 
-const getRequiredEnv = (key: string) => {
+const getRequiredEnv = (key: keyof typeof env) => {
   const value = env[key]?.trim();
 
   if (!value) {
@@ -88,7 +88,7 @@ export const resolveApiAssetUrl = (value?: string | null) => {
 
 export const apiClient = axios.create({
   baseURL: activeApiBaseUrl,
-  timeout: 6000,
+  timeout: 45000,
 });
 
 apiClient.interceptors.request.use(async (config) => {
@@ -143,9 +143,57 @@ export type ApiEnvelope<T> = {
   success: boolean;
   message: string;
   data: T;
+  meta?: {
+    pagination?: Pagination;
+  } | null;
+  pagination?: Pagination;
+};
+
+export type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};
+
+export type PaginatedResult<T> = {
+  items: T[];
+  pagination: Pagination;
 };
 
 export async function unwrap<T>(promise: Promise<{ data: ApiEnvelope<T> }>): Promise<T> {
   const response = await promise;
   return response.data.data;
 }
+
+export async function unwrapPaginated<T>(
+  promise: Promise<{ data: ApiEnvelope<T[]> }>,
+): Promise<PaginatedResult<T>> {
+  const response = await promise;
+
+  return {
+    items: response.data.data,
+    pagination: response.data.pagination ??
+      response.data.meta?.pagination ?? {
+        page: 1,
+        limit: response.data.data.length,
+        total: response.data.data.length,
+        totalPages: 1,
+      },
+  };
+}
+
+export const isRecoverableApiError = (error: unknown) => {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  return (
+    message.includes('network error') ||
+    message.includes('timeout') ||
+    message.includes('network request failed') ||
+    message.includes('failed to fetch')
+  );
+};
