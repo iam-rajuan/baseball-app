@@ -2,8 +2,14 @@ import axios, { isAxiosError } from 'axios';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+const env = {
+  EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
+  EXPO_PUBLIC_API_BASE_URL_CANDIDATES:
+    process.env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES,
+} as const;
+
 const getRequiredEnv = (key: string) => {
-  const value = process.env[key]?.trim();
+  const value = env[key]?.trim();
 
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
@@ -48,7 +54,7 @@ const buildApiBaseUrlCandidates = () => {
   return unique([
     configuredApiBaseUrl,
     getAndroidEmulatorHostUrl(configuredApiBaseUrl),
-    ...splitCsv(process.env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES),
+    ...splitCsv(env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES),
   ].filter(Boolean) as string[]);
 };
 
