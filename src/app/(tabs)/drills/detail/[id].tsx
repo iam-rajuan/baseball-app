@@ -12,7 +12,6 @@ import { EquipmentCard } from '@/features/drills/components/equipment-card';
 import { FocusPointCard } from '@/features/drills/components/focus-point-card';
 import { StepDirection } from '@/features/drills/components/step-direction';
 import { YouTubeVideo, getYouTubeWebView } from '@/features/drills/components/youtube-video';
-import { getCategoryIdFromName } from '@/features/drills/drill-media';
 import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
 import { drillsService } from '@/services';
 
@@ -82,7 +81,6 @@ export default function DrillDetailScreen() {
         <DrillBanner
           title={data.name}
           subtitle={data.category}
-          categoryId={getCategoryIdFromName(data.category)}
           imageUri={data.image}
         />
         

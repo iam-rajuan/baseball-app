@@ -1,13 +1,8 @@
-import { apiClient, resolveApiAssetUrl, unwrap } from '@/lib/api-client';
-import { cachedOrMock, readCachedValue, writeCachedValue } from '@/lib/offline-cache';
-import {
-  drillCategories as mockDrillCategories,
-  drills as mockDrills,
-} from '@/mock/data';
-import type { Drill, DrillCategory } from '@/types';
+import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
+import { writeCachedValue } from '@/lib/offline-cache';
+import type { Drill, DrillCategory, PaginatedResult } from '@/types';
 
 const toStringValue = (value: unknown) => (typeof value === 'string' ? value : '');
-const unwrapItems = <T>(value: T[] | { items: T[] }) => (Array.isArray(value) ? value : value.items);
 const mapFocusPoints = (value: unknown): Drill['focusPoints'] =>
   Array.isArray(value)
     ? value
@@ -49,6 +44,7 @@ const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
 const mapDrill = (drill: Record<string, unknown>): Drill => ({
   id: String(drill.id),
   name: String(drill.name),
+  categoryId: toStringValue(drill.categoryId),
   category: toStringValue(drill.categoryName || drill.category),
   description: String(drill.description),
   steps: Array.isArray(drill.steps) ? drill.steps.map(String) : [],
@@ -61,87 +57,91 @@ const mapDrill = (drill: Record<string, unknown>): Drill => ({
   imageUrl: resolveApiAssetUrl(toStringValue(drill.imageUrl)),
   coverUrl: resolveApiAssetUrl(toStringValue(drill.coverUrl)),
   coverPhotoUrl: resolveApiAssetUrl(toStringValue(drill.coverPhotoUrl)),
+  createdAt: toStringValue(drill.createdAt),
 });
 
-const getMockDrillsByCategoryId = (categoryId: string) => {
-  const category = mockDrillCategories.find((item) => item.id === categoryId);
+const fetchAllPages = async <T>(
+  fetchPage: (page: number) => Promise<PaginatedResult<T>>,
+) => {
+  const firstPage = await fetchPage(1);
+  const items = [...firstPage.items];
 
-  if (!category) {
-    return mockDrills;
+  for (let page = 2; page <= firstPage.pagination.totalPages; page += 1) {
+    const nextPage = await fetchPage(page);
+    items.push(...nextPage.items);
   }
 
-  return mockDrills.filter((drill) => drill.category === category.name);
-};
-
-const readCachedCategoryDrills = async () => {
-  const categories = await readCachedValue<DrillCategory[]>(cacheKeys.categories);
-  const drillGroups = await Promise.all(
-    (categories ?? mockDrillCategories).map((category) =>
-      readCachedValue<Drill[]>(cacheKeys.categoryDrills(category.id)),
-    ),
-  );
-
-  return drillGroups.flatMap((items) => items ?? []);
+  return items;
 };
 
 export const drillsService = {
   async getCategories(): Promise<DrillCategory[]> {
-    try {
-      const result = await unwrap<Record<string, unknown>[] | { items: Record<string, unknown>[] }>(
-        apiClient.get('/drill-categories'),
+    const mappedItems = await fetchAllPages(async (page) => {
+      const result = await unwrapPaginated<Record<string, unknown>>(
+        apiClient.get('/drill-categories', { params: { page, limit: 100 } }),
       );
-      const items = unwrapItems(result);
-      const mappedItems = items.map((category) => mapCategory(category));
 
-      await writeCachedValue(cacheKeys.categories, mappedItems);
-      return mappedItems;
-    } catch {
-      return cachedOrMock(cacheKeys.categories, mockDrillCategories);
-    }
+      return {
+        ...result,
+        items: result.items.map((category) => mapCategory(category)),
+      };
+    });
+
+    await writeCachedValue(cacheKeys.categories, mappedItems);
+    return mappedItems;
   },
   async getCategory(id: string): Promise<DrillCategory> {
-    try {
-      const category = await unwrap<Record<string, unknown>>(apiClient.get(`/drill-categories/${id}`));
-      return mapCategory(category);
-    } catch {
-      const cachedCategories = await readCachedValue<DrillCategory[]>(cacheKeys.categories);
-      const fallbackCategories = cachedCategories ?? mockDrillCategories;
-      const fallbackCategory = fallbackCategories.find((category) => category.id === id);
+    const category = await unwrap<Record<string, unknown>>(apiClient.get(`/drill-categories/${id}`));
+    return mapCategory(category);
+  },
+  async getDrillsByCategoryIdPage(
+    categoryId: string,
+    page = 1,
+    limit = 25,
+    accessLevel?: 'free' | 'premium',
+  ): Promise<PaginatedResult<Drill>> {
+    const result = await unwrapPaginated<Record<string, unknown>>(
+      apiClient.get('/drills', { params: { categoryId, page, limit, accessLevel } }),
+    );
+    const mappedItems = result.items.map((drill) => mapDrill(drill));
 
-      if (fallbackCategory) {
-        return fallbackCategory;
-      }
-
-      throw new Error('Drill category not found offline');
+    if (page === 1) {
+      await writeCachedValue(cacheKeys.categoryDrills(categoryId), mappedItems);
     }
+
+    return {
+      items: mappedItems,
+      pagination: result.pagination,
+    };
   },
   async getDrillsByCategoryId(categoryId: string): Promise<Drill[]> {
-    try {
-      const result = await unwrap<Record<string, unknown>[] | { items: Record<string, unknown>[] }>(
-        apiClient.get(`/drills?categoryId=${categoryId}`),
-      );
-      const items = unwrapItems(result);
-      const mappedItems = items.map((drill) => mapDrill(drill));
+    const mappedItems = await fetchAllPages((page) =>
+      drillsService.getDrillsByCategoryIdPage(categoryId, page, 100),
+    );
 
-      await writeCachedValue(cacheKeys.categoryDrills(categoryId), mappedItems);
-      return mappedItems;
-    } catch {
-      return cachedOrMock(cacheKeys.categoryDrills(categoryId), getMockDrillsByCategoryId(categoryId));
-    }
+    await writeCachedValue(cacheKeys.categoryDrills(categoryId), mappedItems);
+    return mappedItems;
+  },
+  async getDrillsByCategoryAndAccessLevel(
+    categoryId: string,
+    accessLevel: 'free' | 'premium',
+  ): Promise<Drill[]> {
+    const mappedItems = await fetchAllPages((page) =>
+      drillsService.getDrillsByCategoryIdPage(categoryId, page, 100, accessLevel),
+    );
+
+    await writeCachedValue(cacheKeys.categoryDrills(`${categoryId}:${accessLevel}`), mappedItems);
+    return mappedItems;
+  },
+  async getNewDrills(limit = 5): Promise<Drill[]> {
+    const result = await unwrapPaginated<Record<string, unknown>>(
+      apiClient.get('/drills', { params: { page: 1, limit } }),
+    );
+
+    return result.items.map((drill) => mapDrill(drill));
   },
   async getById(id: string): Promise<Drill> {
-    try {
-      const drill = await unwrap<Record<string, unknown>>(apiClient.get(`/drills/${id}`));
-      return mapDrill(drill);
-    } catch {
-      const cachedDrills = await readCachedCategoryDrills();
-      const fallbackDrill = [...cachedDrills, ...mockDrills].find((drill) => drill.id === id);
-
-      if (fallbackDrill) {
-        return fallbackDrill;
-      }
-
-      throw new Error('Drill not found offline');
-    }
+    const drill = await unwrap<Record<string, unknown>>(apiClient.get(`/drills/${id}`));
+    return mapDrill(drill);
   },
 };

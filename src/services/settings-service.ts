@@ -1,6 +1,5 @@
 import { apiClient, unwrap } from '@/lib/api-client';
-import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
-import { defaultAppSettings, legalPages } from '@/mock/data';
+import { writeCachedValue } from '@/lib/offline-cache';
 import type { AppSettings, LegalPages } from '@/types';
 
 const cacheKeys = {
@@ -32,23 +31,15 @@ const normalizeLegalPages = (pages: LegalPages): LegalPages => ({
 
 export const settingsService = {
   async getLegalPages(): Promise<LegalPages> {
-    try {
-      const result = normalizeLegalPages(
-        await unwrap<LegalPages>(apiClient.get('/settings/public/legal')),
-      );
-      await writeCachedValue(cacheKeys.legalPages, result);
-      return result;
-    } catch {
-      return cachedOrMock(cacheKeys.legalPages, legalPages);
-    }
+    const result = normalizeLegalPages(
+      await unwrap<LegalPages>(apiClient.get('/settings/public/legal')),
+    );
+    await writeCachedValue(cacheKeys.legalPages, result);
+    return result;
   },
   async getAppSettings(): Promise<AppSettings> {
-    try {
-      const result = await unwrap<AppSettings>(apiClient.get('/settings/public/app'));
-      await writeCachedValue(cacheKeys.appSettings, result);
-      return result;
-    } catch {
-      return cachedOrMock(cacheKeys.appSettings, defaultAppSettings);
-    }
+    const result = await unwrap<AppSettings>(apiClient.get('/settings/public/app'));
+    await writeCachedValue(cacheKeys.appSettings, result);
+    return result;
   },
 };

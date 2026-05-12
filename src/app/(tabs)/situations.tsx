@@ -15,8 +15,8 @@ import {
 
 import { EmptyState } from '@/components/empty-state';
 
-import { Loader } from '@/components/loader';
-import { getActiveApiBaseUrl } from '@/lib/api-client';
+import { SkeletonLoader } from '@/components/skeleton-loader';
+import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsTabScreen() {
@@ -48,10 +48,14 @@ export default function SituationsTabScreen() {
     await Promise.all([refetchSituations(), refetchSettings()]);
   }, [refetchSettings, refetchSituations]);
 
-  if (situationsLoading || settingsLoading) {
+  const isInitialRecoverableError =
+    (!situations || !appSettings) &&
+    (isRecoverableApiError(situationsError) || isRecoverableApiError(settingsError));
+
+  if (situationsLoading || settingsLoading || isInitialRecoverableError) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight }}>
-        <Loader />
+        <SkeletonLoader />
       </View>
     );
   }
@@ -149,37 +153,44 @@ export default function SituationsTabScreen() {
             </View>
 
             <View style={{ gap: 24 }}>
-              {(situations || []).map((situation, index) => (
-                <View key={situation.id}>
-                  <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>{`Situation ${index + 1}`}</Text>
-                  <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
-                    <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{situation.title}</Text>
-                    {situation.imageUrl || situation.image ? (
-                      <Pressable
-                        onPress={() => router.push(`/situations/${situation.id}`)}
-                        style={{ marginTop: 14, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F8F2E8' }}
-                      >
-                        <Image
-                          contentFit="cover"
-                          source={{ uri: situation.imageUrl || situation.image }}
-                          style={{ width: '100%', aspectRatio: 16 / 9 }}
-                        />
+              {situations.length ? (
+                situations.map((situation, index) => (
+                  <View key={situation.id}>
+                    <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>{`Situation ${index + 1}`}</Text>
+                    <View style={{ borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingBottom: 20, paddingTop: 18, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
+                      <Text style={{ textAlign: 'center', fontSize: 19, fontWeight: '700', lineHeight: 25, color: '#21314F' }}>{situation.title}</Text>
+                      {situation.imageUrl || situation.image ? (
+                        <Pressable
+                          onPress={() => router.push(`/situations/${situation.id}`)}
+                          style={{ marginTop: 14, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F8F2E8' }}
+                        >
+                          <Image
+                            contentFit="cover"
+                            source={{ uri: situation.imageUrl || situation.image }}
+                            style={{ width: '100%', aspectRatio: 16 / 9 }}
+                          />
+                        </Pressable>
+                      ) : null}
+                      <View style={{ marginTop: 14, gap: 4 }}>
+                        {situation.instructions.slice(0, 5).map((instruction) => (
+                          <Text key={instruction.player} style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}>
+                            <Text style={{ fontWeight: '700', color: '#1E2438' }}>{`${instruction.player}: `}</Text>
+                            {instruction.detail}
+                          </Text>
+                        ))}
+                      </View>
+                      <Pressable onPress={() => router.push(`/situations/${situation.id}`)} style={{ marginTop: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#F0F0F0', alignItems: 'center' }}>
+                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#E35D21' }}>View Full Playbook</Text>
                       </Pressable>
-                    ) : null}
-                    <View style={{ marginTop: 14, gap: 4 }}>
-                      {situation.instructions.slice(0, 5).map((instruction) => (
-                        <Text key={instruction.player} style={{ fontSize: 11.5, lineHeight: 17, fontWeight: '400', color: '#1E2438' }}>
-                          <Text style={{ fontWeight: '700', color: '#1E2438' }}>{`${instruction.player}: `}</Text>
-                          {instruction.detail}
-                        </Text>
-                      ))}
                     </View>
-                    <Pressable onPress={() => router.push(`/situations/${situation.id}`)} style={{ marginTop: 16, paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#F0F0F0', alignItems: 'center' }}>
-                      <Text style={{ fontSize: 13, fontWeight: '700', color: '#E35D21' }}>View Full Playbook</Text>
-                    </Pressable>
                   </View>
-                </View>
-              ))}
+                ))
+              ) : (
+                <EmptyState
+                  title="No situations yet"
+                  description="Situations created from the admin dashboard will appear here."
+                />
+              )}
             </View>
           </View>
         </View>

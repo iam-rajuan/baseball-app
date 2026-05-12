@@ -1,6 +1,5 @@
 import { apiClient, resolveApiAssetUrl, unwrap } from '@/lib/api-client';
-import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
-import { situations as mockSituations } from '@/mock/data';
+import { writeCachedValue } from '@/lib/offline-cache';
 import type { Situation } from '@/types';
 
 export const featuredSituationsCacheKey = 'situations:featured:v2';
@@ -29,26 +28,16 @@ const mapFeaturedSituation = (item: Record<string, unknown>): Situation | null =
   };
 };
 
-const mockFeaturedSituations = mockSituations.filter((item) => item.featured);
-
 export const featuredSituationsService = {
   async getAll(): Promise<Situation[]> {
-    try {
-      const result = await unwrap<Record<string, unknown>[]>(
-        apiClient.get('/featured-situations'),
-      );
-      const mappedItems = result
-        .map((item) => mapFeaturedSituation(item))
-        .filter((item): item is Situation => Boolean(item));
+    const result = await unwrap<Record<string, unknown>[]>(
+      apiClient.get('/featured-situations'),
+    );
+    const mappedItems = result
+      .map((item) => mapFeaturedSituation(item))
+      .filter((item): item is Situation => Boolean(item));
 
-      if (!mappedItems.length) {
-        return cachedOrMock(featuredSituationsCacheKey, mockFeaturedSituations);
-      }
-
-      await writeCachedValue(featuredSituationsCacheKey, mappedItems);
-      return mappedItems;
-    } catch {
-      return cachedOrMock(featuredSituationsCacheKey, mockFeaturedSituations);
-    }
+    await writeCachedValue(featuredSituationsCacheKey, mappedItems);
+    return mappedItems;
   },
 };
