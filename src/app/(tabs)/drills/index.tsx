@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { BlurTargetView, BlurView } from 'expo-blur';
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
-import { useRef } from 'react';
+import type { ReactNode } from 'react';
 import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 
 
@@ -14,8 +14,24 @@ import { CategoryTile } from '@/features/drills/components/category-tile';
 import { getActiveApiBaseUrl } from '@/lib/api-client';
 import { drillsService } from '@/services';
 
+function FrostedCard({ children }: { children: ReactNode }) {
+  if (Platform.OS === 'android') {
+    return <View style={{ backgroundColor: 'rgba(250, 246, 240, 0.92)' }}>{children}</View>;
+  }
+
+  return (
+    <BlurView
+      intensity={60}
+      tint="systemThickMaterialLight"
+      style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+    >
+      <View style={{ backgroundColor: 'rgba(250, 246, 240, 0.65)' }}>{children}</View>
+    </BlurView>
+  );
+}
+
 export default function DrillsScreen() {
-  const premiumBlurTargetRef = useRef<View | null>(null);
+
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ['drill-categories'],
@@ -137,136 +153,107 @@ export default function DrillsScreen() {
               ))}
             </View>
 
-            {/* Unlock All Premium Section (Glassmorphism) */}
+            {/* Unlock All Premium Section (Apple Frosted Glass) */}
             <View
               style={{
                 marginTop: 20,
                 borderRadius: 24,
                 overflow: 'hidden',
-                backgroundColor: '#FAF4EA',
-                borderWidth: 1.5,
-                borderColor: 'rgba(255,255,255,0.85)',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.6)',
                 shadowColor: '#000',
-                shadowOpacity: 0.08,
-                shadowRadius: 20,
-                shadowOffset: { width: 0, height: 10 },
-                elevation: 6,
-                position: 'relative',
+                shadowOpacity: 0.1,
+                shadowRadius: 24,
+                shadowOffset: { width: 0, height: 12 },
+                elevation: 8,
               }}
             >
-              {/* Background Teaser Content */}
-              <BlurTargetView ref={premiumBlurTargetRef} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, paddingVertical: 20, paddingHorizontal: 20, opacity: 0.35 }}>
-                {['Velocity Shredder', "Catcher's Framing Pro", 'Elite Arm Care', 'Advanced Pitch Tunnelling', 'Situational Defense'].map((item, i) => (
-                  <View key={i} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 16 }}>
-                    <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginRight: 14 }}>
-                      <Ionicons name="lock-closed" size={18} color="#A0AABF" />
+              <FrostedCard>
+                  {/* Foreground Content */}
+                  <View
+                    style={{
+                      paddingHorizontal: 20,
+                      paddingVertical: 32,
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <View
+                      style={{
+                        height: 52,
+                        width: 52,
+                        borderRadius: 26,
+                        backgroundColor: '#E35D21',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: 16,
+                        shadowColor: '#E35D21',
+                        shadowOpacity: 0.3,
+                        shadowRadius: 10,
+                        shadowOffset: { width: 0, height: 4 },
+                        elevation: 4
+                      }}
+                    >
+                      <Ionicons color="#FFFFFF" name="lock-closed" size={24} />
                     </View>
-                    <Text style={{ flex: 1, fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>{item}</Text>
-                    <Ionicons name="chevron-forward" size={18} color="#A0AABF" />
+
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        fontSize: 24,
+                        fontWeight: '900',
+                        lineHeight: 28,
+                        color: '#1A1A1A',
+                        fontFamily: typography.family.serif,
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      Unlock All{'\n'}Premium Drills
+                    </Text>
+
+                    <Text
+                      style={{
+                        marginTop: 12,
+                        textAlign: 'center',
+                        fontSize: 13,
+                        lineHeight: 20,
+                        color: '#374151',
+                        fontWeight: '600',
+                        paddingHorizontal: 10
+                      }}
+                    >
+                      Unlock every premium drill at once, including position categories and all locked drills in the library, for $99.99.
+                    </Text>
+
+                    <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
+                      <Pressable
+                        style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
+                        onPress={() => router.push('/auth/email')}
+                      >
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK ALL $99.99</Text>
+                      </Pressable>
+                      <Pressable
+                        style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}
+                        onPress={() => router.push('/auth/email')}
+                      >
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>RESTORE PURCHASES</Text>
+                      </Pressable>
+                    </View>
+
+                    <Text
+                      style={{
+                        marginTop: 16,
+                        textAlign: 'center',
+                        fontSize: 10,
+                        fontWeight: '700',
+                        color: '#4B5563',
+                        opacity: 0.8
+                      }}
+                    >
+                      All premium drills were unlocked in demo mode. Connect StoreKit next.
+                    </Text>
                   </View>
-                ))}
-              </BlurTargetView>
-
-              {/* Blur Overlay */}
-              <BlurView
-                blurMethod="dimezisBlurViewSdk31Plus"
-                blurTarget={premiumBlurTargetRef}
-                intensity={100}
-                tint="light"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(255,255,255,0.55)'
-                }}
-              />
-
-              {/* Foreground Content */}
-              <View
-                style={{
-                  paddingHorizontal: 20,
-                  paddingVertical: 32,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <View
-                  style={{
-                    height: 52,
-                    width: 52,
-                    borderRadius: 26,
-                    backgroundColor: '#E35D21',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 16,
-                    shadowColor: '#E35D21',
-                    shadowOpacity: 0.3,
-                    shadowRadius: 10,
-                    shadowOffset: { width: 0, height: 4 },
-                    elevation: 4
-                  }}
-                >
-                  <Ionicons color="#FFFFFF" name="lock-closed" size={24} />
-                </View>
-
-                <Text
-                  style={{
-                    textAlign: 'center',
-                    fontSize: 24,
-                    fontWeight: '900',
-                    lineHeight: 28,
-                    color: '#1A1A1A',
-                    fontFamily: typography.family.serif,
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Unlock All{'\n'}Premium Drills
-                </Text>
-
-                <Text
-                  style={{
-                    marginTop: 12,
-                    textAlign: 'center',
-                    fontSize: 13,
-                    lineHeight: 20,
-                    color: '#374151',
-                    fontWeight: '600',
-                    paddingHorizontal: 10
-                  }}
-                >
-                  Unlock every premium drill at once, including position categories and all locked drills in the library, for $99.99.
-                </Text>
-
-                <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
-                  <Pressable
-                    style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
-                    onPress={() => router.push('/auth/email')}
-                  >
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK ALL $99.99</Text>
-                  </Pressable>
-                  <Pressable
-                    style={{ height: 48, borderRadius: 999, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#B6BCD0', justifyContent: 'center', alignItems: 'center' }}
-                    onPress={() => router.push('/auth/email')}
-                  >
-                    <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>RESTORE PURCHASES</Text>
-                  </Pressable>
-                </View>
-
-                <Text
-                  style={{
-                    marginTop: 16,
-                    textAlign: 'center',
-                    fontSize: 10,
-                    fontWeight: '700',
-                    color: '#4B5563',
-                    opacity: 0.8
-                  }}
-                >
-                  All premium drills were unlocked in demo mode. Connect StoreKit next.
-                </Text>
-              </View>
+              </FrostedCard>
             </View>
           </View>
         </View>
