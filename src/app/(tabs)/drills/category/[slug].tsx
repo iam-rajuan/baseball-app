@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, type ReactNode } from 'react';
-import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
+import { useCallback, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/layout/page-header';
@@ -36,6 +36,7 @@ export default function DrillCategoryScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const routeSlug = slug ?? '';
   const isPremium = useAppStore((state) => state.isPremium);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const categoryQuery = useQuery({
     queryKey: ['drill-category', routeSlug],
@@ -151,12 +152,19 @@ export default function DrillCategoryScreen() {
 
             {/* Featured Image */}
             {categoryImageSource ? (
-              <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4 }}>
+              <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4, height: 210, justifyContent: 'center', alignItems: 'center' }}>
                 <Image
                   source={categoryImageSource}
-                  style={{ width: '100%', height: 210 }}
+                  style={{ width: '100%', height: 210, position: 'absolute' }}
                   contentFit="cover"
+                  cachePolicy="disk"
+                  transition={250}
+                  onLoadStart={() => setImageLoading(true)}
+                  onLoadEnd={() => setImageLoading(false)}
                 />
+                {imageLoading && (
+                  <ActivityIndicator size="small" color="#C2410C" />
+                )}
               </View>
             ) : (
               <View style={{ marginBottom: 28 }}>

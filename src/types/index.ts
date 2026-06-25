@@ -31,6 +31,11 @@ export type DrillCategory = {
   accentIcon: string;
 };
 
+export type EquipmentItem = {
+  name: string;
+  link?: string | null;
+};
+
 export type Drill = {
   id: string;
   name: string;
@@ -38,7 +43,7 @@ export type Drill = {
   category: string;
   description: string;
   steps: string[];
-  equipment: string[];
+  equipment: Array<string | EquipmentItem>;
   focusPoints: Array<string | { title: string; description: string }>;
   listIcon?: string;
   accessLevel: AccessLevel;

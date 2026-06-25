@@ -1,6 +1,6 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
 import { writeCachedValue } from '@/lib/offline-cache';
-import type { Drill, DrillCategory, PaginatedResult } from '@/types';
+import type { Drill, DrillCategory, EquipmentItem, PaginatedResult } from '@/types';
 
 const toStringValue = (value: unknown) => (typeof value === 'string' ? value : '');
 const mapFocusPoints = (value: unknown): Drill['focusPoints'] =>
@@ -41,6 +41,25 @@ const mapCategory = (category: Record<string, unknown>): DrillCategory => ({
   accentIcon: toStringValue(category.accentIcon) || 'baseball-outline',
 });
 
+const mapEquipment = (items: unknown): EquipmentItem[] =>
+  Array.isArray(items)
+    ? items
+        .map((item) => {
+          if (typeof item === 'string') {
+            return { name: item.trim(), link: null };
+          }
+          if (item && typeof item === 'object') {
+            const eq = item as Record<string, unknown>;
+            return {
+              name: toStringValue(eq.name).trim(),
+              link: toStringValue(eq.link).trim() || null,
+            };
+          }
+          return { name: '', link: null };
+        })
+        .filter((item) => item.name)
+    : [];
+
 const mapDrill = (drill: Record<string, unknown>): Drill => ({
   id: String(drill.id),
   name: String(drill.name),
@@ -48,7 +67,7 @@ const mapDrill = (drill: Record<string, unknown>): Drill => ({
   category: toStringValue(drill.categoryName || drill.category),
   description: String(drill.description),
   steps: Array.isArray(drill.steps) ? drill.steps.map(String) : [],
-  equipment: Array.isArray(drill.equipment) ? drill.equipment.map(String) : [],
+  equipment: mapEquipment(drill.equipment),
   focusPoints: mapFocusPoints(drill.focusPoints),
   listIcon: toStringValue(drill.listIcon) || 'baseball-outline',
   accessLevel: String(drill.accessLevel) as 'free' | 'premium',
