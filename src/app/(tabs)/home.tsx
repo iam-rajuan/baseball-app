@@ -21,11 +21,13 @@ import { EmptyState } from '@/components/empty-state';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { drillsService, featuredSituationsService, settingsService, situationsService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 import type { Drill, Situation } from '@/types';
 import HomeLogo from '../../../assets/svg/home-logo.svg';
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
+  const isPremium = useAppStore((state) => state.isPremium);
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [lastRandomSituationId, setLastRandomSituationId] = useState<string | null>(null);
@@ -115,7 +117,14 @@ export default function HomeScreen() {
   const renderNewDrill = (drill: Drill) => (
     <Pressable
       key={drill.id}
-      onPress={() => router.push(`/drills/detail/${drill.id}`)}
+      onPress={() => {
+        if (drill.accessLevel === 'premium' && !isPremium) {
+          router.push('/payment');
+          return;
+        }
+
+        router.push(`/drills/detail/${drill.id}`);
+      }}
       style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 18, backgroundColor: '#FFFFFF', padding: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}
     >
       {drill.image ? (
