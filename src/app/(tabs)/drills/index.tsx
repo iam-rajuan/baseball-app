@@ -229,7 +229,7 @@ export default function DrillsScreen() {
                         paddingHorizontal: 10
                       }}
                     >
-                      Unlock every premium drill at once, including position categories and all locked drills in the library, for $99.99.
+                      Unlock all premium drills with a subscription.
                     </Text>
 
                     <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
@@ -237,7 +237,7 @@ export default function DrillsScreen() {
                         style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
                         onPress={() => router.push('/payment')}
                       >
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK ALL $99.99</Text>
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK PREMIUM</Text>
                       </Pressable>
                       <Pressable
                         style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}

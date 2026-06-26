@@ -263,7 +263,7 @@ export default function DrillCategoryScreen() {
                         Get access to our full library of 50+ professional hitting and fielding drills.
                       </Text>
                       <Pressable onPress={() => router.push('/payment')} style={{ width: '100%', height: 60, borderRadius: 30, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
-                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: 1 }}>Upgrade - $99.99</Text>
+                        <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: 1 }}>View Plans</Text>
                       </Pressable>
                     </View>
                 </FrostedCard>
