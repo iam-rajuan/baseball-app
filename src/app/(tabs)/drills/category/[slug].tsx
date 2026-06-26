@@ -227,7 +227,7 @@ export default function DrillCategoryScreen() {
                 {premiumDrills.map((drill) => (
                   <Pressable
                     key={drill.id}
-                    onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/auth/email')}
+                    onPress={() => isPremium ? router.push(`/drills/detail/${drill.id}`) : router.push('/payment')}
                     style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 2, borderWidth: 1, borderColor: '#F0E8DB' }}
                   >
                     <View style={{ height: 40, width: 40, borderRadius: 20, backgroundColor: '#FAF4EA', alignItems: 'center', justifyContent: 'center', marginRight: 14, opacity: 0.6 }}>
@@ -262,7 +262,7 @@ export default function DrillCategoryScreen() {
                       <Text style={{ textAlign: 'center', fontSize: 14, lineHeight: 22, color: '#374151', fontWeight: '600', marginBottom: 28, paddingHorizontal: 10 }}>
                         Get access to our full library of 50+ professional hitting and fielding drills.
                       </Text>
-                      <Pressable onPress={() => router.push('/auth/email')} style={{ width: '100%', height: 60, borderRadius: 30, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
+                      <Pressable onPress={() => router.push('/payment')} style={{ width: '100%', height: 60, borderRadius: 30, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 4 }}>
                         <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: 1 }}>Upgrade - $99.99</Text>
                       </Pressable>
                     </View>

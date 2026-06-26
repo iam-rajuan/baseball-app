@@ -235,13 +235,13 @@ export default function DrillsScreen() {
                     <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
                       <Pressable
                         style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
-                        onPress={() => router.push('/auth/email')}
+                        onPress={() => router.push('/payment')}
                       >
                         <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK ALL $99.99</Text>
                       </Pressable>
                       <Pressable
                         style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}
-                        onPress={() => router.push('/auth/email')}
+                        onPress={() => router.push('/payment')}
                       >
                         <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>RESTORE PURCHASES</Text>
                       </Pressable>
