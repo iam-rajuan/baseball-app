@@ -229,7 +229,7 @@ export default function DrillsScreen() {
                         paddingHorizontal: 10
                       }}
                     >
-                      Unlock all premium drills with a subscription.
+                      Unlock all premium drills with a one-time purchase.
                     </Text>
 
                     <View style={{ marginTop: 24, width: '100%', gap: 10 }}>

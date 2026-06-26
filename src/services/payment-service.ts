@@ -10,7 +10,7 @@ import {
 export type PaymentPackageOption = {
   billingLabel: string;
   description: string;
-  id: 'monthly' | 'annual';
+  id: 'lifetime';
   package: PurchasesPackage;
   priceString: string;
   productIdentifier: string;
@@ -43,33 +43,23 @@ const isCancelledPurchaseError = (error: unknown) => {
   );
 };
 
-const buildPaymentOption = (
-  id: 'monthly' | 'annual',
-  pkg: PurchasesPackage,
-): PaymentPackageOption => {
-  const isMonthly = id === 'monthly';
-
+const buildPaymentOption = (pkg: PurchasesPackage): PaymentPackageOption => {
   return {
-    id,
+    id: 'lifetime',
     package: pkg,
     productIdentifier: pkg.product.identifier,
-    title: isMonthly ? 'Monthly Membership' : 'Annual Membership',
-    billingLabel: isMonthly ? 'Billed every month' : 'Billed every year',
-    description: isMonthly
-      ? 'Flexible month-to-month access to every premium drill in the academy.'
-      : 'Best long-term value for full premium drill access across the year.',
+    title: 'Lifetime Premium Access',
+    billingLabel: 'One-time purchase',
+    description: 'Unlock all premium drills with a one-time purchase.',
     priceString: pkg.product.priceString,
   };
 };
 
 export const paymentService = {
-  async getSubscriptionPackages(): Promise<PaymentPackageOption[]> {
+  async getLifetimePackage(): Promise<PaymentPackageOption> {
     const packages = await getAvailablePackages();
 
-    return [
-      buildPaymentOption('monthly', packages.monthly),
-      buildPaymentOption('annual', packages.annual),
-    ];
+    return buildPaymentOption(packages.lifetime);
   },
 
   async purchasePackage(selectedPackage: PurchasesPackage): Promise<PaymentActionResult> {
@@ -110,7 +100,7 @@ export const paymentService = {
         return {
           status: 'not_entitled',
           customerInfo,
-          message: 'No active premium subscription was found to restore.',
+          message: 'No previous lifetime purchase was found to restore.',
         };
       }
 

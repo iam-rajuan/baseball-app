@@ -7,10 +7,7 @@ import Purchases, {
 
 const ENTITLEMENT_ID = 'premium_access';
 const OFFERING_ID = 'default';
-const PRODUCT_IDS = {
-  monthly: 'mba_premium_monthly',
-  annual: 'mba_premium_annual',
-} as const;
+const PRODUCT_ID = 'mba_premium_lifetime';
 
 const env = {
   appleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY,
@@ -20,8 +17,7 @@ const env = {
 let initPromise: Promise<void> | null = null;
 
 export type RevenueCatAvailablePackages = {
-  monthly: PurchasesPackage;
-  annual: PurchasesPackage;
+  lifetime: PurchasesPackage;
   all: PurchasesPackage[];
 };
 
@@ -115,24 +111,17 @@ export async function getDefaultOffering(): Promise<PurchasesOffering> {
 
 export async function getAvailablePackages(): Promise<RevenueCatAvailablePackages> {
   const defaultOffering = await getDefaultOffering();
-  const monthly = getPackageByProductId(defaultOffering.availablePackages, PRODUCT_IDS.monthly);
-  const annual = getPackageByProductId(defaultOffering.availablePackages, PRODUCT_IDS.annual);
+  const lifetime = getPackageByProductId(defaultOffering.availablePackages, PRODUCT_ID);
 
-  if (!monthly || !annual) {
-    const missingProductIds = [
-      !monthly ? PRODUCT_IDS.monthly : null,
-      !annual ? PRODUCT_IDS.annual : null,
-    ].filter(Boolean);
-
+  if (!lifetime) {
     throw new Error(
-      `RevenueCat offering "${OFFERING_ID}" is missing required products: ${missingProductIds.join(', ')}`,
+      `RevenueCat offering "${OFFERING_ID}" is missing required product: ${PRODUCT_ID}`,
     );
   }
 
   return {
-    monthly,
-    annual,
-    all: [monthly, annual],
+    lifetime,
+    all: [lifetime],
   };
 }
 

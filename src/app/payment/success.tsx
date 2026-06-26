@@ -69,7 +69,7 @@ export default function PaymentSuccessScreen() {
               lineHeight: 24,
             }}
           >
-            Your subscription is active and all{'\n'}premium drills are ready to use
+            Your lifetime access is active and all{'\n'}premium drills are ready to use
           </Text>
         </View>
 

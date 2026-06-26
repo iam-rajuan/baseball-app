@@ -11,8 +11,7 @@ import { useAppStore } from '@/store/app-store';
 
 export default function PaymentScreen() {
   const setPremium = useAppStore((state) => state.setPremium);
-  const [availablePackages, setAvailablePackages] = useState<PaymentPackageOption[]>([]);
-  const [selectedPackageId, setSelectedPackageId] = useState<'monthly' | 'annual' | null>(null);
+  const [lifetimePackage, setLifetimePackage] = useState<PaymentPackageOption | null>(null);
   const [isLoadingPackages, setIsLoadingPackages] = useState(true);
   const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
   const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
@@ -26,20 +25,19 @@ export default function PaymentScreen() {
       try {
         setIsLoadingPackages(true);
         setScreenError(null);
-        const packages = await paymentService.getSubscriptionPackages();
+        const lifetime = await paymentService.getLifetimePackage();
 
         if (!isMounted) {
           return;
         }
 
-        setAvailablePackages(packages);
-        setSelectedPackageId((currentValue) => currentValue ?? packages[0]?.id ?? null);
+        setLifetimePackage(lifetime);
       } catch (error) {
         if (!isMounted) {
           return;
         }
 
-        setScreenError(error instanceof Error ? error.message : 'Unable to load subscription options.');
+        setScreenError(error instanceof Error ? error.message : 'Unable to load the lifetime purchase option.');
       } finally {
         if (isMounted) {
           setIsLoadingPackages(false);
@@ -53,9 +51,6 @@ export default function PaymentScreen() {
       isMounted = false;
     };
   }, []);
-
-  const selectedPackage =
-    availablePackages.find((pkg) => pkg.id === selectedPackageId) ?? null;
 
   const activatePremiumAccess = async (action: () => Promise<Awaited<ReturnType<typeof paymentService.purchasePackage>>>) => {
     setScreenError(null);
@@ -78,14 +73,14 @@ export default function PaymentScreen() {
   };
 
   const handlePurchase = async () => {
-    if (!selectedPackage) {
-      setScreenError('Please select a subscription option to continue.');
+    if (!lifetimePackage) {
+      setScreenError('The lifetime purchase option is not available right now.');
       return;
     }
 
     try {
       setIsProcessingPurchase(true);
-      await activatePremiumAccess(() => paymentService.purchasePackage(selectedPackage.package));
+      await activatePremiumAccess(() => paymentService.purchasePackage(lifetimePackage.package));
     } catch (error) {
       setScreenError(
         error instanceof Error ? error.message : 'Purchase could not be completed. Please try again.',
@@ -156,17 +151,17 @@ export default function PaymentScreen() {
               lineHeight: 32,
             }}
           >
-            Unlock Premium{'\n'}Drills
+            Lifetime Premium{'\n'}Access
           </Text>
 
           <Text style={{ marginTop: 10, fontSize: 15, lineHeight: 22, color: '#5A4B3D' }}>
-            Choose a monthly or annual subscription to unlock the full premium drill library.
+            Unlock all premium drills with a one-time purchase.
           </Text>
 
           <View style={{ marginTop: 20, gap: 12 }}>
             {[
               'Access every premium drill and position-specific training pack',
-              'Restore your subscription any time on a new device',
+              'Restore your purchase any time on a new device',
               'Premium status stays in sync with your App Store or Google Play account',
             ].map((item) => (
               <View key={item} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
@@ -188,7 +183,7 @@ export default function PaymentScreen() {
               marginBottom: 16,
             }}
           >
-            Subscription Options
+            One-time purchase
           </Text>
 
           {isLoadingPackages ? (
@@ -205,80 +200,51 @@ export default function PaymentScreen() {
             >
               <ActivityIndicator color="#E35D21" />
               <Text style={{ marginTop: 12, fontSize: 14, color: '#5A4B3D', fontWeight: '600' }}>
-                Loading subscription options...
+                Loading purchase option...
               </Text>
             </View>
-          ) : screenError && !availablePackages.length ? (
+          ) : screenError && !lifetimePackage ? (
             <View style={{ marginBottom: 24 }}>
               <EmptyState
-                title="Subscriptions unavailable"
+                title="Purchase unavailable"
                 description={screenError}
               />
             </View>
-          ) : (
+          ) : lifetimePackage ? (
             <View style={{ gap: 14, marginBottom: 24 }}>
-              {availablePackages.map((pkg) => {
-                const isSelected = pkg.id === selectedPackageId;
-
-                return (
-                  <Pressable
-                    key={pkg.id}
-                    onPress={() => {
-                      setSelectedPackageId(pkg.id);
-                      setScreenError(null);
-                      setScreenMessage(null);
-                    }}
-                    style={{
-                      backgroundColor: '#FFFFFF',
-                      borderRadius: 18,
-                      borderWidth: 2,
-                      borderColor: isSelected ? '#E35D21' : '#F0E8DB',
-                      paddingHorizontal: 18,
-                      paddingVertical: 18,
-                    }}
-                  >
-                    <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                      <View style={{ flex: 1, paddingRight: 12 }}>
-                        <Text style={{ fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>
-                          {pkg.title}
-                        </Text>
-                        <Text style={{ marginTop: 4, fontSize: 13, color: '#7C869B', fontWeight: '600' }}>
-                          {pkg.billingLabel}
-                        </Text>
-                        <Text style={{ marginTop: 10, fontSize: 14, lineHeight: 20, color: '#5A4B3D' }}>
-                          {pkg.description}
-                        </Text>
-                      </View>
-                      <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ fontSize: 24, fontWeight: '900', color: '#0C1F4A' }}>
-                          {pkg.priceString}
-                        </Text>
-                        <View
-                          style={{
-                            marginTop: 10,
-                            height: 24,
-                            width: 24,
-                            borderRadius: 12,
-                            borderWidth: 2,
-                            borderColor: isSelected ? '#E35D21' : '#D0C7B9',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: isSelected ? '#E35D21' : '#FFFFFF',
-                          }}
-                        >
-                          {isSelected ? (
-                            <Ionicons name="checkmark" size={14} color="#FFFFFF" />
-                          ) : null}
-                        </View>
-                      </View>
-                    </View>
-                  </Pressable>
-                );
-              })}
+              <View
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: 18,
+                  borderWidth: 2,
+                  borderColor: '#E35D21',
+                  paddingHorizontal: 18,
+                  paddingVertical: 18,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <View style={{ flex: 1, paddingRight: 12 }}>
+                    <Text style={{ fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>
+                      {lifetimePackage.title}
+                    </Text>
+                    <Text style={{ marginTop: 4, fontSize: 13, color: '#7C869B', fontWeight: '600' }}>
+                      {lifetimePackage.billingLabel}
+                    </Text>
+                    <Text style={{ marginTop: 10, fontSize: 14, lineHeight: 20, color: '#5A4B3D' }}>
+                      {lifetimePackage.description}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={{ fontSize: 24, fontWeight: '900', color: '#0C1F4A' }}>
+                      {lifetimePackage.priceString}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </View>
-          )}
+          ) : null}
 
-          {screenError && availablePackages.length ? (
+          {screenError && lifetimePackage ? (
             <View
               style={{
                 marginBottom: 16,
@@ -326,7 +292,7 @@ export default function PaymentScreen() {
             onPress={() => {
               void handlePurchase();
             }}
-            disabled={isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !selectedPackage}
+            disabled={isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !lifetimePackage}
             style={{
               backgroundColor: '#F28C28',
               borderRadius: 28,
@@ -334,7 +300,7 @@ export default function PaymentScreen() {
               alignItems: 'center',
               justifyContent: 'center',
               opacity:
-                isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !selectedPackage
+                isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !lifetimePackage
                   ? 0.6
                   : 1,
             }}
@@ -343,7 +309,7 @@ export default function PaymentScreen() {
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>
-                {selectedPackage ? `Start ${selectedPackage.title}` : 'Select a subscription'}
+                {lifetimePackage ? 'Buy Lifetime Premium Access' : 'Unavailable'}
               </Text>
             )}
           </Pressable>
@@ -376,7 +342,7 @@ export default function PaymentScreen() {
 
           <View style={{ alignItems: 'center', marginTop: 22 }}>
             <Text style={{ fontSize: 12.5, color: '#7C869B', fontWeight: '500', textAlign: 'center', lineHeight: 18 }}>
-              Your subscription is managed by the App Store or Google Play. Restore anytime if you reinstall the app.
+              Your purchase is managed by the App Store or Google Play. Restore anytime if you reinstall the app.
             </Text>
           </View>
         </View>
