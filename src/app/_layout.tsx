@@ -115,7 +115,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={navigationTheme}>
-        <StatusBar style={isReady ? 'dark' : 'light'} backgroundColor={isReady ? '#FFFFFF' : '#0C1F4A'} />
+        <StatusBar style={isReady ? 'dark' : 'light'} backgroundColor={isReady ? '#FFFFFF' : '#0A1B40'} />
         {!isReady && <CustomSplashScreen />}
         <Stack screenOptions={{ headerShown: false, animation: 'none' }} />
       </ThemeProvider>

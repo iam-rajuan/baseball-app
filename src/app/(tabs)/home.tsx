@@ -86,7 +86,7 @@ export default function HomeScreen() {
     (!situations || !appSettings) &&
     (isRecoverableApiError(situationsError) || isRecoverableApiError(settingsError));
 
-  if (situationsLoading || settingsLoading || isInitialRecoverableError || !situations || !appSettings) {
+  if (situationsLoading || settingsLoading || isInitialRecoverableError) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <SkeletonLoader />
@@ -94,7 +94,7 @@ export default function HomeScreen() {
     );
   }
 
-  if (situationsError || settingsError) {
+  if (situationsError || settingsError || !situations || !appSettings) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState

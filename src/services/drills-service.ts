@@ -1,5 +1,5 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
-import { writeCachedValue } from '@/lib/offline-cache';
+import { readCachedValue, writeCachedValue } from '@/lib/offline-cache';
 import type { Drill, DrillCategory, EquipmentItem, PaginatedResult } from '@/types';
 
 const toStringValue = (value: unknown) => (typeof value === 'string' ? value : '');
@@ -95,19 +95,24 @@ const fetchAllPages = async <T>(
 
 export const drillsService = {
   async getCategories(): Promise<DrillCategory[]> {
-    const mappedItems = await fetchAllPages(async (page) => {
-      const result = await unwrapPaginated<Record<string, unknown>>(
-        apiClient.get('/drill-categories', { params: { page, limit: 100 } }),
-      );
+    try {
+      const mappedItems = await fetchAllPages(async (page) => {
+        const result = await unwrapPaginated<Record<string, unknown>>(
+          apiClient.get('/drill-categories', { params: { page, limit: 100 } }),
+        );
 
-      return {
-        ...result,
-        items: result.items.map((category) => mapCategory(category)),
-      };
-    });
+        return {
+          ...result,
+          items: result.items.map((category) => mapCategory(category)),
+        };
+      });
 
-    await writeCachedValue(cacheKeys.categories, mappedItems);
-    return mappedItems;
+      await writeCachedValue(cacheKeys.categories, mappedItems);
+      return mappedItems;
+    } catch {
+      const cached = await readCachedValue<DrillCategory[]>(cacheKeys.categories);
+      return cached ?? [];
+    }
   },
   async getCategory(id: string): Promise<DrillCategory> {
     const category = await unwrap<Record<string, unknown>>(apiClient.get(`/drill-categories/${id}`));
