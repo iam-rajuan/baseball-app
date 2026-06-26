@@ -1,56 +1,116 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import { Controller, useForm } from 'react-hook-form';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { z } from 'zod';
 
+import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/layout/page-header';
-import { paymentService } from '@/services';
+import { type PaymentPackageOption, paymentService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
-const schema = z.object({
-  email: z.string().email(),
-  cardNumber: z.string().min(16, 'Enter a valid card number'),
-  expiry: z.string().min(4, 'MM/YY required'),
-  cvv: z.string().min(3, 'CVV required'),
-  country: z.string().min(2, 'Country is required'),
-});
-
-type FormValues = z.infer<typeof schema>;
-
 export default function PaymentScreen() {
-  const authEmail = useAppStore((state) => state.authEmail);
-  const unlockPremium = useAppStore((state) => state.unlockPremium);
-  const completeAuth = useAppStore((state) => state.completeAuth);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    defaultValues: {
-      email: authEmail || 'coach@academy.com',
-      cardNumber: '4242 4242 4242 4242',
-      expiry: '12/29',
-      cvv: '123',
-      country: 'United States',
-    },
-    resolver: zodResolver(schema),
-  });
+  const setPremium = useAppStore((state) => state.setPremium);
+  const [availablePackages, setAvailablePackages] = useState<PaymentPackageOption[]>([]);
+  const [selectedPackageId, setSelectedPackageId] = useState<'monthly' | 'annual' | null>(null);
+  const [isLoadingPackages, setIsLoadingPackages] = useState(true);
+  const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
+  const [isRestoringPurchases, setIsRestoringPurchases] = useState(false);
+  const [screenError, setScreenError] = useState<string | null>(null);
+  const [screenMessage, setScreenMessage] = useState<string | null>(null);
 
-  const onSubmit = async ({ email, country }: FormValues) => {
-    const result = await paymentService.submitPayment(email, country);
-    if (result.success) {
-      unlockPremium();
-      completeAuth();
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPackages = async () => {
+      try {
+        setIsLoadingPackages(true);
+        setScreenError(null);
+        const packages = await paymentService.getSubscriptionPackages();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAvailablePackages(packages);
+        setSelectedPackageId((currentValue) => currentValue ?? packages[0]?.id ?? null);
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setScreenError(error instanceof Error ? error.message : 'Unable to load subscription options.');
+      } finally {
+        if (isMounted) {
+          setIsLoadingPackages(false);
+        }
+      }
+    };
+
+    void loadPackages();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const selectedPackage =
+    availablePackages.find((pkg) => pkg.id === selectedPackageId) ?? null;
+
+  const activatePremiumAccess = async (action: () => Promise<Awaited<ReturnType<typeof paymentService.purchasePackage>>>) => {
+    setScreenError(null);
+    setScreenMessage(null);
+
+    const result = await action();
+
+    if (result.status === 'success') {
+      setPremium(true);
       router.replace('/payment/success');
+      return;
+    }
+
+    if (result.status === 'cancelled') {
+      setScreenMessage(result.message ?? 'Purchase cancelled.');
+      return;
+    }
+
+    setScreenError(result.message ?? 'Premium access is not active yet.');
+  };
+
+  const handlePurchase = async () => {
+    if (!selectedPackage) {
+      setScreenError('Please select a subscription option to continue.');
+      return;
+    }
+
+    try {
+      setIsProcessingPurchase(true);
+      await activatePremiumAccess(() => paymentService.purchasePackage(selectedPackage.package));
+    } catch (error) {
+      setScreenError(
+        error instanceof Error ? error.message : 'Purchase could not be completed. Please try again.',
+      );
+    } finally {
+      setIsProcessingPurchase(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      setIsRestoringPurchases(true);
+      await activatePremiumAccess(() => paymentService.restorePurchase());
+    } catch (error) {
+      setScreenError(
+        error instanceof Error ? error.message : 'Restore could not be completed. Please try again.',
+      );
+    } finally {
+      setIsRestoringPurchases(false);
     }
   };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['top', 'left', 'right']}>
-      <PageHeader title="Payment" />
+      <PageHeader title="Membership" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
@@ -96,19 +156,18 @@ export default function PaymentScreen() {
               lineHeight: 32,
             }}
           >
-            Unlock All Drills
+            Unlock Premium{'\n'}Drills
           </Text>
 
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10 }}>
-            <Text style={{ fontSize: 32, fontWeight: '800', color: '#0C1F4A' }}>$99</Text>
-            <Text style={{ fontSize: 14, fontWeight: '400', color: '#5A4B3D', marginLeft: 4 }}>/ lifetime access</Text>
-          </View>
+          <Text style={{ marginTop: 10, fontSize: 15, lineHeight: 22, color: '#5A4B3D' }}>
+            Choose a monthly or annual subscription to unlock the full premium drill library.
+          </Text>
 
           <View style={{ marginTop: 20, gap: 12 }}>
             {[
-              'Full access to 150+ pro-level\nbaseball drills',
-              'Personalized performance tracking',
-              'Direct scouting reports access',
+              'Access every premium drill and position-specific training pack',
+              'Restore your subscription any time on a new device',
+              'Premium status stays in sync with your App Store or Google Play account',
             ].map((item) => (
               <View key={item} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
                 <Ionicons name="checkmark-circle" size={20} color="#E35D21" style={{ marginTop: 1 }} />
@@ -118,7 +177,6 @@ export default function PaymentScreen() {
           </View>
         </View>
 
-        {/* Payment Information */}
         <View style={{ paddingHorizontal: 20, marginTop: 28 }}>
           <Text
             style={{
@@ -130,204 +188,196 @@ export default function PaymentScreen() {
               marginBottom: 16,
             }}
           >
-            Payment Information
+            Subscription Options
           </Text>
 
-          {/* Email Address */}
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <View style={{ marginBottom: 18 }}>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#3A3F50', marginBottom: 8 }}>
-                  Email Address
-                </Text>
-                <View
-                  style={{
-                    backgroundColor: '#F5F1EA',
-                    borderRadius: 12,
-                    paddingHorizontal: 16,
-                    paddingVertical: 14,
-                  }}
-                >
-                  <TextInput
-                    onChangeText={onChange}
-                    placeholder="coach@academy.com"
-                    placeholderTextColor="#B0B8C5"
-                    value={value}
-                    keyboardType="email-address"
-                    style={{ fontSize: 15, color: '#0C1F4A' }}
-                  />
-                </View>
-                {errors.email ? (
-                  <Text style={{ fontSize: 12, color: '#C24F33', marginTop: 4 }}>{errors.email.message}</Text>
-                ) : null}
-              </View>
-            )}
-          />
-
-          {/* Card Details Card */}
-          <View
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: '#F0E8DB',
-              paddingHorizontal: 16,
-              paddingVertical: 16,
-              marginBottom: 18,
-            }}
-          >
-            {/* Card Number */}
-            <Controller
-              control={control}
-              name="cardNumber"
-              render={({ field: { onChange, value } }) => (
-                <View>
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
-                    Card Number
-                  </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                    <Ionicons name="card-outline" size={20} color="#7C869B" />
-                    <TextInput
-                      onChangeText={onChange}
-                      placeholder="4242 4242 4242 4242"
-                      placeholderTextColor="#B0B8C5"
-                      value={value}
-                      keyboardType="number-pad"
-                      style={{ fontSize: 15, color: '#0C1F4A', flex: 1 }}
-                    />
-                  </View>
-                  {errors.cardNumber ? (
-                    <Text style={{ fontSize: 12, color: '#C24F33', marginTop: 4 }}>{errors.cardNumber.message}</Text>
-                  ) : null}
-                </View>
-              )}
-            />
-
-            {/* Divider */}
-            <View style={{ height: 1, backgroundColor: '#EDE6D9', marginVertical: 14 }} />
-
-            {/* Expiry + CVV Row */}
-            <View style={{ flexDirection: 'row' }}>
-              <Controller
-                control={control}
-                name="expiry"
-                render={({ field: { onChange, value } }) => (
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
-                      Expiry
-                    </Text>
-                    <TextInput
-                      onChangeText={onChange}
-                      placeholder="MM / YY"
-                      placeholderTextColor="#B0B8C5"
-                      value={value}
-                      keyboardType="number-pad"
-                      style={{ fontSize: 15, color: '#0C1F4A' }}
-                    />
-                    {errors.expiry ? (
-                      <Text style={{ fontSize: 12, color: '#C24F33', marginTop: 4 }}>{errors.expiry.message}</Text>
-                    ) : null}
-                  </View>
-                )}
-              />
-              <View style={{ width: 1, backgroundColor: '#EDE6D9', marginHorizontal: 16 }} />
-              <Controller
-                control={control}
-                name="cvv"
-                render={({ field: { onChange, value } }) => (
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ fontSize: 12, fontWeight: '600', color: '#5A4B3D', marginBottom: 6 }}>
-                      CVV
-                    </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <TextInput
-                        onChangeText={onChange}
-                        placeholder="123"
-                        placeholderTextColor="#B0B8C5"
-                        value={value}
-                        keyboardType="number-pad"
-                        secureTextEntry
-                        style={{ fontSize: 15, color: '#0C1F4A', flex: 1 }}
-                      />
-                      <Ionicons name="help-circle-outline" size={18} color="#B0B8C5" />
-                    </View>
-                    {errors.cvv ? (
-                      <Text style={{ fontSize: 12, color: '#C24F33', marginTop: 4 }}>{errors.cvv.message}</Text>
-                    ) : null}
-                  </View>
-                )}
+          {isLoadingPackages ? (
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: '#F0E8DB',
+                paddingHorizontal: 16,
+                paddingVertical: 24,
+                alignItems: 'center',
+              }}
+            >
+              <ActivityIndicator color="#E35D21" />
+              <Text style={{ marginTop: 12, fontSize: 14, color: '#5A4B3D', fontWeight: '600' }}>
+                Loading subscription options...
+              </Text>
+            </View>
+          ) : screenError && !availablePackages.length ? (
+            <View style={{ marginBottom: 24 }}>
+              <EmptyState
+                title="Subscriptions unavailable"
+                description={screenError}
               />
             </View>
-          </View>
+          ) : (
+            <View style={{ gap: 14, marginBottom: 24 }}>
+              {availablePackages.map((pkg) => {
+                const isSelected = pkg.id === selectedPackageId;
 
-          {/* Country */}
-          <Controller
-            control={control}
-            name="country"
-            render={({ field: { onChange, value } }) => (
-              <View style={{ marginBottom: 24 }}>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#3A3F50', marginBottom: 8 }}>
-                  Country or Region
-                </Text>
-                <View
-                  style={{
-                    backgroundColor: '#F5F1EA',
-                    borderRadius: 12,
-                    paddingHorizontal: 16,
-                    paddingVertical: 14,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
-                  <TextInput
-                    onChangeText={onChange}
-                    placeholder="United States"
-                    placeholderTextColor="#B0B8C5"
-                    value={value}
-                    style={{ fontSize: 15, color: '#0C1F4A', flex: 1 }}
-                  />
-                  <Ionicons name="chevron-down" size={18} color="#7C869B" />
-                </View>
-                {errors.country ? (
-                  <Text style={{ fontSize: 12, color: '#C24F33', marginTop: 4 }}>{errors.country.message}</Text>
-                ) : null}
-              </View>
-            )}
-          />
+                return (
+                  <Pressable
+                    key={pkg.id}
+                    onPress={() => {
+                      setSelectedPackageId(pkg.id);
+                      setScreenError(null);
+                      setScreenMessage(null);
+                    }}
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: 18,
+                      borderWidth: 2,
+                      borderColor: isSelected ? '#E35D21' : '#F0E8DB',
+                      paddingHorizontal: 18,
+                      paddingVertical: 18,
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <View style={{ flex: 1, paddingRight: 12 }}>
+                        <Text style={{ fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>
+                          {pkg.title}
+                        </Text>
+                        <Text style={{ marginTop: 4, fontSize: 13, color: '#7C869B', fontWeight: '600' }}>
+                          {pkg.billingLabel}
+                        </Text>
+                        <Text style={{ marginTop: 10, fontSize: 14, lineHeight: 20, color: '#5A4B3D' }}>
+                          {pkg.description}
+                        </Text>
+                      </View>
+                      <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{ fontSize: 24, fontWeight: '900', color: '#0C1F4A' }}>
+                          {pkg.priceString}
+                        </Text>
+                        <View
+                          style={{
+                            marginTop: 10,
+                            height: 24,
+                            width: 24,
+                            borderRadius: 12,
+                            borderWidth: 2,
+                            borderColor: isSelected ? '#E35D21' : '#D0C7B9',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: isSelected ? '#E35D21' : '#FFFFFF',
+                          }}
+                        >
+                          {isSelected ? (
+                            <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+                          ) : null}
+                        </View>
+                      </View>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
 
-          {/* Pay Button */}
+          {screenError && availablePackages.length ? (
+            <View
+              style={{
+                marginBottom: 16,
+                backgroundColor: '#FFF3F0',
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: '#F7C9BC',
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: 10,
+              }}
+            >
+              <Ionicons name="alert-circle" size={18} color="#C24F33" style={{ marginTop: 1 }} />
+              <Text style={{ flex: 1, fontSize: 13, lineHeight: 19, color: '#8A3822', fontWeight: '600' }}>
+                {screenError}
+              </Text>
+            </View>
+          ) : null}
+
+          {screenMessage ? (
+            <View
+              style={{
+                marginBottom: 16,
+                backgroundColor: '#FFF7ED',
+                borderRadius: 14,
+                borderWidth: 1,
+                borderColor: '#FFEDD5',
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: 10,
+              }}
+            >
+              <Ionicons name="information-circle" size={18} color="#C2410C" style={{ marginTop: 1 }} />
+              <Text style={{ flex: 1, fontSize: 13, lineHeight: 19, color: '#9A3412', fontWeight: '600' }}>
+                {screenMessage}
+              </Text>
+            </View>
+          ) : null}
+
           <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
+            onPress={() => {
+              void handlePurchase();
+            }}
+            disabled={isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !selectedPackage}
             style={{
               backgroundColor: '#F28C28',
               borderRadius: 28,
               paddingVertical: 16,
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: isSubmitting ? 0.6 : 1,
+              opacity:
+                isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !selectedPackage
+                  ? 0.6
+                  : 1,
             }}
           >
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>
-              Pay $99
-            </Text>
+            {isProcessingPurchase ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>
+                {selectedPackage ? `Start ${selectedPackage.title}` : 'Select a subscription'}
+              </Text>
+            )}
           </Pressable>
 
-          {/* Secure Footer */}
-          <View style={{ alignItems: 'center', marginTop: 22 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Ionicons name="lock-closed" size={14} color="#7C869B" />
-              <Text style={{ fontSize: 12.5, color: '#7C869B', fontWeight: '500' }}>
-                Secure payment powered by Stripe
+          <Pressable
+            onPress={() => {
+              void handleRestore();
+            }}
+            disabled={isLoadingPackages || isProcessingPurchase || isRestoringPurchases}
+            style={{
+              marginTop: 14,
+              borderRadius: 28,
+              paddingVertical: 15,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 1.5,
+              borderColor: '#D0C7B9',
+              backgroundColor: '#FFFFFF',
+              opacity: isLoadingPackages || isProcessingPurchase || isRestoringPurchases ? 0.6 : 1,
+            }}
+          >
+            {isRestoringPurchases ? (
+              <ActivityIndicator color="#0C1F4A" />
+            ) : (
+              <Text style={{ fontSize: 15, fontWeight: '800', color: '#0C1F4A' }}>
+                Restore Previous Purchase
               </Text>
-            </View>
-            <View style={{ flexDirection: 'row', gap: 16, marginTop: 10 }}>
-              <Ionicons name="card-outline" size={20} color="#9CAAC0" />
-              <Ionicons name="business-outline" size={20} color="#9CAAC0" />
-              <Ionicons name="globe-outline" size={20} color="#9CAAC0" />
-            </View>
+            )}
+          </Pressable>
+
+          <View style={{ alignItems: 'center', marginTop: 22 }}>
+            <Text style={{ fontSize: 12.5, color: '#7C869B', fontWeight: '500', textAlign: 'center', lineHeight: 18 }}>
+              Your subscription is managed by the App Store or Google Play. Restore anytime if you reinstall the app.
+            </Text>
           </View>
         </View>
       </ScrollView>

@@ -28,7 +28,7 @@ type FormValues = z.infer<typeof schema>;
 
 export default function EmailScreen() {
   const setAuthEmail = useAppStore((state) => state.setAuthEmail);
-  const unlockPremium = useAppStore((state) => state.unlockPremium);
+  const setPremium = useAppStore((state) => state.setPremium);
   const completeAuth = useAppStore((state) => state.completeAuth);
   const {
     control,
@@ -238,8 +238,8 @@ export default function EmailScreen() {
               onPress={async () => {
                 const result = await paymentService.restorePurchase();
 
-                if (result.restored) {
-                  unlockPremium();
+                if (result.status === 'success') {
+                  setPremium(true);
                   completeAuth();
                   router.replace('/(tabs)/drills');
                 }
