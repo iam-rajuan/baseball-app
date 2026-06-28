@@ -88,7 +88,7 @@ export const resolveApiAssetUrl = (value?: string | null) => {
 
 export const apiClient = axios.create({
   baseURL: activeApiBaseUrl,
-  timeout: 45000,
+  timeout: 15000,
 });
 
 apiClient.interceptors.request.use(async (config) => {

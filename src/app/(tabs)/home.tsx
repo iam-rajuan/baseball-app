@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [lastRandomSituationId, setLastRandomSituationId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     data: situations,
@@ -70,16 +71,21 @@ export default function HomeScreen() {
   } = useQuery({
     queryKey: ['new-drills'],
     queryFn: () => drillsService.getNewDrills(5),
+    retry: 1,
   });
-  const isRefreshing = situationsFetching || settingsFetching || featuredFetching || newDrillsFetching;
-
   const refreshHome = useCallback(async () => {
-    await Promise.all([
-      refetchSituations(),
-      refetchSettings(),
-      refetchFeaturedSituations(),
-      refetchNewDrills(),
-    ]);
+    setIsRefreshing(true);
+
+    try {
+      await Promise.all([
+        refetchSituations(),
+        refetchSettings(),
+        refetchFeaturedSituations(),
+        refetchNewDrills(),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [refetchFeaturedSituations, refetchNewDrills, refetchSettings, refetchSituations]);
 
   const isInitialRecoverableError =
@@ -319,18 +325,14 @@ export default function HomeScreen() {
         {/* ===== NEW DRILLS ===== */}
         <View style={{ backgroundColor: '#F4E7D5', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
           <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>New Drills</Text>
-          {newDrillsLoading ? (
-            <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
-              <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
-            </View>
-          ) : newDrillsError && isRecoverableApiError(newDrillsError) ? (
+          {newDrillsLoading || (newDrillsFetching && !newDrills?.length && !newDrillsError) ? (
             <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
               <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
             </View>
           ) : newDrillsError ? (
             <EmptyState
               title="Could not load new drills"
-              description={newDrillsError.message}
+              description={`${newDrillsError.message}\nAPI: ${getActiveApiBaseUrl()}`}
             />
           ) : newDrills?.length ? (
             <View style={{ gap: 10 }}>

@@ -7,7 +7,7 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 30,
       retry: (failureCount, error) =>
-        isRecoverableApiError(error) ? failureCount < 10 : failureCount < 1,
+        isRecoverableApiError(error) ? failureCount < 2 : failureCount < 1,
       retryDelay: (failureCount) => Math.min(1000 * 2 ** failureCount, 10000),
       refetchOnMount: true,
       refetchOnReconnect: true,

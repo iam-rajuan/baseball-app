@@ -8,10 +8,22 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "preview": {
+    "apk": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal"
+    },
+    "aab": {
+      "android": {
+        "buildType": "app-bundle"
+      },
       "distribution": "internal"
     },
     "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
       "autoIncrement": true
     }
   },
