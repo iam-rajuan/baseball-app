@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from 'axios';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
@@ -19,8 +20,39 @@ const getRequiredEnv = (key: keyof typeof env) => {
 };
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+const debuggerHost = (Constants as unknown as { expoGoConfig?: { debuggerHost?: string } }).expoGoConfig?.debuggerHost;
+const expoHost = debuggerHost ? debuggerHost.split(':')[0]?.trim() || undefined : undefined;
 
-const configuredApiBaseUrl = trimTrailingSlash(
+const resolveDevelopmentHostUrl = (value: string) => {
+  if (!__DEV__) {
+    return trimTrailingSlash(value);
+  }
+
+  try {
+    const url = new URL(value);
+    const isLoopbackHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+
+    if (!isLoopbackHost) {
+      return trimTrailingSlash(url.toString());
+    }
+
+    if (expoHost && expoHost !== 'localhost' && expoHost !== '127.0.0.1') {
+      url.hostname = expoHost;
+      return trimTrailingSlash(url.toString());
+    }
+
+    if (Platform.OS === 'android') {
+      url.hostname = '10.0.2.2';
+      return trimTrailingSlash(url.toString());
+    }
+
+    return trimTrailingSlash(url.toString());
+  } catch {
+    return trimTrailingSlash(value);
+  }
+};
+
+const configuredApiBaseUrl = resolveDevelopmentHostUrl(
   getRequiredEnv('EXPO_PUBLIC_API_BASE_URL'),
 );
 
@@ -28,7 +60,7 @@ const unique = <T>(items: T[]) => Array.from(new Set(items));
 const splitCsv = (value?: string) =>
   value
     ?.split(',')
-    .map((item) => trimTrailingSlash(item.trim()))
+    .map((item) => resolveDevelopmentHostUrl(item.trim()))
     .filter(Boolean) ?? [];
 
 const getAndroidEmulatorHostUrl = (value: string) => {
