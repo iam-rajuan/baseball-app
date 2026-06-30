@@ -19,8 +19,8 @@ import { CustomSplashScreen } from '@/components/custom-splash-screen';
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function RootLayout() {
-  const hydrateSession = useAppStore((state) => state.hydrateSession);
   const clearSession = useAppStore((state) => state.clearSession);
+  const completeAuth = useAppStore((state) => state.completeAuth);
   const setPremium = useAppStore((state) => state.setPremium);
   const setSubscriptionReady = useAppStore((state) => state.setSubscriptionReady);
   const [isReady, setIsReady] = useState(false);
@@ -63,8 +63,7 @@ export default function RootLayout() {
           return;
         }
 
-        const profile = await authService.getProfile();
-        hydrateSession({ email: profile.email });
+        completeAuth();
       } catch {
         await authService.clearStoredToken().catch(() => null);
         clearSession();
@@ -89,7 +88,7 @@ export default function RootLayout() {
     return () => {
       isMounted = false;
     };
-  }, [clearSession, hydrateSession, setPremium, setSubscriptionReady]);
+  }, [clearSession, completeAuth, setPremium, setSubscriptionReady]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (status) => {

@@ -11,7 +11,6 @@ type AppState = {
   setAuthEmail: (email: string) => void;
   setOtpCode: (code: string) => void;
   completeAuth: () => void;
-  unlockPremium: () => void;
   setPremium: (value: boolean) => void;
   setSubscriptionReady: (value: boolean) => void;
 };
@@ -31,12 +30,12 @@ export const useAppStore = create<AppState>((set) => ({
     set({
       authEmail: '',
       isAuthenticated: false,
+      isPremium: false,
       otpCode: '',
     }),
   setAuthEmail: (authEmail) => set({ authEmail }),
   setOtpCode: (otpCode) => set({ otpCode }),
   completeAuth: () => set({ isAuthenticated: true }),
-  unlockPremium: () => set({ isPremium: true }),
   setPremium: (isPremium) => set({ isPremium }),
   setSubscriptionReady: (isSubscriptionReady) => set({ isSubscriptionReady }),
 }));
