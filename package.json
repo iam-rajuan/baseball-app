@@ -6,6 +6,7 @@
     "start": "expo start --tunnel",
     "android": "expo start --android --tunnel",
     "android:device": "node scripts/android-device.cjs",
+    "android:native": "node scripts/run-android-native.cjs",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build:android:preview": "eas build --profile preview --platform android",
