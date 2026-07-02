@@ -1,6 +1,9 @@
 import { Platform } from 'react-native';
 import Purchases, {
   type CustomerInfo,
+  PACKAGE_TYPE,
+  PRODUCT_CATEGORY,
+  PRODUCT_TYPE,
   type PurchasesOffering,
   type PurchasesPackage,
 } from 'react-native-purchases';
@@ -8,6 +11,7 @@ import Purchases, {
 const ENTITLEMENT_ID = 'premium_access';
 const OFFERING_ID = 'default';
 const PRODUCT_ID = 'mba_premium_lifetime';
+const PACKAGE_IDENTIFIER = '$rc_lifetime';
 
 const env = {
   appleApiKey: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY,
@@ -31,6 +35,8 @@ const ensureSupportedPlatform = () => {
   }
 };
 
+const TEMP_LOG_PREFIX = '[RevenueCat]';
+
 const getRequiredEnvValue = (value: string | undefined, name: string) => {
   const trimmedValue = value?.trim();
 
@@ -51,6 +57,11 @@ const getRevenueCatApiKey = () => {
   return getRequiredEnvValue(env.googleApiKey, 'EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY');
 };
 
+const getRevenueCatApiKeyPlatformLabel = () => {
+  ensureSupportedPlatform();
+  return Platform.OS === 'ios' ? 'apple' : 'google';
+};
+
 const ensureConfigured = async () => {
   const isConfigured = await Purchases.isConfigured();
 
@@ -66,6 +77,39 @@ const getPackageByProductId = (
   return availablePackages.find((pkg) => pkg.product.identifier === productId) ?? null;
 };
 
+const getLifetimePackage = (offering: PurchasesOffering) => {
+  console.log("hello",offering.availablePackages.find((pkg) => pkg.identifier === PACKAGE_IDENTIFIER) ??
+    offering.lifetime ??
+    offering.availablePackages.find((pkg) => pkg.packageType === PACKAGE_TYPE.LIFETIME) ??
+    getPackageByProductId(offering.availablePackages, PRODUCT_ID) ??
+    null);
+  
+  return (
+    offering.availablePackages.find((pkg) => pkg.identifier === PACKAGE_IDENTIFIER) ??
+    offering.lifetime ??
+    offering.availablePackages.find((pkg) => pkg.packageType === PACKAGE_TYPE.LIFETIME) ??
+    getPackageByProductId(offering.availablePackages, PRODUCT_ID) ??
+    null
+  );
+};
+
+const isSubscriptionProduct = (pkg: PurchasesPackage) => {
+  const { product } = pkg;
+
+  return (
+    product.productCategory === PRODUCT_CATEGORY.SUBSCRIPTION ||
+    product.productType === PRODUCT_TYPE.AUTO_RENEWABLE_SUBSCRIPTION ||
+    product.productType === PRODUCT_TYPE.PREPAID_SUBSCRIPTION ||
+    product.productType === PRODUCT_TYPE.NON_RENEWABLE_SUBSCRIPTION
+  );
+};
+
+const logSelectedPackage = (offering: PurchasesOffering, pkg: PurchasesPackage) => {
+  console.info(
+    `${TEMP_LOG_PREFIX} platformApiKey=${getRevenueCatApiKeyPlatformLabel()} offering=${offering.identifier} package=${pkg.identifier} product=${pkg.product.identifier} packageType=${pkg.packageType}`,
+  );
+};
+
 export async function initRevenueCat(): Promise<void> {
   if (initPromise) {
     return initPromise;
@@ -79,6 +123,10 @@ export async function initRevenueCat(): Promise<void> {
     if (isConfigured) {
       return;
     }
+
+    console.info(
+      `${TEMP_LOG_PREFIX} configuring platformApiKey=${getRevenueCatApiKeyPlatformLabel()}`,
+    );
 
     Purchases.configure({
       apiKey: getRevenueCatApiKey(),
@@ -100,24 +148,43 @@ export async function getDefaultOffering(): Promise<PurchasesOffering> {
   await ensureConfigured();
 
   const offerings = await Purchases.getOfferings();
-  const defaultOffering = offerings.all[OFFERING_ID] ?? null;
+  const defaultOffering =
+    (offerings.current?.identifier === OFFERING_ID ? offerings.current : null) ??
+    offerings.all[OFFERING_ID] ??
+    null;
 
   if (!defaultOffering) {
     throw new Error(`RevenueCat offering "${OFFERING_ID}" was not found.`);
   }
+
+  console.info(`${TEMP_LOG_PREFIX} currentOffering=${defaultOffering.identifier}`);
 
   return defaultOffering;
 }
 
 export async function getAvailablePackages(): Promise<RevenueCatAvailablePackages> {
   const defaultOffering = await getDefaultOffering();
-  const lifetime = getPackageByProductId(defaultOffering.availablePackages, PRODUCT_ID);
+  const lifetime = getLifetimePackage(defaultOffering);
 
   if (!lifetime) {
     throw new Error(
-      `RevenueCat offering "${OFFERING_ID}" is missing required product: ${PRODUCT_ID}`,
+      `RevenueCat offering "${OFFERING_ID}" is missing required lifetime package "${PACKAGE_IDENTIFIER}" for product "${PRODUCT_ID}".`,
     );
   }
+
+  if (lifetime.product.identifier !== PRODUCT_ID) {
+    throw new Error(
+      `RevenueCat lifetime package product mismatch. Expected "${PRODUCT_ID}" but received "${lifetime.product.identifier}".`,
+    );
+  }
+
+  if (isSubscriptionProduct(lifetime)) {
+    throw new Error(
+      `RevenueCat lifetime package "${lifetime.identifier}" is incorrectly configured as a subscription. Expected a non-subscription/in-app product for "${PRODUCT_ID}".`,
+    );
+  }
+
+  logSelectedPackage(defaultOffering, lifetime);
 
   return {
     lifetime,
@@ -152,4 +219,3 @@ export const revenueCatService = {
   restoreRevenueCatPurchases,
   hasPremiumAccess,
 };
-

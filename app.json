@@ -19,7 +19,8 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.mariettabaseballacademy.app"
+      "package": "com.mariettabaseballacademy.app",
+      "versionCode": 2
     },
     "androidStatusBar": {
       "backgroundColor": "#FFFFFF",
