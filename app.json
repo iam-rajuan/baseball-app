@@ -10,7 +10,10 @@
     "ios": {
       "bundleIdentifier": "com.mariettabaseballacademy.app",
       "icon": "./assets/expo.icon",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {

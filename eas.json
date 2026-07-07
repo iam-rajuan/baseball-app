@@ -29,7 +29,7 @@
     }
   },
   "submit": {
- "aab": {
+    "aab": {
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
         "track": "internal"
@@ -39,6 +39,11 @@
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
         "track": "internal"
+      },
+      "ios": {
+        "ascAppId": "6784838370",
+        "appleTeamId": "SV5T2D4C9R"
       }
-    } }
+    }
+  }
 }
