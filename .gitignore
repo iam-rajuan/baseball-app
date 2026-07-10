@@ -50,3 +50,4 @@ temp_interactive_push.bat
 
 # Google Service Account Credentials
 google-service-account.json
+build-log.txt

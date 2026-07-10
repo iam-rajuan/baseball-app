@@ -39,6 +39,17 @@ export default function PlaybookScreen() {
     );
   }
 
+  if (data.length === 0) {
+    return (
+      <Screen>
+        <EmptyState
+          title="No playbook situations yet"
+          description={`No defensive situations are available right now.\nAPI: ${getActiveApiBaseUrl()}`}
+        />
+      </Screen>
+    );
+  }
+
   const featured = data.find((item) => item.featured) ?? data[0];
   const situationCountLabel = data.length > 99 ? '99+' : String(data.length);
   const randomSituation = () => {
