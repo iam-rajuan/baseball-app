@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
-import { RefreshControl, ScrollView, Text, View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
@@ -14,10 +14,12 @@ import { StepDirection } from '@/features/drills/components/step-direction';
 import { YouTubeVideo, getYouTubeWebView } from '@/features/drills/components/youtube-video';
 import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
 import { drillsService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 
 export default function DrillDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const routeId = id ?? '';
+  const isPremium = useAppStore((state) => state.isPremium);
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['drill', routeId],
     queryFn: () => drillsService.getById(routeId),
@@ -37,6 +39,119 @@ export default function DrillDetailScreen() {
       <View className="flex-1 bg-background">
         <PageHeader title="Drill Details" />
         <EmptyState title="Drill unavailable" description="This drill could not be found." />
+      </View>
+    );
+  }
+
+  const isLockedPremiumDrill = data.accessLevel === 'premium' && !isPremium;
+
+  if (isLockedPremiumDrill) {
+    return (
+      <View className="flex-1 bg-background">
+        <PageHeader title="Drill Details" variant="section" />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="bg-background"
+          contentContainerStyle={{ paddingBottom: 60 }}
+          refreshControl={(
+            <RefreshControl
+              colors={['#E35D21']}
+              onRefresh={() => {
+                void refetch();
+              }}
+              refreshing={isFetching}
+              tintColor="#E35D21"
+            />
+          )}
+        >
+          <DrillBanner
+            title={data.name}
+            subtitle={data.category}
+            imageUri={data.image}
+          />
+
+          <View className="px-5 py-8">
+            <View
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: 24,
+                borderWidth: 1,
+                borderColor: '#F0E8DB',
+                paddingHorizontal: 22,
+                paddingVertical: 28,
+                shadowColor: '#000',
+                shadowOpacity: 0.05,
+                shadowRadius: 12,
+                shadowOffset: { width: 0, height: 4 },
+                elevation: 2,
+                alignItems: 'center',
+              }}
+            >
+              <View
+                style={{
+                  height: 60,
+                  width: 60,
+                  borderRadius: 30,
+                  backgroundColor: '#E35D21',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="lock-closed" size={28} color="#FFFFFF" />
+              </View>
+
+              <Text
+                style={{
+                  marginTop: 18,
+                  textAlign: 'center',
+                  fontSize: 28,
+                  fontWeight: '900',
+                  lineHeight: 34,
+                  color: '#0C1F4A',
+                }}
+              >
+                Premium Drill Locked
+              </Text>
+
+              <Text
+                style={{
+                  marginTop: 12,
+                  textAlign: 'center',
+                  fontSize: 15,
+                  lineHeight: 23,
+                  color: '#5A4B3D',
+                }}
+              >
+                Activate your premium membership to view the full instructions, video, and coaching notes for this drill.
+              </Text>
+
+              <Pressable
+                onPress={() => router.push('/payment')}
+                style={{
+                  marginTop: 24,
+                  width: '100%',
+                  height: 56,
+                  borderRadius: 28,
+                  backgroundColor: '#E35D21',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '800',
+                    color: '#FFFFFF',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  Unlock Premium Access
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }

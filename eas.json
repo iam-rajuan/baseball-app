@@ -8,14 +8,42 @@
       "developmentClient": true,
       "distribution": "internal"
     },
-    "preview": {
+    "apk": {
+      "android": {
+        "buildType": "apk"
+      },
       "distribution": "internal"
     },
+    "aab": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "distribution": "internal",
+      "autoIncrement": true
+    },
     "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "aab": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      }
+    },
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "internal"
+      },
+      "ios": {
+        "ascAppId": "6784838370",
+        "appleTeamId": "SV5T2D4C9R"
+      }
+    }
   }
 }

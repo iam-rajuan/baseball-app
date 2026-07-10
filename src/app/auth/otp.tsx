@@ -16,6 +16,7 @@ import { useAppStore } from '@/store/app-store';
 
 export default function OtpScreen() {
   const authEmail = useAppStore((state) => state.authEmail);
+  const isPremium = useAppStore((state) => state.isPremium);
   const otpCode = useAppStore((state) => state.otpCode);
   const setOtpCode = useAppStore((state) => state.setOtpCode);
   const hydrateSession = useAppStore((state) => state.hydrateSession);
@@ -23,7 +24,7 @@ export default function OtpScreen() {
   const onContinue = async () => {
     const result = await authService.verifyCode(authEmail, otpCode);
     hydrateSession(result.user);
-    router.replace(result.user.isPremium ? '/(tabs)/drills' : '/payment');
+    router.replace(isPremium ? '/(tabs)/drills' : '/payment');
   };
 
   return (
@@ -120,7 +121,7 @@ export default function OtpScreen() {
                   letterSpacing: 1,
                 }}
               >
-                Continue to Payment
+                Continue
               </Text>
             </Pressable>
           </View>

@@ -21,14 +21,17 @@ import { EmptyState } from '@/components/empty-state';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { drillsService, featuredSituationsService, settingsService, situationsService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 import type { Drill, Situation } from '@/types';
 import HomeLogo from '../../../assets/svg/home-logo.svg';
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
+  const isPremium = useAppStore((state) => state.isPremium);
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
   const [lastRandomSituationId, setLastRandomSituationId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     data: situations,
@@ -68,23 +71,28 @@ export default function HomeScreen() {
   } = useQuery({
     queryKey: ['new-drills'],
     queryFn: () => drillsService.getNewDrills(5),
+    retry: 1,
   });
-  const isRefreshing = situationsFetching || settingsFetching || featuredFetching || newDrillsFetching;
-
   const refreshHome = useCallback(async () => {
-    await Promise.all([
-      refetchSituations(),
-      refetchSettings(),
-      refetchFeaturedSituations(),
-      refetchNewDrills(),
-    ]);
+    setIsRefreshing(true);
+
+    try {
+      await Promise.all([
+        refetchSituations(),
+        refetchSettings(),
+        refetchFeaturedSituations(),
+        refetchNewDrills(),
+      ]);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, [refetchFeaturedSituations, refetchNewDrills, refetchSettings, refetchSituations]);
 
   const isInitialRecoverableError =
     (!situations || !appSettings) &&
     (isRecoverableApiError(situationsError) || isRecoverableApiError(settingsError));
 
-  if (situationsLoading || settingsLoading || isInitialRecoverableError || !situations || !appSettings) {
+  if (situationsLoading || settingsLoading || isInitialRecoverableError) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
         <SkeletonLoader />
@@ -92,7 +100,7 @@ export default function HomeScreen() {
     );
   }
 
-  if (situationsError || settingsError) {
+  if (situationsError || settingsError || !situations || !appSettings) {
     return (
       <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
@@ -115,7 +123,14 @@ export default function HomeScreen() {
   const renderNewDrill = (drill: Drill) => (
     <Pressable
       key={drill.id}
-      onPress={() => router.push(`/drills/detail/${drill.id}`)}
+      onPress={() => {
+        if (drill.accessLevel === 'premium' && !isPremium) {
+          router.push('/payment');
+          return;
+        }
+
+        router.push(`/drills/detail/${drill.id}`);
+      }}
       style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 18, backgroundColor: '#FFFFFF', padding: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}
     >
       {drill.image ? (
@@ -310,18 +325,14 @@ export default function HomeScreen() {
         {/* ===== NEW DRILLS ===== */}
         <View style={{ backgroundColor: '#F4E7D5', paddingHorizontal: 16, paddingTop: 8, paddingBottom: 20 }}>
           <Text style={{ marginBottom: 10, fontSize: 10, fontWeight: '700', letterSpacing: 1.0, color: '#9F927A', textTransform: 'uppercase' }}>New Drills</Text>
-          {newDrillsLoading ? (
-            <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
-              <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
-            </View>
-          ) : newDrillsError && isRecoverableApiError(newDrillsError) ? (
+          {newDrillsLoading || (newDrillsFetching && !newDrills?.length && !newDrillsError) ? (
             <View style={{ borderRadius: 18, backgroundColor: '#FFFFFF', paddingVertical: 20 }}>
               <Text style={{ textAlign: 'center', fontSize: 14, fontWeight: '700', color: '#7B6D5C' }}>Loading data...</Text>
             </View>
           ) : newDrillsError ? (
             <EmptyState
               title="Could not load new drills"
-              description={newDrillsError.message}
+              description={`${newDrillsError.message}\nAPI: ${getActiveApiBaseUrl()}`}
             />
           ) : newDrills?.length ? (
             <View style={{ gap: 10 }}>

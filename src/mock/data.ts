@@ -489,9 +489,9 @@ export const drills: Drill[] = [
 
 export const legalPages: LegalPages = {
   privacyPolicy: [
-    'We collect the minimum information required to provide academy access, subscription status, and support responses.',
+    'We collect the minimum information required to provide academy access, lifetime purchase status, and support responses.',
     'Training history and app interactions may be stored to improve drill recommendations and future analytics.',
-    'Payment details are intended for Stripe-backed processing and are never stored directly in the mobile client.',
+    'Purchases are managed through the App Store or Google Play and are never stored directly in the mobile client.',
     'You may request account data updates or deletion by contacting academy support.',
     'Continued use of the app indicates acceptance of this privacy policy and future policy updates.',
   ],

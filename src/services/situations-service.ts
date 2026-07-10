@@ -1,5 +1,5 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
-import { writeCachedValue } from '@/lib/offline-cache';
+import { readCachedValue, writeCachedValue } from '@/lib/offline-cache';
 import type { PaginatedResult, Situation } from '@/types';
 
 const cacheKeys = {
@@ -36,19 +36,24 @@ const fetchAllPages = async <T>(
 
 export const situationsService = {
   async getAll(): Promise<Situation[]> {
-    const mappedItems = await fetchAllPages(async (page) => {
-      const result = await unwrapPaginated<Record<string, unknown>>(
-        apiClient.get('/situations', { params: { page, limit: 100 } }),
-      );
+    try {
+      const mappedItems = await fetchAllPages(async (page) => {
+        const result = await unwrapPaginated<Record<string, unknown>>(
+          apiClient.get('/situations', { params: { page, limit: 100 } }),
+        );
 
-      return {
-        ...result,
-        items: result.items.map((item) => mapSituation(item)),
-      };
-    });
+        return {
+          ...result,
+          items: result.items.map((item) => mapSituation(item)),
+        };
+      });
 
-    await writeCachedValue(cacheKeys.all, mappedItems);
-    return mappedItems;
+      await writeCachedValue(cacheKeys.all, mappedItems);
+      return mappedItems;
+    } catch {
+      const cached = await readCachedValue<Situation[]>(cacheKeys.all);
+      return cached ?? [];
+    }
   },
   async getById(id: string): Promise<Situation> {
     const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));

@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/layout/page-header';
 export default function PaymentSuccessScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['top', 'left', 'right']}>
-      <PageHeader title="Payment" />
+      <PageHeader title="Membership" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110, flexGrow: 1 }}
@@ -56,7 +56,7 @@ export default function PaymentSuccessScreen() {
               lineHeight: 40,
             }}
           >
-            Unlocked{'\n'}Successfully
+            Premium Access{'\n'}Is Active
           </Text>
 
           {/* Subtitle */}
@@ -69,7 +69,7 @@ export default function PaymentSuccessScreen() {
               lineHeight: 24,
             }}
           >
-            You now have full access to all{'\n'}drills
+            Your lifetime access is active and all{'\n'}premium drills are ready to use
           </Text>
         </View>
 
@@ -120,7 +120,7 @@ export default function PaymentSuccessScreen() {
                 color: '#0C1F4A',
               }}
             >
-              Elite Performance Drills
+              Premium Drills Membership
             </Text>
           </View>
         </View>
