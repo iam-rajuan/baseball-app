@@ -9,7 +9,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.mariettabaseballacademy.app",
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
