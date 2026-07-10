@@ -11,7 +11,13 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { AppState, Platform } from 'react-native';
 
 import { queryClient } from '@/lib/query-client';
-import { authService, getCustomerInfo, hasPremiumAccess, initRevenueCat } from '@/services';
+import {
+  addRevenueCatCustomerInfoListener,
+  authService,
+  hasPremiumAccess,
+  initRevenueCat,
+  refreshCustomerInfo,
+} from '@/services';
 import { useAppStore } from '@/store/app-store';
 import { navigationTheme } from '@/theme';
 import { CustomSplashScreen } from '@/components/custom-splash-screen';
@@ -28,26 +34,22 @@ export default function RootLayout() {
   useEffect(() => {
     let isMounted = true;
 
+    const applyCustomerInfo = (isPremiumActive: boolean) => {
+      if (!isMounted) {
+        return;
+      }
+
+      setPremium(isPremiumActive);
+      setSubscriptionReady(true);
+    };
+
     const syncRevenueCatState = async () => {
       try {
         await initRevenueCat();
-        const customerInfo = await getCustomerInfo();
-
-        if (!isMounted) {
-          return;
-        }
-
-        setPremium(hasPremiumAccess(customerInfo));
+        const customerInfo = await refreshCustomerInfo();
+        applyCustomerInfo(hasPremiumAccess(customerInfo));
       } catch {
-        if (!isMounted) {
-          return;
-        }
-
-        setPremium(false);
-      } finally {
-        if (isMounted) {
-          setSubscriptionReady(true);
-        }
+        applyCustomerInfo(false);
       }
     };
 
@@ -83,10 +85,15 @@ export default function RootLayout() {
       NavigationBar.setButtonStyleAsync('dark');
     }
 
+    const removeCustomerInfoListener = addRevenueCatCustomerInfoListener((customerInfo) => {
+      applyCustomerInfo(hasPremiumAccess(customerInfo));
+    });
+
     void bootstrapSession();
 
     return () => {
       isMounted = false;
+      removeCustomerInfoListener();
     };
   }, [clearSession, completeAuth, setPremium, setSubscriptionReady]);
 
@@ -97,7 +104,7 @@ export default function RootLayout() {
        if (status === 'active') {
         void (async () => {
           try {
-            const customerInfo = await getCustomerInfo();
+            const customerInfo = await refreshCustomerInfo();
             setPremium(hasPremiumAccess(customerInfo));
           } catch {
             setPremium(false);

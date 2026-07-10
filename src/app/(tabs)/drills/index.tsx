@@ -13,6 +13,7 @@ import { typography } from '@/constants/typography';
 import { CategoryTile } from '@/features/drills/components/category-tile';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { drillsService } from '@/services';
+import { useAppStore } from '@/store/app-store';
 
 function FrostedCard({ children }: { children: ReactNode }) {
   if (Platform.OS === 'android') {
@@ -31,7 +32,7 @@ function FrostedCard({ children }: { children: ReactNode }) {
 }
 
 export default function DrillsScreen() {
-
+  const isPremium = useAppStore((state) => state.isPremium);
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ['drill-categories'],
@@ -160,7 +161,7 @@ export default function DrillsScreen() {
               )}
             </View>
 
-            {/* Unlock All Premium Section (Apple Frosted Glass) */}
+            {/* Premium Access Status Card */}
             <View
               style={{
                 marginTop: 20,
@@ -190,18 +191,18 @@ export default function DrillsScreen() {
                         height: 52,
                         width: 52,
                         borderRadius: 26,
-                        backgroundColor: '#E35D21',
+                        backgroundColor: isPremium ? '#2F9E44' : '#E35D21',
                         alignItems: 'center',
                         justifyContent: 'center',
                         marginBottom: 16,
-                        shadowColor: '#E35D21',
+                        shadowColor: isPremium ? '#2F9E44' : '#E35D21',
                         shadowOpacity: 0.3,
                         shadowRadius: 10,
                         shadowOffset: { width: 0, height: 4 },
                         elevation: 4
                       }}
                     >
-                      <Ionicons color="#FFFFFF" name="lock-closed" size={24} />
+                      <Ionicons color="#FFFFFF" name={isPremium ? 'checkmark' : 'lock-closed'} size={24} />
                     </View>
 
                     <Text
@@ -215,7 +216,7 @@ export default function DrillsScreen() {
                         textTransform: 'uppercase'
                       }}
                     >
-                      Unlock All{'\n'}Premium Drills
+                      {isPremium ? `All Premium Drills\nUnlocked` : `Unlock All\nPremium Drills`}
                     </Text>
 
                     <Text
@@ -229,21 +230,27 @@ export default function DrillsScreen() {
                         paddingHorizontal: 10
                       }}
                     >
-                      Unlock all premium drills with a one-time purchase.
+                      {isPremium
+                        ? 'Your premium access is active. You can open every premium drill and training pack.'
+                        : 'Unlock all premium drills with a one-time purchase.'}
                     </Text>
 
                     <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
                       <Pressable
                         style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
-                        onPress={() => router.push('/payment')}
+                        onPress={() => router.push(isPremium ? '/payment/success' : '/payment')}
                       >
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>UNLOCK PREMIUM</Text>
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>
+                          {isPremium ? 'PREMIUM ACTIVE' : 'UNLOCK PREMIUM'}
+                        </Text>
                       </Pressable>
                       <Pressable
                         style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}
                         onPress={() => router.push('/payment')}
                       >
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>RESTORE PURCHASES</Text>
+                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>
+                          {isPremium ? 'MANAGE MEMBERSHIP' : 'RESTORE PURCHASES'}
+                        </Text>
                       </Pressable>
                     </View>
 

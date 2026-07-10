@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import Purchases, {
   type CustomerInfo,
+  type CustomerInfoUpdateListener,
   PACKAGE_TYPE,
   PRODUCT_CATEGORY,
   PRODUCT_TYPE,
@@ -78,12 +79,6 @@ const getPackageByProductId = (
 };
 
 const getLifetimePackage = (offering: PurchasesOffering) => {
-  console.log("hello",offering.availablePackages.find((pkg) => pkg.identifier === PACKAGE_IDENTIFIER) ??
-    offering.lifetime ??
-    offering.availablePackages.find((pkg) => pkg.packageType === PACKAGE_TYPE.LIFETIME) ??
-    getPackageByProductId(offering.availablePackages, PRODUCT_ID) ??
-    null);
-  
   return (
     offering.availablePackages.find((pkg) => pkg.identifier === PACKAGE_IDENTIFIER) ??
     offering.lifetime ??
@@ -141,6 +136,12 @@ export async function initRevenueCat(): Promise<void> {
 
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   await ensureConfigured();
+  return Purchases.getCustomerInfo();
+}
+
+export async function refreshCustomerInfo(): Promise<CustomerInfo> {
+  await ensureConfigured();
+  await Purchases.invalidateCustomerInfoCache();
   return Purchases.getCustomerInfo();
 }
 
@@ -202,6 +203,14 @@ export async function restoreRevenueCatPurchases(): Promise<CustomerInfo> {
   return Purchases.restorePurchases();
 }
 
+export function addRevenueCatCustomerInfoListener(listener: CustomerInfoUpdateListener) {
+  Purchases.addCustomerInfoUpdateListener(listener);
+
+  return () => {
+    Purchases.removeCustomerInfoUpdateListener(listener);
+  };
+}
+
 export function hasPremiumAccess(customerInfo: CustomerInfo | null | undefined): boolean {
   if (!customerInfo) {
     return false;
@@ -213,9 +222,11 @@ export function hasPremiumAccess(customerInfo: CustomerInfo | null | undefined):
 export const revenueCatService = {
   initRevenueCat,
   getCustomerInfo,
+  refreshCustomerInfo,
   getDefaultOffering,
   getAvailablePackages,
   purchaseRevenueCatPackage,
   restoreRevenueCatPurchases,
+  addRevenueCatCustomerInfoListener,
   hasPremiumAccess,
 };

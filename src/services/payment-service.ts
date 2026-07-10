@@ -1,6 +1,7 @@
 import type { CustomerInfo, PurchasesPackage } from 'react-native-purchases';
 
 import {
+  refreshCustomerInfo,
   getAvailablePackages,
   hasPremiumAccess,
   purchaseRevenueCatPackage,
@@ -55,6 +56,22 @@ const buildPaymentOption = (pkg: PurchasesPackage): PaymentPackageOption => {
   };
 };
 
+const resolvePremiumActivation = async (customerInfo: CustomerInfo) => {
+  if (hasPremiumAccess(customerInfo)) {
+    return {
+      customerInfo,
+      premiumActive: true,
+    };
+  }
+
+  const refreshedCustomerInfo = await refreshCustomerInfo();
+
+  return {
+    customerInfo: refreshedCustomerInfo,
+    premiumActive: hasPremiumAccess(refreshedCustomerInfo),
+  };
+};
+
 export const paymentService = {
   async getLifetimePackage(): Promise<PaymentPackageOption> {
     const packages = await getAvailablePackages();
@@ -65,19 +82,19 @@ export const paymentService = {
   async purchasePackage(selectedPackage: PurchasesPackage): Promise<PaymentActionResult> {
     try {
       const result = await purchaseRevenueCatPackage(selectedPackage);
-      const premiumActive = hasPremiumAccess(result.customerInfo);
+      const { customerInfo, premiumActive } = await resolvePremiumActivation(result.customerInfo);
 
       if (!premiumActive) {
         return {
           status: 'not_entitled',
-          customerInfo: result.customerInfo,
+          customerInfo,
           message: 'Purchase completed, but premium access is not active yet. Please try Restore Purchases.',
         };
       }
 
       return {
         status: 'success',
-        customerInfo: result.customerInfo,
+        customerInfo,
       };
     } catch (error) {
       if (isCancelledPurchaseError(error)) {
@@ -93,8 +110,8 @@ export const paymentService = {
 
   async restorePurchase(): Promise<PaymentActionResult> {
     try {
-      const customerInfo = await restoreRevenueCatPurchases();
-      const premiumActive = hasPremiumAccess(customerInfo);
+      const restoredCustomerInfo = await restoreRevenueCatPurchases();
+      const { customerInfo, premiumActive } = await resolvePremiumActivation(restoredCustomerInfo);
 
       if (!premiumActive) {
         return {
