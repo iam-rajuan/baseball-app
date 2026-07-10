@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/layout/page-header';
 export default function PaymentSuccessScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['left', 'right']}>
-      <PageHeader title="Membership" />
+      <PageHeader title="Membership" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110, flexGrow: 1 }}

@@ -10,6 +10,7 @@ import { type PaymentPackageOption, paymentService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 export default function PaymentScreen() {
+  const isPremium = useAppStore((state) => state.isPremium);
   const setPremium = useAppStore((state) => state.setPremium);
   const [lifetimePackage, setLifetimePackage] = useState<PaymentPackageOption | null>(null);
   const [isLoadingPackages, setIsLoadingPackages] = useState(true);
@@ -73,6 +74,12 @@ export default function PaymentScreen() {
   };
 
   const handlePurchase = async () => {
+    if (isPremium) {
+      setScreenMessage('Your lifetime premium access is already active.');
+      setScreenError(null);
+      return;
+    }
+
     if (!lifetimePackage) {
       setScreenError('The lifetime purchase option is not available right now.');
       return;
@@ -105,7 +112,7 @@ export default function PaymentScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F4E7D5' }} edges={['left', 'right']}>
-      <PageHeader title="Membership" />
+      <PageHeader title="Membership" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 110 }}
@@ -215,27 +222,74 @@ export default function PaymentScreen() {
               <View
                 style={{
                   backgroundColor: '#FFFFFF',
-                  borderRadius: 18,
+                  borderRadius: 24,
                   borderWidth: 2,
                   borderColor: '#E35D21',
-                  paddingHorizontal: 18,
-                  paddingVertical: 18,
+                  paddingHorizontal: 20,
+                  paddingVertical: 20,
+                  shadowColor: '#D97706',
+                  shadowOpacity: 0.08,
+                  shadowRadius: 14,
+                  shadowOffset: { width: 0, height: 6 },
+                  elevation: 3,
                 }}
               >
-                <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                  <View style={{ flex: 1, paddingRight: 12 }}>
-                    <Text style={{ fontSize: 18, fontWeight: '800', color: '#0C1F4A' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <View
+                      style={{
+                        alignSelf: 'flex-start',
+                        backgroundColor: '#FFF5E8',
+                        borderRadius: 999,
+                        paddingHorizontal: 10,
+                        paddingVertical: 5,
+                        marginBottom: 14,
+                      }}
+                    >
+                      <Text style={{ fontSize: 10, fontWeight: '800', color: '#D66A1D', letterSpacing: 1, textTransform: 'uppercase' }}>
+                        Lifetime Access
+                      </Text>
+                    </View>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: '800',
+                        color: '#0C1F4A',
+                        lineHeight: 23,
+                      }}
+                    >
                       {lifetimePackage.title}
                     </Text>
-                    <Text style={{ marginTop: 4, fontSize: 13, color: '#7C869B', fontWeight: '600' }}>
+                    <Text style={{ marginTop: 8, fontSize: 13, color: '#7C869B', fontWeight: '700' }}>
                       {lifetimePackage.billingLabel}
                     </Text>
-                    <Text style={{ marginTop: 10, fontSize: 14, lineHeight: 20, color: '#5A4B3D' }}>
+                    <Text style={{ marginTop: 14, fontSize: 15, lineHeight: 22, color: '#5A4B3D' }}>
                       {lifetimePackage.description}
                     </Text>
                   </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 24, fontWeight: '900', color: '#0C1F4A' }}>
+                  <View style={{ alignItems: 'flex-end', flexShrink: 0, maxWidth: '48%' }}>
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: '800',
+                        color: '#B49E81',
+                        letterSpacing: 1,
+                        textTransform: 'uppercase',
+                        marginBottom: 8,
+                      }}
+                    >
+                      Price
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        fontWeight: '900',
+                        color: '#0C1F4A',
+                        textAlign: 'right',
+                        lineHeight: 24,
+                      }}
+                      numberOfLines={2}
+                    >
                       {lifetimePackage.priceString}
                     </Text>
                   </View>
@@ -292,15 +346,25 @@ export default function PaymentScreen() {
             onPress={() => {
               void handlePurchase();
             }}
-            disabled={isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !lifetimePackage}
+            disabled={
+              isPremium ||
+              isLoadingPackages ||
+              isProcessingPurchase ||
+              isRestoringPurchases ||
+              !lifetimePackage
+            }
             style={{
-              backgroundColor: '#F28C28',
+              backgroundColor: isPremium ? '#2F9E44' : '#F28C28',
               borderRadius: 28,
               paddingVertical: 16,
               alignItems: 'center',
               justifyContent: 'center',
               opacity:
-                isLoadingPackages || isProcessingPurchase || isRestoringPurchases || !lifetimePackage
+                isPremium ||
+                isLoadingPackages ||
+                isProcessingPurchase ||
+                isRestoringPurchases ||
+                !lifetimePackage
                   ? 0.6
                   : 1,
             }}
@@ -309,7 +373,11 @@ export default function PaymentScreen() {
               <ActivityIndicator color="#FFFFFF" />
             ) : (
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFFFFF' }}>
-                {lifetimePackage ? 'Buy Lifetime Premium Access' : 'Unavailable'}
+                {isPremium
+                  ? 'Lifetime Premium Active'
+                  : lifetimePackage
+                    ? 'Buy Lifetime Premium Access'
+                    : 'Unavailable'}
               </Text>
             )}
           </Pressable>
