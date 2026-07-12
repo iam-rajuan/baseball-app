@@ -134,6 +134,20 @@ export async function initRevenueCat(): Promise<void> {
   return initPromise;
 }
 
+export async function identifyRevenueCatUser(email: string): Promise<void> {
+  await ensureConfigured();
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (!normalizedEmail) {
+    throw new Error('RevenueCat user email is required.');
+  }
+
+  await Purchases.logIn(normalizedEmail);
+  Purchases.setEmail(normalizedEmail);
+  await Purchases.syncAttributesAndOfferingsIfNeeded();
+}
+
 export async function getCustomerInfo(): Promise<CustomerInfo> {
   await ensureConfigured();
   return Purchases.getCustomerInfo();
@@ -221,6 +235,7 @@ export function hasPremiumAccess(customerInfo: CustomerInfo | null | undefined):
 
 export const revenueCatService = {
   initRevenueCat,
+  identifyRevenueCatUser,
   getCustomerInfo,
   refreshCustomerInfo,
   getDefaultOffering,

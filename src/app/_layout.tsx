@@ -15,6 +15,7 @@ import {
   addRevenueCatCustomerInfoListener,
   authService,
   hasPremiumAccess,
+  identifyRevenueCatUser,
   initRevenueCat,
   refreshCustomerInfo,
 } from '@/services';
@@ -26,7 +27,8 @@ SplashScreen.preventAutoHideAsync().catch(() => null);
 
 export default function RootLayout() {
   const clearSession = useAppStore((state) => state.clearSession);
-  const completeAuth = useAppStore((state) => state.completeAuth);
+  const authEmail = useAppStore((state) => state.authEmail);
+  const hydrateSession = useAppStore((state) => state.hydrateSession);
   const setPremium = useAppStore((state) => state.setPremium);
   const setSubscriptionReady = useAppStore((state) => state.setSubscriptionReady);
   const [isReady, setIsReady] = useState(false);
@@ -65,7 +67,8 @@ export default function RootLayout() {
           return;
         }
 
-        completeAuth();
+        const profile = await authService.getProfile();
+        hydrateSession({ email: profile.email });
       } catch {
         await authService.clearStoredToken().catch(() => null);
         clearSession();
@@ -95,7 +98,25 @@ export default function RootLayout() {
       isMounted = false;
       removeCustomerInfoListener();
     };
-  }, [clearSession, completeAuth, setPremium, setSubscriptionReady]);
+  }, [clearSession, hydrateSession, setPremium, setSubscriptionReady]);
+
+  useEffect(() => {
+    if (!authEmail) {
+      return;
+    }
+
+    void (async () => {
+      try {
+        await identifyRevenueCatUser(authEmail);
+        const customerInfo = await refreshCustomerInfo();
+        setPremium(hasPremiumAccess(customerInfo));
+      } catch {
+        // Keep the app usable even if RevenueCat identity sync fails.
+      } finally {
+        setSubscriptionReady(true);
+      }
+    })();
+  }, [authEmail, setPremium, setSubscriptionReady]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (status) => {
