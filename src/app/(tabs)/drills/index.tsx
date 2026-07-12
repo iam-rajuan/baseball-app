@@ -4,6 +4,7 @@ import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
 import { EmptyState } from '@/components/empty-state';
@@ -33,6 +34,7 @@ function FrostedCard({ children }: { children: ReactNode }) {
 
 export default function DrillsScreen() {
   const isPremium = useAppStore((state) => state.isPremium);
+  const insets = useSafeAreaInsets();
 
   const { data, isLoading, error, isFetching, refetch } = useQuery({
     queryKey: ['drill-categories'],
@@ -41,7 +43,7 @@ export default function DrillsScreen() {
 
   if (isLoading || (!data && isRecoverableApiError(error))) {
     return (
-      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: insets.top }}>
         <SkeletonLoader />
       </View>
     );
@@ -49,7 +51,7 @@ export default function DrillsScreen() {
 
   if (error || !data) {
     return (
-      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+      <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: insets.top, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load drills"
           description={`${error?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}

@@ -11,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { Loader } from '@/components/loader';
@@ -19,6 +20,7 @@ import { situationsService } from '@/services';
 export default function SituationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const routeId = id ?? '';
+  const insets = useSafeAreaInsets();
   
   const { data: situation, isLoading: situationLoading, isFetching, refetch } = useQuery({
     queryKey: ['situation', routeId],
@@ -28,7 +30,7 @@ export default function SituationDetailsScreen() {
 
   if (situationLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: insets.top }}>
         <Loader />
       </View>
     );
@@ -45,7 +47,7 @@ export default function SituationDetailsScreen() {
     );
   }
 
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
+  const statusBarHeight = insets.top;
   const situationImageSource = situation.imageUrl || situation.image;
 
   return (

@@ -12,6 +12,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
 
@@ -20,7 +21,8 @@ import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsTabScreen() {
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top;
 
   const {
     data: situations,

@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/layout/page-header';
@@ -37,6 +38,7 @@ export default function DrillCategoryScreen() {
   const routeSlug = slug ?? '';
   const isPremium = useAppStore((state) => state.isPremium);
   const [imageLoading, setImageLoading] = useState(true);
+  const insets = useSafeAreaInsets();
 
   const categoryQuery = useQuery({
     queryKey: ['drill-category', routeSlug],
@@ -66,7 +68,7 @@ export default function DrillCategoryScreen() {
 
   if (categoryQuery.isLoading || freeDrillsQuery.isLoading || premiumDrillsQuery.isLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: insets.top }}>
         <SkeletonLoader />
       </View>
     );
@@ -81,7 +83,7 @@ export default function DrillCategoryScreen() {
     )
   ) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: insets.top }}>
         <SkeletonLoader />
       </View>
     );
@@ -89,7 +91,7 @@ export default function DrillCategoryScreen() {
 
   if (categoryQuery.error || freeDrillsQuery.error || premiumDrillsQuery.error || !categoryQuery.data) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: insets.top, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load drills"
           description={

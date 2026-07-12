@@ -21,11 +21,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   const insets = useSafeAreaInsets();
   const isSection = variant === 'section';
-  const statusBarHeight = isSection
-    ? Platform.OS === 'android'
-      ? StatusBar.currentHeight ?? 0
-      : 0
-    : insets.top;
+  const statusBarHeight = insets.top;
 
   return (
     <View

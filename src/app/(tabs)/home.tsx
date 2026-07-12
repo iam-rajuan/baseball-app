@@ -16,6 +16,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
 import { SkeletonLoader } from '@/components/skeleton-loader';
@@ -27,6 +28,8 @@ import HomeLogo from '../../../assets/svg/home-logo.svg';
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const statusBarHeight = insets.top;
   const isPremium = useAppStore((state) => state.isPremium);
   const sliderRef = useRef<FlatList<Situation>>(null);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -94,7 +97,7 @@ export default function HomeScreen() {
 
   if (situationsLoading || settingsLoading || isInitialRecoverableError) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight }}>
         <SkeletonLoader />
       </View>
     );
@@ -102,7 +105,7 @@ export default function HomeScreen() {
 
   if (situationsError || settingsError || !situations || !appSettings) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, paddingHorizontal: 16, justifyContent: 'center' }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: statusBarHeight, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
           title="Could not load home"
           description={`${situationsError?.message ?? settingsError?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
@@ -180,8 +183,6 @@ export default function HomeScreen() {
     setLastRandomSituationId(randomSituation.id);
     router.push(`/situations/${randomSituation.id}`);
   };
-
-  const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
