@@ -1,5 +1,6 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
-import { readCachedValue, writeCachedValue } from '@/lib/offline-cache';
+import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
+import { situations as mockSituations } from '@/mock/data';
 import type { PaginatedResult, Situation } from '@/types';
 
 const cacheKeys = {
@@ -51,12 +52,22 @@ export const situationsService = {
       await writeCachedValue(cacheKeys.all, mappedItems);
       return mappedItems;
     } catch {
-      const cached = await readCachedValue<Situation[]>(cacheKeys.all);
-      return cached ?? [];
+      return cachedOrMock(cacheKeys.all, mockSituations);
     }
   },
   async getById(id: string): Promise<Situation> {
-    const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));
-    return mapSituation(result);
+    try {
+      const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));
+      return mapSituation(result);
+    } catch {
+      const cached = await cachedOrMock(cacheKeys.all, mockSituations);
+      const fallbackSituation = cached.find((item) => item.id === id);
+
+      if (fallbackSituation) {
+        return fallbackSituation;
+      }
+
+      throw new Error('Situation not found');
+    }
   },
 };

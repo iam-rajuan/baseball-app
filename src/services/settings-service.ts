@@ -1,5 +1,6 @@
 import { apiClient, unwrap } from '@/lib/api-client';
-import { readCachedValue, writeCachedValue } from '@/lib/offline-cache';
+import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
+import { defaultAppSettings, legalPages } from '@/mock/data';
 import type { AppSettings, LegalPages } from '@/types';
 
 const cacheKeys = {
@@ -38,8 +39,7 @@ export const settingsService = {
       await writeCachedValue(cacheKeys.legalPages, result);
       return result ?? null;
     } catch {
-      const cached = await readCachedValue<LegalPages>(cacheKeys.legalPages);
-      return cached ?? null;
+      return cachedOrMock(cacheKeys.legalPages, legalPages);
     }
   },
   async getAppSettings(): Promise<AppSettings | null> {
@@ -48,8 +48,7 @@ export const settingsService = {
       await writeCachedValue(cacheKeys.appSettings, result);
       return result ?? null;
     } catch {
-      const cached = await readCachedValue<AppSettings>(cacheKeys.appSettings);
-      return cached ?? null;
+      return cachedOrMock(cacheKeys.appSettings, defaultAppSettings);
     }
   },
 };

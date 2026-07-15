@@ -6,6 +6,8 @@ type AppState = {
   isPremium: boolean;
   isSubscriptionReady: boolean;
   otpCode: string;
+  isServerReachable: boolean;
+  shouldShowServerDownNotice: boolean;
   hydrateSession: (payload: { email: string }) => void;
   clearSession: () => void;
   setAuthEmail: (email: string) => void;
@@ -13,6 +15,9 @@ type AppState = {
   completeAuth: () => void;
   setPremium: (value: boolean) => void;
   setSubscriptionReady: (value: boolean) => void;
+  markServerDown: () => void;
+  markServerUp: () => void;
+  acknowledgeServerDownNotice: () => void;
 };
 
 export const useAppStore = create<AppState>((set) => ({
@@ -21,6 +26,8 @@ export const useAppStore = create<AppState>((set) => ({
   isPremium: false,
   isSubscriptionReady: false,
   otpCode: '',
+  isServerReachable: true,
+  shouldShowServerDownNotice: false,
   hydrateSession: ({ email }) =>
     set({
       authEmail: email,
@@ -38,4 +45,15 @@ export const useAppStore = create<AppState>((set) => ({
   completeAuth: () => set({ isAuthenticated: true }),
   setPremium: (isPremium) => set({ isPremium }),
   setSubscriptionReady: (isSubscriptionReady) => set({ isSubscriptionReady }),
+  markServerDown: () =>
+    set((state) => ({
+      isServerReachable: false,
+      shouldShowServerDownNotice: state.isServerReachable ? true : state.shouldShowServerDownNotice,
+    })),
+  markServerUp: () =>
+    set({
+      isServerReachable: true,
+      shouldShowServerDownNotice: false,
+    }),
+  acknowledgeServerDownNotice: () => set({ shouldShowServerDownNotice: false }),
 }));

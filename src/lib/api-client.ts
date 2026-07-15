@@ -3,6 +3,8 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
+import { useAppStore } from '@/store/app-store';
+
 const env = {
   EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL,
   EXPO_PUBLIC_API_BASE_URL_CANDIDATES:
@@ -134,7 +136,10 @@ apiClient.interceptors.request.use(async (config) => {
 });
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    useAppStore.getState().markServerUp();
+    return response;
+  },
   async (error) => {
     const originalConfig = error.config;
     const isNetworkFailure = !error.response;
@@ -166,6 +171,10 @@ apiClient.interceptors.response.use(
 
     const message =
       error.response?.data?.message || error.message || 'Request failed';
+
+    if (isNetworkFailure) {
+      useAppStore.getState().markServerDown();
+    }
 
     return Promise.reject(new Error(message));
   },

@@ -22,6 +22,7 @@ import {
 import { useAppStore } from '@/store/app-store';
 import { navigationTheme } from '@/theme';
 import { CustomSplashScreen } from '@/components/custom-splash-screen';
+import { ServerDownModal } from '@/components/server-down-modal';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
 
@@ -31,6 +32,8 @@ export default function RootLayout() {
   const hydrateSession = useAppStore((state) => state.hydrateSession);
   const setPremium = useAppStore((state) => state.setPremium);
   const setSubscriptionReady = useAppStore((state) => state.setSubscriptionReady);
+  const shouldShowServerDownNotice = useAppStore((state) => state.shouldShowServerDownNotice);
+  const acknowledgeServerDownNotice = useAppStore((state) => state.acknowledgeServerDownNotice);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -145,6 +148,10 @@ export default function RootLayout() {
         <StatusBar style={isReady ? 'dark' : 'light'} backgroundColor={isReady ? '#FFFFFF' : '#0A1B40'} />
         {!isReady && <CustomSplashScreen />}
         <Stack screenOptions={{ headerShown: false, animation: 'none' }} />
+        <ServerDownModal
+          visible={shouldShowServerDownNotice}
+          onClose={acknowledgeServerDownNotice}
+        />
       </ThemeProvider>
     </QueryClientProvider>
   );
