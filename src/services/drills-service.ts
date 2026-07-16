@@ -1,5 +1,6 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
-import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
+import { getCachedImageUri, warmRemoteImages } from '@/lib/image-cache';
+import { cachedOrMock, readCachedValue, writeCachedValue } from '@/lib/offline-cache';
 import { drillCategories as mockDrillCategories, drills as mockDrills } from '@/mock/data';
 import type { Drill, DrillCategory, EquipmentItem, PaginatedResult } from '@/types';
 
@@ -27,7 +28,10 @@ const mapFocusPoints = (value: unknown): Drill['focusPoints'] =>
 
 const cacheKeys = {
   categories: 'drills:v3:categories',
+  category: (categoryId: string) => `drills:v3:category-detail:${categoryId}`,
   categoryDrills: (categoryId: string) => `drills:v3:category:${categoryId}`,
+  detail: (drillId: string) => `drills:v3:detail:${drillId}`,
+  newDrills: (limit: number) => `drills:v3:new:${limit}`,
 };
 
 const getMockDrillsForCategory = (categoryId: string) =>
@@ -93,6 +97,47 @@ const mapDrill = (drill: Record<string, unknown>): Drill => ({
   createdAt: toStringValue(drill.createdAt),
 });
 
+const withCachedCategoryImages = async (items: DrillCategory[]) =>
+  Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      image: await getCachedImageUri(item.image),
+      imageUrl: await getCachedImageUri(item.imageUrl),
+      coverUrl: await getCachedImageUri(item.coverUrl),
+      coverPhotoUrl: await getCachedImageUri(item.coverPhotoUrl),
+      iconUrl: await getCachedImageUri(item.iconUrl),
+    })),
+  );
+
+const withCachedDrillImages = async (items: Drill[]) =>
+  Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      image: await getCachedImageUri(item.image),
+      imageUrl: await getCachedImageUri(item.imageUrl),
+      coverUrl: await getCachedImageUri(item.coverUrl),
+      coverPhotoUrl: await getCachedImageUri(item.coverPhotoUrl),
+    })),
+  );
+
+const warmCategoryImages = (items: DrillCategory[], options?: { forceRefresh?: boolean }) =>
+  warmRemoteImages(
+    items.flatMap((item) => [
+      item.image,
+      item.imageUrl,
+      item.coverUrl,
+      item.coverPhotoUrl,
+      item.iconUrl,
+    ]),
+    options,
+  );
+
+const warmDrillImages = (items: Drill[], options?: { forceRefresh?: boolean }) =>
+  warmRemoteImages(
+    items.flatMap((item) => [item.image, item.imageUrl, item.coverUrl, item.coverPhotoUrl]),
+    options,
+  );
+
 const fetchAllPages = async <T>(
   fetchPage: (page: number) => Promise<PaginatedResult<T>>,
 ) => {
@@ -121,8 +166,13 @@ export const drillsService = {
         };
       });
 
-      await writeCachedValue(cacheKeys.categories, mappedItems);
-      return mappedItems;
+      const cachedItems = await withCachedCategoryImages(mappedItems);
+      await writeCachedValue(cacheKeys.categories, cachedItems);
+      void warmCategoryImages(mappedItems, { forceRefresh: true }).then(async () => {
+        const hydratedItems = await withCachedCategoryImages(mappedItems);
+        await writeCachedValue(cacheKeys.categories, hydratedItems);
+      });
+      return cachedItems;
     } catch {
       return cachedOrMock(cacheKeys.categories, mockDrillCategories);
     }
@@ -130,8 +180,21 @@ export const drillsService = {
   async getCategory(id: string): Promise<DrillCategory> {
     try {
       const category = await unwrap<Record<string, unknown>>(apiClient.get(`/drill-categories/${id}`));
-      return mapCategory(category);
+      const mappedCategory = mapCategory(category);
+      const [cachedCategory] = await withCachedCategoryImages([mappedCategory]);
+      await writeCachedValue(cacheKeys.category(id), cachedCategory);
+      void warmCategoryImages([mappedCategory], { forceRefresh: true }).then(async () => {
+        const [hydratedCategory] = await withCachedCategoryImages([mappedCategory]);
+        await writeCachedValue(cacheKeys.category(id), hydratedCategory);
+      });
+      return cachedCategory;
     } catch {
+      const cachedCategory = await readCachedValue<DrillCategory>(cacheKeys.category(id));
+
+      if (cachedCategory) {
+        return cachedCategory;
+      }
+
       const cached = await cachedOrMock(cacheKeys.categories, mockDrillCategories);
       const fallbackCategory = cached.find((item) => item.id === id);
 
@@ -168,8 +231,13 @@ export const drillsService = {
         drillsService.getDrillsByCategoryIdPage(categoryId, page, 100),
       );
 
-      await writeCachedValue(cacheKeys.categoryDrills(categoryId), mappedItems);
-      return mappedItems;
+      const cachedItems = await withCachedDrillImages(mappedItems);
+      await writeCachedValue(cacheKeys.categoryDrills(categoryId), cachedItems);
+      void warmDrillImages(mappedItems, { forceRefresh: true }).then(async () => {
+        const hydratedItems = await withCachedDrillImages(mappedItems);
+        await writeCachedValue(cacheKeys.categoryDrills(categoryId), hydratedItems);
+      });
+      return cachedItems;
     } catch {
       return cachedOrMock(
         cacheKeys.categoryDrills(categoryId),
@@ -186,8 +254,13 @@ export const drillsService = {
         drillsService.getDrillsByCategoryIdPage(categoryId, page, 100, accessLevel),
       );
 
-      await writeCachedValue(cacheKeys.categoryDrills(`${categoryId}:${accessLevel}`), mappedItems);
-      return mappedItems;
+      const cachedItems = await withCachedDrillImages(mappedItems);
+      await writeCachedValue(cacheKeys.categoryDrills(`${categoryId}:${accessLevel}`), cachedItems);
+      void warmDrillImages(mappedItems, { forceRefresh: true }).then(async () => {
+        const hydratedItems = await withCachedDrillImages(mappedItems);
+        await writeCachedValue(cacheKeys.categoryDrills(`${categoryId}:${accessLevel}`), hydratedItems);
+      });
+      return cachedItems;
     } catch {
       return cachedOrMock(
         cacheKeys.categoryDrills(`${categoryId}:${accessLevel}`),
@@ -201,16 +274,36 @@ export const drillsService = {
         apiClient.get('/drills', { params: { page: 1, limit } }),
       );
 
-      return result.items.map((drill) => mapDrill(drill));
+      const mappedItems = result.items.map((drill) => mapDrill(drill));
+      const cachedItems = await withCachedDrillImages(mappedItems);
+      await writeCachedValue(cacheKeys.newDrills(limit), cachedItems);
+      void warmDrillImages(mappedItems, { forceRefresh: true }).then(async () => {
+        const hydratedItems = await withCachedDrillImages(mappedItems);
+        await writeCachedValue(cacheKeys.newDrills(limit), hydratedItems);
+      });
+      return cachedItems;
     } catch {
-      return mockDrills.slice(0, limit);
+      return cachedOrMock(cacheKeys.newDrills(limit), mockDrills.slice(0, limit));
     }
   },
   async getById(id: string): Promise<Drill> {
     try {
       const drill = await unwrap<Record<string, unknown>>(apiClient.get(`/drills/${id}`));
-      return mapDrill(drill);
+      const mappedDrill = mapDrill(drill);
+      const [cachedDrill] = await withCachedDrillImages([mappedDrill]);
+      await writeCachedValue(cacheKeys.detail(id), cachedDrill);
+      void warmDrillImages([mappedDrill], { forceRefresh: true }).then(async () => {
+        const [hydratedDrill] = await withCachedDrillImages([mappedDrill]);
+        await writeCachedValue(cacheKeys.detail(id), hydratedDrill);
+      });
+      return cachedDrill;
     } catch {
+      const cachedDetail = await readCachedValue<Drill>(cacheKeys.detail(id));
+
+      if (cachedDetail) {
+        return cachedDetail;
+      }
+
       const fallbackDrill = mockDrills.find((item) => item.id === id);
 
       if (fallbackDrill) {

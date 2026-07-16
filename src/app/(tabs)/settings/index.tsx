@@ -32,7 +32,7 @@ const menuItems = [
 export default function SettingsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
-      <PageHeader title="SETTINGS" variant="section" />
+      <PageHeader title="SETTINGS" variant="section" showBack={false} />
       <ScrollView
         style={{ backgroundColor: '#F4E7D5' }}
         showsVerticalScrollIndicator={false}

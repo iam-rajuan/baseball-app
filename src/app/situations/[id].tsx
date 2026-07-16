@@ -1,36 +1,33 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
-  StatusBar,
   Text,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
+import { CachedImage } from '@/components/cached-image';
 import { Loader } from '@/components/loader';
+import { getSituationInitialData } from '@/lib/prefetch';
+import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { situationsService } from '@/services';
 
 export default function SituationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const routeId = id ?? '';
-  const insets = useSafeAreaInsets();
   
   const { data: situation, isLoading: situationLoading, isFetching, refetch } = useQuery({
     queryKey: ['situation', routeId],
     queryFn: () => situationsService.getById(routeId),
-    refetchInterval: 1000 * 20,
+    initialData: () => getSituationInitialData(routeId),
   });
 
   if (situationLoading) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F4E7D5', paddingTop: insets.top }}>
+      <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
         <Loader />
       </View>
     );
@@ -47,31 +44,20 @@ export default function SituationDetailsScreen() {
     );
   }
 
-  const statusBarHeight = insets.top;
   const situationImageSource = situation.imageUrl || situation.image;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
-      {/* ═ HEADER ═ */}
-      <View style={{ paddingTop: statusBarHeight, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 10, zIndex: 10 }}>
-        <Pressable onPress={() => router.back()} style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons color="#1F3A5F" name="chevron-back" size={24} />
-        </Pressable>
-        <View style={{ alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, fontWeight: '700', color: '#1F3A5F', fontFamily: 'serif', fontStyle: 'italic' }}>Marietta</Text>
-          <Text style={{ fontSize: 9, fontWeight: '600', color: '#1F3A5F', textTransform: 'uppercase', letterSpacing: 1.0, marginTop: 0 }}>Baseball Academy</Text>
-        </View>
-        <View style={{ width: 36 }} />
-      </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 60 }}
         refreshControl={(
           <RefreshControl
             colors={['#E35D21']}
-            onRefresh={() => {
-              void refetch();
+            onRefresh={async () => {
+              const result = await refetch();
+              showOfflineNoticeAfterRefresh([result]);
             }}
             refreshing={isFetching}
             tintColor="#E35D21"
@@ -98,9 +84,9 @@ export default function SituationDetailsScreen() {
               <Text style={{ textAlign: 'center', fontSize: 26, fontWeight: '900', textTransform: 'uppercase', lineHeight: 30, color: '#1A1A1A', fontFamily: 'serif' }}>{situation.title}</Text>
               {situationImageSource ? (
                 <View style={{ marginTop: 20, borderRadius: 20, overflow: 'hidden', backgroundColor: '#F8F2E8' }}>
-                  <Image
+                  <CachedImage
                     contentFit="cover"
-                    source={{ uri: situationImageSource }}
+                    uri={situationImageSource}
                     style={{ width: '100%', aspectRatio: 16 / 9 }}
                   />
                 </View>

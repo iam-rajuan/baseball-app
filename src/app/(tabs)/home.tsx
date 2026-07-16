@@ -1,17 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
-  StatusBar,
   Text,
   useWindowDimensions,
   View,
@@ -20,7 +17,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
 import { SkeletonLoader } from '@/components/skeleton-loader';
+import { CachedImage } from '@/components/cached-image';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService, featuredSituationsService, settingsService, situationsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 import type { Drill, Situation } from '@/types';
@@ -40,7 +39,6 @@ export default function HomeScreen() {
     data: situations,
     isLoading: situationsLoading,
     error: situationsError,
-    isFetching: situationsFetching,
     refetch: refetchSituations,
   } = useQuery({
     queryKey: ['situations'],
@@ -50,7 +48,6 @@ export default function HomeScreen() {
     data: appSettings,
     isLoading: settingsLoading,
     error: settingsError,
-    isFetching: settingsFetching,
     refetch: refetchSettings,
   } = useQuery({
     queryKey: ['app-settings'],
@@ -58,12 +55,10 @@ export default function HomeScreen() {
   });
   const {
     data: backendFeaturedSituations,
-    isFetching: featuredFetching,
     refetch: refetchFeaturedSituations,
   } = useQuery({
     queryKey: ['featured-situations'],
     queryFn: featuredSituationsService.getAll,
-    refetchInterval: 1000 * 20,
   });
   const {
     data: newDrills,
@@ -80,12 +75,13 @@ export default function HomeScreen() {
     setIsRefreshing(true);
 
     try {
-      await Promise.all([
+      const results = await Promise.all([
         refetchSituations(),
         refetchSettings(),
         refetchFeaturedSituations(),
         refetchNewDrills(),
       ]);
+      showOfflineNoticeAfterRefresh(results);
     } finally {
       setIsRefreshing(false);
     }
@@ -137,9 +133,9 @@ export default function HomeScreen() {
       style={{ flexDirection: 'row', alignItems: 'center', borderRadius: 18, backgroundColor: '#FFFFFF', padding: 12, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}
     >
       {drill.image ? (
-        <Image
+        <CachedImage
           contentFit="cover"
-          source={{ uri: drill.image }}
+          uri={drill.image}
           style={{ height: 54, width: 72, borderRadius: 14, backgroundColor: '#F8F2E8' }}
         />
       ) : (
@@ -229,9 +225,7 @@ export default function HomeScreen() {
               Baseball Academy
             </Text>
           </View>
-          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons color="#0C1F4A" name="search" size={20} />
-          </Pressable>
+          <View style={{ height: 36, width: 36 }} />
         </View>
       </View>
 
@@ -302,15 +296,16 @@ export default function HomeScreen() {
               <Pressable onPress={() => router.push(`/situations/${item.id}`)} style={{ width: slideWidth, marginRight: 12, borderRadius: 20, backgroundColor: '#FFFFFF', paddingHorizontal: 18, paddingVertical: 16, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
                   <View style={{ alignItems: 'center' }}>
-                    <View style={{ height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#76B45D', overflow: 'hidden' }}>
+                    <View style={{ height: 48, width: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 24, backgroundColor: '#F8F2E8', overflow: 'hidden', borderWidth: 1, borderColor: '#E7DEC9' }}>
                       {item.imageUrl || item.image ? (
-                        <Image
+                        <CachedImage
                           contentFit="cover"
-                          source={{ uri: item.imageUrl || item.image }}
+                          contentPosition="center"
+                          uri={item.imageUrl || item.image || ''}
                           style={{ height: 48, width: 48 }}
                         />
                       ) : (
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF', textTransform: 'uppercase' }}>{item.shortLabel}</Text>
+                        <Text style={{ fontSize: 12, fontWeight: '800', color: '#C2410C', textTransform: 'uppercase', letterSpacing: 0.6 }}>{item.shortLabel}</Text>
                       )}
                     </View>
                   </View>
@@ -332,8 +327,8 @@ export default function HomeScreen() {
             </View>
           ) : newDrillsError ? (
             <EmptyState
-              title="Could not load new drills"
-              description={`${newDrillsError.message}\nAPI: ${getActiveApiBaseUrl()}`}
+              title="Unable to load new drills"
+              description="Please check your internet connection and try again."
             />
           ) : newDrills?.length ? (
             <View style={{ gap: 10 }}>
@@ -341,8 +336,8 @@ export default function HomeScreen() {
             </View>
           ) : (
             <EmptyState
-              title="No new drills yet"
-              description="Drills created from the admin dashboard will appear here."
+              title="No New Drills"
+              description="You are all caught up! New academy drills will appear here as soon as they are released."
             />
           )}
         </View>
@@ -358,9 +353,9 @@ export default function HomeScreen() {
                   onPress={() => router.push(`/situations/${specificSituation.id}`)}
                   style={{ marginTop: 14, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F8F2E8' }}
                 >
-                  <Image
+                  <CachedImage
                     contentFit="cover"
-                    source={{ uri: specificSituationImageUri }}
+                    uri={specificSituationImageUri}
                     style={{ width: '100%', aspectRatio: 16 / 9 }}
                   />
                 </Pressable>

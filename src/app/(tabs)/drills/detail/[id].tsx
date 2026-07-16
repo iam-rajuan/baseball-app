@@ -5,7 +5,6 @@ import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 
 import { EmptyState } from '@/components/empty-state';
 import { Loader } from '@/components/loader';
-import { PageHeader } from '@/components/layout/page-header';
 import { colors } from '@/constants/theme';
 import { DrillBanner } from '@/features/drills/components/drill-banner';
 import { EquipmentCard } from '@/features/drills/components/equipment-card';
@@ -13,6 +12,8 @@ import { FocusPointCard } from '@/features/drills/components/focus-point-card';
 import { StepDirection } from '@/features/drills/components/step-direction';
 import { YouTubeVideo, getYouTubeWebView } from '@/features/drills/components/youtube-video';
 import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
+import { getDrillInitialData } from '@/lib/prefetch';
+import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
@@ -23,12 +24,12 @@ export default function DrillDetailScreen() {
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['drill', routeId],
     queryFn: () => drillsService.getById(routeId),
+    initialData: () => getDrillInitialData(routeId),
   });
 
   if (isLoading) {
     return (
       <View className="flex-1 bg-background">
-        <PageHeader title="Drill Details" />
         <Loader />
       </View>
     );
@@ -37,7 +38,6 @@ export default function DrillDetailScreen() {
   if (!data) {
     return (
       <View className="flex-1 bg-background">
-        <PageHeader title="Drill Details" />
         <EmptyState title="Drill unavailable" description="This drill could not be found." />
       </View>
     );
@@ -48,16 +48,17 @@ export default function DrillDetailScreen() {
   if (isLockedPremiumDrill) {
     return (
       <View className="flex-1 bg-background">
-        <PageHeader title="Drill Details" variant="section" />
         <ScrollView
           showsVerticalScrollIndicator={false}
           className="bg-background"
+          contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={{ paddingBottom: 60 }}
           refreshControl={(
             <RefreshControl
               colors={['#E35D21']}
-              onRefresh={() => {
-                void refetch();
+              onRefresh={async () => {
+                const result = await refetch();
+                showOfflineNoticeAfterRefresh([result]);
               }}
               refreshing={isFetching}
               tintColor="#E35D21"
@@ -177,16 +178,17 @@ export default function DrillDetailScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <PageHeader title="Drill Details" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="bg-background"
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 60 }}
         refreshControl={(
           <RefreshControl
             colors={['#E35D21']}
-            onRefresh={() => {
-              void refetch();
+            onRefresh={async () => {
+              const result = await refetch();
+              showOfflineNoticeAfterRefresh([result]);
             }}
             refreshing={isFetching}
             tintColor="#E35D21"

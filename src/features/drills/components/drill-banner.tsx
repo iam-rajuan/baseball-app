@@ -1,6 +1,6 @@
-import { Image } from 'expo-image';
 import { Text, View } from 'react-native';
 
+import { CachedImage } from '@/components/cached-image';
 import { PlaceholderBanner } from '@/features/drills/components/placeholder-banner';
 
 type DrillBannerProps = {
@@ -13,8 +13,8 @@ export function DrillBanner({ title, subtitle, imageUri }: DrillBannerProps) {
   if (imageUri && /^https?:\/\//.test(imageUri)) {
     return (
       <View className="h-[130px] w-full bg-navy">
-        <Image
-          source={{ uri: imageUri }}
+        <CachedImage
+          uri={imageUri}
           style={{ height: '100%', width: '100%' }}
           contentFit="cover"
         />

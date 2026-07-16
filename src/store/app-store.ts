@@ -17,6 +17,7 @@ type AppState = {
   setSubscriptionReady: (value: boolean) => void;
   markServerDown: () => void;
   markServerUp: () => void;
+  showServerDownNotice: () => void;
   acknowledgeServerDownNotice: () => void;
 };
 
@@ -54,6 +55,11 @@ export const useAppStore = create<AppState>((set) => ({
     set({
       isServerReachable: true,
       shouldShowServerDownNotice: false,
+    }),
+  showServerDownNotice: () =>
+    set({
+      isServerReachable: false,
+      shouldShowServerDownNotice: true,
     }),
   acknowledgeServerDownNotice: () => set({ shouldShowServerDownNotice: false }),
 }));

@@ -3,16 +3,17 @@ import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 
 import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/layout/page-header';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { typography } from '@/constants/typography';
 import { CategoryTile } from '@/features/drills/components/category-tile';
-import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { isRecoverableApiError } from '@/lib/api-client';
+import { prefetchDrillCategory } from '@/lib/prefetch';
+import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
@@ -53,8 +54,8 @@ export default function DrillsScreen() {
     return (
       <View className="flex-1 bg-[#F4E7D5]" style={{ paddingTop: insets.top, paddingHorizontal: 16, justifyContent: 'center' }}>
         <EmptyState
-          title="Could not load drills"
-          description={`${error?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
+          title="Unable to load drills"
+          description="Please check your internet connection and try again."
         />
       </View>
     );
@@ -65,11 +66,7 @@ export default function DrillsScreen() {
       <PageHeader
         title="Drill Category"
         variant="section"
-        rightSlot={(
-          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons color="#1F3A5F" name="search" size={22} />
-          </Pressable>
-        )}
+        showBack={false}
       />
 
       <ScrollView
@@ -78,8 +75,9 @@ export default function DrillsScreen() {
         refreshControl={(
           <RefreshControl
             colors={['#E35D21']}
-            onRefresh={() => {
-              void refetch();
+            onRefresh={async () => {
+              const result = await refetch();
+              showOfflineNoticeAfterRefresh([result]);
             }}
             refreshing={isFetching}
             tintColor="#E35D21"
@@ -114,7 +112,7 @@ export default function DrillsScreen() {
               </Text>
               <Text
                 style={{
-                  fontSize: 40, // Bumped to match Home scale
+                  fontSize: 40,
                   fontWeight: '900',
                   textTransform: 'uppercase',
                   lineHeight: 42,
@@ -151,14 +149,17 @@ export default function DrillsScreen() {
                   <View key={item.id}>
                     <CategoryTile
                       item={item}
+                      onPressIn={() => {
+                        void prefetchDrillCategory(item.id);
+                      }}
                       onPress={() => router.push(`/drills/category/${item.id}`)}
                     />
                   </View>
                 ))
               ) : (
                 <EmptyState
-                  title="No drill categories yet"
-                  description="Categories created from the admin dashboard will appear here."
+                  title="No Drill Categories"
+                  description="Training categories are currently being prepared. Please check back soon."
                 />
               )}
             </View>
@@ -179,84 +180,84 @@ export default function DrillsScreen() {
               }}
             >
               <FrostedCard>
-                  {/* Foreground Content */}
+                {/* Foreground Content */}
+                <View
+                  style={{
+                    paddingHorizontal: 20,
+                    paddingVertical: 32,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                   <View
                     style={{
-                      paddingHorizontal: 20,
-                      paddingVertical: 32,
+                      height: 52,
+                      width: 52,
+                      borderRadius: 26,
+                      backgroundColor: isPremium ? '#2F9E44' : '#E35D21',
                       alignItems: 'center',
-                      justifyContent: 'center'
+                      justifyContent: 'center',
+                      marginBottom: 16,
+                      shadowColor: isPremium ? '#2F9E44' : '#E35D21',
+                      shadowOpacity: 0.3,
+                      shadowRadius: 10,
+                      shadowOffset: { width: 0, height: 4 },
+                      elevation: 4
                     }}
                   >
-                    <View
-                      style={{
-                        height: 52,
-                        width: 52,
-                        borderRadius: 26,
-                        backgroundColor: isPremium ? '#2F9E44' : '#E35D21',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: 16,
-                        shadowColor: isPremium ? '#2F9E44' : '#E35D21',
-                        shadowOpacity: 0.3,
-                        shadowRadius: 10,
-                        shadowOffset: { width: 0, height: 4 },
-                        elevation: 4
-                      }}
-                    >
-                      <Ionicons color="#FFFFFF" name={isPremium ? 'checkmark' : 'lock-closed'} size={24} />
-                    </View>
-
-                    <Text
-                      style={{
-                        textAlign: 'center',
-                        fontSize: 24,
-                        fontWeight: '900',
-                        lineHeight: 28,
-                        color: '#1A1A1A',
-                        fontFamily: typography.family.serif,
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      {isPremium ? `All Premium Drills\nUnlocked` : `Unlock All\nPremium Drills`}
-                    </Text>
-
-                    <Text
-                      style={{
-                        marginTop: 12,
-                        textAlign: 'center',
-                        fontSize: 13,
-                        lineHeight: 20,
-                        color: '#374151',
-                        fontWeight: '600',
-                        paddingHorizontal: 10
-                      }}
-                    >
-                      {isPremium
-                        ? 'Your premium access is active. You can open every premium drill and training pack.'
-                        : 'Unlock all premium drills with a one-time purchase.'}
-                    </Text>
-
-                    <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
-                      <Pressable
-                        style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
-                        onPress={() => router.push(isPremium ? '/payment/success' : '/payment')}
-                      >
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>
-                          {isPremium ? 'PREMIUM ACTIVE' : 'UNLOCK PREMIUM'}
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}
-                        onPress={() => router.push('/payment')}
-                      >
-                        <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>
-                          {isPremium ? 'MANAGE MEMBERSHIP' : 'RESTORE PURCHASES'}
-                        </Text>
-                      </Pressable>
-                    </View>
-
+                    <Ionicons color="#FFFFFF" name={isPremium ? 'checkmark' : 'lock-closed'} size={24} />
                   </View>
+
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontSize: 24,
+                      fontWeight: '900',
+                      lineHeight: 28,
+                      color: '#1A1A1A',
+                      fontFamily: typography.family.serif,
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {isPremium ? `All Premium Drills\nUnlocked` : `Unlock All\nPremium Drills`}
+                  </Text>
+
+                  <Text
+                    style={{
+                      marginTop: 12,
+                      textAlign: 'center',
+                      fontSize: 13,
+                      lineHeight: 20,
+                      color: '#374151',
+                      fontWeight: '600',
+                      paddingHorizontal: 10
+                    }}
+                  >
+                    {isPremium
+                      ? 'Your premium access is active. You can open every premium drill and training pack.'
+                      : 'Unlock all premium drills with a one-time purchase.'}
+                  </Text>
+
+                  <View style={{ marginTop: 24, width: '100%', gap: 10 }}>
+                    <Pressable
+                      style={{ height: 48, borderRadius: 999, backgroundColor: '#E35D21', justifyContent: 'center', alignItems: 'center', shadowColor: '#E35D21', shadowOpacity: 0.2, shadowRadius: 5, shadowOffset: { width: 0, height: 2 }, elevation: 2 }}
+                      onPress={() => router.push(isPremium ? '/payment/success' : '/payment')}
+                    >
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#FFFFFF', letterSpacing: 0.5 }}>
+                        {isPremium ? 'PREMIUM ACTIVE' : 'UNLOCK PREMIUM'}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      style={{ height: 48, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.7)', borderWidth: 1, borderColor: 'rgba(180,185,200,0.5)', justifyContent: 'center', alignItems: 'center' }}
+                      onPress={() => router.push('/payment')}
+                    >
+                      <Text style={{ fontSize: 15, fontWeight: '700', color: '#21314F', letterSpacing: 0.5 }}>
+                        {isPremium ? 'MANAGE MEMBERSHIP' : 'RESTORE PURCHASES'}
+                      </Text>
+                    </Pressable>
+                  </View>
+
+                </View>
               </FrostedCard>
             </View>
           </View>

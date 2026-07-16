@@ -12,6 +12,7 @@ import { Section } from '@/components/section';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { FieldDiagram } from '@/features/playbook/components/field-diagram';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { prefetchSituation } from '@/lib/prefetch';
 import { situationsService } from '@/services';
 
 export default function PlaybookScreen() {
@@ -32,8 +33,8 @@ export default function PlaybookScreen() {
     return (
       <Screen>
         <EmptyState
-          title="Could not load playbook"
-          description={`${error?.message ?? 'Request failed'}\nAPI: ${getActiveApiBaseUrl()}`}
+          title="Unable to load playbook"
+          description="Please check your internet connection and try again."
         />
       </Screen>
     );
@@ -43,8 +44,8 @@ export default function PlaybookScreen() {
     return (
       <Screen>
         <EmptyState
-          title="No playbook situations yet"
-          description={`No defensive situations are available right now.\nAPI: ${getActiveApiBaseUrl()}`}
+          title="No Playbook Situations"
+          description="Defensive situations and plays are currently being prepared. Check back soon for updates."
         />
       </Screen>
     );
@@ -54,6 +55,7 @@ export default function PlaybookScreen() {
   const situationCountLabel = data.length > 99 ? '99+' : String(data.length);
   const randomSituation = () => {
     const next = data[Math.floor(Math.random() * data.length)];
+    void prefetchSituation(next.id);
     router.push(`/situations/${next.id}`);
   };
 
@@ -89,7 +91,9 @@ export default function PlaybookScreen() {
 
       <View className="mt-5">
         <Section title="Featured Situation">
-          <Pressable onPress={() => router.push(`/situations/${featured.id}`)}>
+          <Pressable onPressIn={() => {
+            void prefetchSituation(featured.id);
+          }} onPress={() => router.push(`/situations/${featured.id}`)}>
             <Card>
               <View className="flex-row items-center gap-4">
                 <View className="h-14 w-14 items-center justify-center rounded-full bg-[#74B864]">
@@ -109,7 +113,9 @@ export default function PlaybookScreen() {
 
       <View className="mt-6">
         <Section eyebrow="Specific Situations" title={data[1]?.title ?? 'Browse Situations'}>
-          <Pressable onPress={() => router.push(`/situations/${data[1]?.id ?? featured.id}`)}>
+          <Pressable onPressIn={() => {
+            void prefetchSituation(data[1]?.id ?? featured.id);
+          }} onPress={() => router.push(`/situations/${data[1]?.id ?? featured.id}`)}>
             <Card>
               <FieldDiagram variant={data[1]?.diagramVariant} />
               <View className="mt-4 gap-2">

@@ -42,7 +42,7 @@ export function PageHeader({
         paddingVertical: isSection ? 7 : 10,
       }}
       >
-        <View style={{ width: 36 }}>
+        <View style={{ width: 36, height: 36 }}>
           {showBack ? (
             <Pressable
               style={{
@@ -72,7 +72,7 @@ export function PageHeader({
         >
           {title}
         </Text>
-        <View style={{ minWidth: 36, alignItems: 'flex-end' }}>{rightSlot}</View>
+        <View style={{ minWidth: 36, height: 36, alignItems: 'flex-end', justifyContent: 'center' }}>{rightSlot}</View>
       </View>
     </View>
   );

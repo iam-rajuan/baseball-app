@@ -22,8 +22,32 @@ const getRequiredEnv = (key: keyof typeof env) => {
 };
 
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+const isLoopbackHost = (value?: string | null) =>
+  value === 'localhost' || value === '127.0.0.1';
 const debuggerHost = (Constants as unknown as { expoGoConfig?: { debuggerHost?: string } }).expoGoConfig?.debuggerHost;
 const expoHost = debuggerHost ? debuggerHost.split(':')[0]?.trim() || undefined : undefined;
+const rawConfiguredApiBaseUrl = trimTrailingSlash(
+  getRequiredEnv('EXPO_PUBLIC_API_BASE_URL'),
+);
+
+const buildExpoHostUrl = (value: string) => {
+  if (!expoHost || isLoopbackHost(expoHost)) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+
+    if (!isLoopbackHost(url.hostname)) {
+      return null;
+    }
+
+    url.hostname = expoHost;
+    return trimTrailingSlash(url.toString());
+  } catch {
+    return null;
+  }
+};
 
 const resolveDevelopmentHostUrl = (value: string) => {
   if (!__DEV__) {
@@ -32,13 +56,13 @@ const resolveDevelopmentHostUrl = (value: string) => {
 
   try {
     const url = new URL(value);
-    const isLoopbackHost = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+    const isLoopbackValue = isLoopbackHost(url.hostname);
 
-    if (!isLoopbackHost) {
+    if (!isLoopbackValue) {
       return trimTrailingSlash(url.toString());
     }
 
-    if (expoHost && expoHost !== 'localhost' && expoHost !== '127.0.0.1') {
+    if (expoHost && !isLoopbackHost(expoHost)) {
       url.hostname = expoHost;
       return trimTrailingSlash(url.toString());
     }
@@ -54,9 +78,7 @@ const resolveDevelopmentHostUrl = (value: string) => {
   }
 };
 
-const configuredApiBaseUrl = resolveDevelopmentHostUrl(
-  getRequiredEnv('EXPO_PUBLIC_API_BASE_URL'),
-);
+const configuredApiBaseUrl = resolveDevelopmentHostUrl(rawConfiguredApiBaseUrl);
 
 const unique = <T>(items: T[]) => Array.from(new Set(items));
 const splitCsv = (value?: string) =>
@@ -73,7 +95,7 @@ const getAndroidEmulatorHostUrl = (value: string) => {
   try {
     const url = new URL(value);
 
-    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    if (isLoopbackHost(url.hostname)) {
       url.hostname = '10.0.2.2';
       return trimTrailingSlash(url.toString());
     }
@@ -87,7 +109,9 @@ const getAndroidEmulatorHostUrl = (value: string) => {
 const buildApiBaseUrlCandidates = () => {
   return unique([
     configuredApiBaseUrl,
+    buildExpoHostUrl(rawConfiguredApiBaseUrl),
     getAndroidEmulatorHostUrl(configuredApiBaseUrl),
+    getAndroidEmulatorHostUrl(rawConfiguredApiBaseUrl),
     ...splitCsv(env.EXPO_PUBLIC_API_BASE_URL_CANDIDATES),
   ].filter(Boolean) as string[]);
 };
@@ -106,10 +130,15 @@ export const resolveApiAssetUrl = (value?: string | null) => {
 
   try {
     const assetUrl = new URL(url);
+    const rawConfiguredUrl = new URL(rawConfiguredApiBaseUrl);
     const configuredUrl = new URL(configuredApiBaseUrl);
     const activeUrl = new URL(activeApiBaseUrl);
+    const shouldRewriteHost =
+      assetUrl.host === rawConfiguredUrl.host ||
+      assetUrl.host === configuredUrl.host ||
+      isLoopbackHost(assetUrl.hostname);
 
-    if (assetUrl.host === configuredUrl.host) {
+    if (shouldRewriteHost) {
       assetUrl.protocol = activeUrl.protocol;
       assetUrl.host = activeUrl.host;
     }

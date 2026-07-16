@@ -2,10 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Image } from 'expo-image';
 import { Controller, useForm } from 'react-hook-form';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 
-import { PageHeader } from '@/components/layout/page-header';
 import { reportService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
@@ -43,10 +41,10 @@ export default function SupportScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
-      <PageHeader title="Help & support" variant="section" />
       <ScrollView
         style={{ backgroundColor: '#F4E7D5' }}
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 110, backgroundColor: '#F4E7D5' }}
       >
         {/* Illustration */}

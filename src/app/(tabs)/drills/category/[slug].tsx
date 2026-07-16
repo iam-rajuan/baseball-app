@@ -1,19 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
-import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, StatusBar, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/components/empty-state';
-import { PageHeader } from '@/components/layout/page-header';
+import { CachedImage } from '@/components/cached-image';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { typography } from '@/constants/typography';
 import { getCategoryEyebrow } from '@/features/drills/drill-media';
 import { PlaceholderBanner } from '@/features/drills/components/placeholder-banner';
 import { isRecoverableApiError } from '@/lib/api-client';
+import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
@@ -59,11 +59,12 @@ export default function DrillCategoryScreen() {
     categoryQuery.isFetching || freeDrillsQuery.isFetching || premiumDrillsQuery.isFetching;
 
   const refreshCategory = useCallback(async () => {
-    await Promise.all([
+    const results = await Promise.all([
       categoryQuery.refetch(),
       freeDrillsQuery.refetch(),
       premiumDrillsQuery.refetch(),
     ]);
+    showOfflineNoticeAfterRefresh(results);
   }, [categoryQuery, freeDrillsQuery, premiumDrillsQuery]);
 
   if (categoryQuery.isLoading || freeDrillsQuery.isLoading || premiumDrillsQuery.isLoading) {
@@ -115,18 +116,9 @@ export default function DrillCategoryScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
-      <PageHeader
-        title={category.name}
-        variant="section"
-        rightSlot={(
-          <Pressable style={{ height: 36, width: 36, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons color="#1F3A5F" name="search" size={22} />
-          </Pressable>
-        )}
-      />
-
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={(
           <RefreshControl
@@ -155,11 +147,10 @@ export default function DrillCategoryScreen() {
             {/* Featured Image */}
             {categoryImageSource ? (
               <View style={{ marginBottom: 28, borderRadius: 28, overflow: 'hidden', backgroundColor: '#FFFFFF', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 15, shadowOffset: { width: 0, height: 6 }, elevation: 4, height: 210, justifyContent: 'center', alignItems: 'center' }}>
-                <Image
-                  source={categoryImageSource}
+                <CachedImage
+                  uri={categoryImageSource.uri}
                   style={{ width: '100%', height: 210, position: 'absolute' }}
                   contentFit="cover"
-                  cachePolicy="disk"
                   transition={250}
                   onLoadStart={() => setImageLoading(true)}
                   onLoadEnd={() => setImageLoading(false)}
@@ -177,8 +168,8 @@ export default function DrillCategoryScreen() {
             {!hasAnyDrills ? (
               <View style={{ marginBottom: 24 }}>
                 <EmptyState
-                  title="No drills yet"
-                  description="When drills are added from the admin dashboard, they will appear here automatically."
+                  title="No Drills Found"
+                  description="We are currently adding drills to this category. Please check back soon!"
                 />
               </View>
             ) : null}

@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { PageHeader } from '@/components/layout/page-header';
 import { settingsService } from '@/services';
 
 export default function AboutScreen() {
@@ -25,9 +24,9 @@ export default function AboutScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F4E7D5' }}>
-      <PageHeader title="About Us" variant="section" />
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{ paddingBottom: 110 }}
       >
         {/* Logo + Name + Version */}

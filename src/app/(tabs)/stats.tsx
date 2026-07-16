@@ -13,7 +13,7 @@ export default function StatsScreen() {
     <Screen contentClassName="pt-4" contentStyle={{ paddingTop: insets.top + 16 }}>
       <Section eyebrow="Performance Tracking" title="Stats">
         <Text className="text-sm leading-6 text-navyMuted">
-          Placeholder analytics styled to match the academy dashboard until live backend metrics are connected.
+          Track your training progress, analysis accuracy, and drill completion rates. Live training session statistics will update here automatically as you practice.
         </Text>
       </Section>
       <View className="mt-6 gap-4">

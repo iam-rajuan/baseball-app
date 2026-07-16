@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 
 import * as NavigationBar from 'expo-navigation-bar';
-import { AppState, Platform } from 'react-native';
+import { AppState, LogBox, Platform } from 'react-native';
 
 import { queryClient } from '@/lib/query-client';
 import {
@@ -25,6 +25,9 @@ import { CustomSplashScreen } from '@/components/custom-splash-screen';
 import { ServerDownModal } from '@/components/server-down-modal';
 
 SplashScreen.preventAutoHideAsync().catch(() => null);
+LogBox.ignoreLogs([
+  "Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.",
+]);
 
 export default function RootLayout() {
   const clearSession = useAppStore((state) => state.clearSession);
@@ -147,7 +150,22 @@ export default function RootLayout() {
       <ThemeProvider value={navigationTheme}>
         <StatusBar style={isReady ? 'dark' : 'light'} backgroundColor={isReady ? '#FFFFFF' : '#0A1B40'} />
         {!isReady && <CustomSplashScreen />}
-        <Stack screenOptions={{ headerShown: false, animation: 'none' }} />
+        <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
+          <Stack.Screen
+            name="situations/[id]"
+            options={{
+              animation: 'default',
+              headerShown: true,
+              title: 'Situation',
+              headerBackButtonDisplayMode: 'minimal',
+              headerShadowVisible: false,
+              headerTintColor: '#1F3A5F',
+              headerTitleAlign: 'center',
+              headerTransparent: Platform.OS === 'ios',
+              headerBlurEffect: Platform.OS === 'ios' ? 'systemChromeMaterial' : undefined,
+            }}
+          />
+        </Stack>
         <ServerDownModal
           visible={shouldShowServerDownNotice}
           onClose={acknowledgeServerDownNotice}

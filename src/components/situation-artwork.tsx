@@ -1,6 +1,6 @@
-import { Image } from 'expo-image';
 import { View } from 'react-native';
 
+import { CachedImage } from '@/components/cached-image';
 import { FieldDiagram } from '@/features/playbook/components/field-diagram';
 
 type SituationArtworkProps = {
@@ -17,9 +17,9 @@ export function SituationArtwork({
   if (imageUri) {
     return (
       <View className={`overflow-hidden border border-[#E7DEC9] bg-[#F3EEE4] ${roundedClassName}`}>
-        <Image
+        <CachedImage
           contentFit="contain"
-          source={{ uri: imageUri }}
+          uri={imageUri}
           style={{ width: '100%', aspectRatio: 1 }}
         />
       </View>

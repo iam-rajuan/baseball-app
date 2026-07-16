@@ -1,4 +1,5 @@
 import { apiClient, resolveApiAssetUrl, unwrap } from '@/lib/api-client';
+import { getCachedImageUri, warmRemoteImages } from '@/lib/image-cache';
 import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
 import { situations as mockSituations } from '@/mock/data';
 import type { Situation } from '@/types';
@@ -29,6 +30,15 @@ const mapFeaturedSituation = (item: Record<string, unknown>): Situation | null =
   };
 };
 
+const withCachedFeaturedImages = async (items: Situation[]) =>
+  Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      image: await getCachedImageUri(item.image),
+      imageUrl: await getCachedImageUri(item.imageUrl),
+    })),
+  );
+
 export const featuredSituationsService = {
   async getAll(): Promise<Situation[]> {
     try {
@@ -39,8 +49,16 @@ export const featuredSituationsService = {
         .map((item) => mapFeaturedSituation(item))
         .filter((item): item is Situation => Boolean(item));
 
-      await writeCachedValue(featuredSituationsCacheKey, mappedItems);
-      return mappedItems;
+      const cachedItems = await withCachedFeaturedImages(mappedItems);
+      await writeCachedValue(featuredSituationsCacheKey, cachedItems);
+      void warmRemoteImages(
+        mappedItems.flatMap((item) => [item.image, item.imageUrl]),
+        { forceRefresh: true },
+      ).then(async () => {
+        const hydratedItems = await withCachedFeaturedImages(mappedItems);
+        await writeCachedValue(featuredSituationsCacheKey, hydratedItems);
+      });
+      return cachedItems;
     } catch {
       const fallbackFeatured = mockSituations.filter((item) => item.featured);
       return cachedOrMock(featuredSituationsCacheKey, fallbackFeatured);

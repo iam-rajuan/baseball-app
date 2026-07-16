@@ -1,4 +1,5 @@
 import { apiClient, unwrap } from '@/lib/api-client';
+import { getCachedImageUri, warmRemoteImages } from '@/lib/image-cache';
 import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
 import { defaultAppSettings, legalPages } from '@/mock/data';
 import type { AppSettings, LegalPages } from '@/types';
@@ -30,6 +31,12 @@ const normalizeLegalPages = (pages: LegalPages): LegalPages => ({
   },
 });
 
+const withCachedAppSettingImages = async (settings: AppSettings): Promise<AppSettings> => ({
+  ...settings,
+  situationImageUri: (await getCachedImageUri(settings.situationImageUri)) || null,
+  situationImageUrl: await getCachedImageUri(settings.situationImageUrl),
+});
+
 export const settingsService = {
   async getLegalPages(): Promise<LegalPages | null> {
     try {
@@ -45,8 +52,15 @@ export const settingsService = {
   async getAppSettings(): Promise<AppSettings | null> {
     try {
       const result = await unwrap<AppSettings>(apiClient.get('/settings/public/app'));
-      await writeCachedValue(cacheKeys.appSettings, result);
-      return result ?? null;
+      const cachedResult = await withCachedAppSettingImages(result);
+      await writeCachedValue(cacheKeys.appSettings, cachedResult);
+      void warmRemoteImages([result.situationImageUri, result.situationImageUrl], {
+        forceRefresh: true,
+      }).then(async () => {
+        const hydratedSettings = await withCachedAppSettingImages(result);
+        await writeCachedValue(cacheKeys.appSettings, hydratedSettings);
+      });
+      return cachedResult ?? null;
     } catch {
       return cachedOrMock(cacheKeys.appSettings, defaultAppSettings);
     }

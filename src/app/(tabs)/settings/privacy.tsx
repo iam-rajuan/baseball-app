@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { ScrollView, Text, View } from 'react-native';
 
 import { Loader } from '@/components/loader';
-import { PageHeader } from '@/components/layout/page-header';
 import { Screen } from '@/components/layout/screen';
 import { settingsService } from '@/services';
 
@@ -13,12 +12,13 @@ export default function PrivacyPolicyScreen() {
   });
 
   return (
-    <Screen header={<PageHeader title="Privacy Policy" variant="section" />}>
+    <Screen scrollable={false}>
       {isLoading ? (
         <Loader />
       ) : (
         <ScrollView
           style={{ backgroundColor: '#F4E7D5' }}
+          contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={{ padding: 20, paddingBottom: 60, backgroundColor: '#F4E7D5' }}
           showsVerticalScrollIndicator={false}
         >

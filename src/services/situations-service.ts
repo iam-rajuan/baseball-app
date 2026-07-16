@@ -1,10 +1,12 @@
 import { apiClient, resolveApiAssetUrl, unwrap, unwrapPaginated } from '@/lib/api-client';
-import { cachedOrMock, writeCachedValue } from '@/lib/offline-cache';
+import { getCachedImageUri, warmRemoteImages } from '@/lib/image-cache';
+import { cachedOrMock, readCachedValue, writeCachedValue } from '@/lib/offline-cache';
 import { situations as mockSituations } from '@/mock/data';
 import type { PaginatedResult, Situation } from '@/types';
 
 const cacheKeys = {
   all: 'situations:all',
+  detail: (id: string) => `situations:detail:${id}`,
 };
 
 const mapSituation = (item: Record<string, unknown>): Situation => ({
@@ -20,6 +22,21 @@ const mapSituation = (item: Record<string, unknown>): Situation => ({
   image: resolveApiAssetUrl(typeof item.image === 'string' ? item.image : ''),
   imageUrl: resolveApiAssetUrl(typeof item.imageUrl === 'string' ? item.imageUrl : ''),
 });
+
+const withCachedSituationImages = async (items: Situation[]) =>
+  Promise.all(
+    items.map(async (item) => ({
+      ...item,
+      image: await getCachedImageUri(item.image),
+      imageUrl: await getCachedImageUri(item.imageUrl),
+    })),
+  );
+
+const warmSituationImages = (items: Situation[], options?: { forceRefresh?: boolean }) =>
+  warmRemoteImages(
+    items.flatMap((item) => [item.image, item.imageUrl]),
+    options,
+  );
 
 const fetchAllPages = async <T>(
   fetchPage: (page: number) => Promise<PaginatedResult<T>>,
@@ -49,8 +66,13 @@ export const situationsService = {
         };
       });
 
-      await writeCachedValue(cacheKeys.all, mappedItems);
-      return mappedItems;
+      const cachedItems = await withCachedSituationImages(mappedItems);
+      await writeCachedValue(cacheKeys.all, cachedItems);
+      void warmSituationImages(mappedItems, { forceRefresh: true }).then(async () => {
+        const hydratedItems = await withCachedSituationImages(mappedItems);
+        await writeCachedValue(cacheKeys.all, hydratedItems);
+      });
+      return cachedItems;
     } catch {
       return cachedOrMock(cacheKeys.all, mockSituations);
     }
@@ -58,8 +80,21 @@ export const situationsService = {
   async getById(id: string): Promise<Situation> {
     try {
       const result = await unwrap<Record<string, unknown>>(apiClient.get(`/situations/${id}`));
-      return mapSituation(result);
+      const mappedSituation = mapSituation(result);
+      const [cachedSituation] = await withCachedSituationImages([mappedSituation]);
+      await writeCachedValue(cacheKeys.detail(id), cachedSituation);
+      void warmSituationImages([mappedSituation], { forceRefresh: true }).then(async () => {
+        const [hydratedSituation] = await withCachedSituationImages([mappedSituation]);
+        await writeCachedValue(cacheKeys.detail(id), hydratedSituation);
+      });
+      return cachedSituation;
     } catch {
+      const cachedDetail = await readCachedValue<Situation>(cacheKeys.detail(id));
+
+      if (cachedDetail) {
+        return cachedDetail;
+      }
+
       const cached = await cachedOrMock(cacheKeys.all, mockSituations);
       const fallbackSituation = cached.find((item) => item.id === id);
 

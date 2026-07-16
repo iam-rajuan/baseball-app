@@ -9,6 +9,7 @@ import { Screen } from '@/components/layout/screen';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { SituationArtwork } from '@/components/situation-artwork';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { prefetchSituation } from '@/lib/prefetch';
 import { settingsService, situationsService } from '@/services';
 
 export default function SituationsListScreen() {
@@ -33,7 +34,9 @@ export default function SituationsListScreen() {
       ) : (
         <View className="gap-4">
           {data.map((situation) => (
-            <Pressable key={situation.id} onPress={() => router.push(`/situations/${situation.id}`)}>
+            <Pressable key={situation.id} onPressIn={() => {
+              void prefetchSituation(situation.id);
+            }} onPress={() => router.push(`/situations/${situation.id}`)}>
               <Card>
                 <Text className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#B49E81]">
                   {situation.category}

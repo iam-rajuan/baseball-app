@@ -1,16 +1,15 @@
-import { useState } from 'react';
-import type { ComponentType } from 'react';
+import { useState, type ComponentType } from 'react';
 import {
   ActivityIndicator,
-  ImageBackground,
   Linking,
   Pressable,
   Text,
   View,
   useWindowDimensions,
 } from 'react-native';
-import type { WebViewProps } from 'react-native-webview';
+import { WebView, type WebViewProps } from 'react-native-webview';
 
+import { CachedImage } from '@/components/cached-image';
 import { colors } from '@/constants/theme';
 import { extractYouTubeVideoId } from '@/features/drills/youtube';
 
@@ -18,18 +17,8 @@ type YouTubeVideoProps = {
   url?: string | null;
 };
 
-let cachedWebView: ComponentType<WebViewProps> | null | undefined;
-
 export const getYouTubeWebView = () => {
-  if (cachedWebView !== undefined) return cachedWebView;
-
-  try {
-    cachedWebView = require('react-native-webview').WebView as ComponentType<WebViewProps>;
-  } catch {
-    cachedWebView = null;
-  }
-
-  return cachedWebView;
+  return WebView as ComponentType<WebViewProps>;
 };
 
 export const YouTubeVideo = ({ url }: YouTubeVideoProps) => {
@@ -71,17 +60,18 @@ export const YouTubeVideo = ({ url }: YouTubeVideoProps) => {
         }}
         style={{ width: videoWidth, height: videoWidth * 0.5625 }}
       >
-        <ImageBackground
-          resizeMode="cover"
-          source={{ uri: thumbnailUrl }}
-          className="h-full w-full items-center justify-center"
-        >
+        <View className="h-full w-full items-center justify-center">
+          <CachedImage
+            contentFit="cover"
+            uri={thumbnailUrl}
+            style={{ position: 'absolute', inset: 0 }}
+          />
           <View className="absolute inset-0 bg-black/45" />
           <View className="h-14 w-14 items-center justify-center rounded-full bg-white/90">
             <View className="ml-1 h-0 w-0 border-y-[10px] border-l-[16px] border-y-transparent border-l-[#0C1F4A]" />
           </View>
           <Text className="mt-3 text-sm font-bold text-white">Watch on YouTube</Text>
-        </ImageBackground>
+        </View>
       </Pressable>
     );
   }

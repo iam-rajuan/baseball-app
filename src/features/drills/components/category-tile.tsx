@@ -7,6 +7,7 @@ import type { DrillCategory } from '@/types';
 type CategoryTileProps = {
   item: DrillCategory;
   onPress: () => void;
+  onPressIn?: () => void;
 };
 
 /**
@@ -43,12 +44,13 @@ const getFallbackIcon = (id: string) => {
   return fallbackCategoryIcons[hash % fallbackCategoryIcons.length] ?? 'baseball-outline';
 };
 
-export function CategoryTile({ item, onPress }: CategoryTileProps) {
+export function CategoryTile({ item, onPress, onPressIn }: CategoryTileProps) {
   const iconName = item.accentIcon || getFallbackIcon(item.id);
 
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={onPressIn}
       className="bg-white rounded-[20px] p-5 mb-4 shadow-sm active:opacity-95 active:scale-[0.985]"
     >
       <View className="flex-row justify-between items-start mb-3">
