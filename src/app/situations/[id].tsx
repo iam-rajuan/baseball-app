@@ -11,6 +11,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 
 import { CachedImage } from '@/components/cached-image';
 import { Loader } from '@/components/loader';
+import { clearRemoteImages } from '@/lib/image-cache';
 import { getSituationInitialData } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { situationsService } from '@/services';
@@ -56,6 +57,7 @@ export default function SituationDetailsScreen() {
           <RefreshControl
             colors={['#E35D21']}
             onRefresh={async () => {
+              await clearRemoteImages([situation.imageUrl, situation.image]);
               const result = await refetch();
               showOfflineNoticeAfterRefresh([result]);
             }}

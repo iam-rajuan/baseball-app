@@ -15,6 +15,7 @@ import { CachedImage } from '@/components/cached-image';
 
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { clearRemoteImages } from '@/lib/image-cache';
 import { prefetchSituation } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { settingsService, situationsService } from '@/services';
@@ -46,9 +47,13 @@ export default function SituationsTabScreen() {
   const isRefreshing = situationsFetching || settingsFetching;
 
   const refreshSituations = useCallback(async () => {
+    await clearRemoteImages(
+      (situations ?? []).flatMap((situation) => [situation.imageUrl, situation.image]),
+    );
+
     const results = await Promise.all([refetchSituations(), refetchSettings()]);
     showOfflineNoticeAfterRefresh(results);
-  }, [refetchSettings, refetchSituations]);
+  }, [refetchSettings, refetchSituations, situations]);
 
   const isInitialRecoverableError =
     (!situations || !appSettings) &&

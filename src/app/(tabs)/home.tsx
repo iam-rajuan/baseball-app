@@ -19,6 +19,7 @@ import { EmptyState } from '@/components/empty-state';
 import { SkeletonLoader } from '@/components/skeleton-loader';
 import { CachedImage } from '@/components/cached-image';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
+import { clearRemoteImages } from '@/lib/image-cache';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService, featuredSituationsService, settingsService, situationsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
@@ -75,6 +76,12 @@ export default function HomeScreen() {
     setIsRefreshing(true);
 
     try {
+      await clearRemoteImages([
+        ...(backendFeaturedSituations ?? []).flatMap((item) => [item.imageUrl, item.image]),
+        ...(situations ?? []).flatMap((item) => [item.imageUrl, item.image]),
+        ...(newDrills ?? []).flatMap((item) => [item.imageUrl, item.image, item.coverUrl, item.coverPhotoUrl]),
+      ]);
+
       const results = await Promise.all([
         refetchSituations(),
         refetchSettings(),
@@ -85,7 +92,15 @@ export default function HomeScreen() {
     } finally {
       setIsRefreshing(false);
     }
-  }, [refetchFeaturedSituations, refetchNewDrills, refetchSettings, refetchSituations]);
+  }, [
+    backendFeaturedSituations,
+    newDrills,
+    refetchFeaturedSituations,
+    refetchNewDrills,
+    refetchSettings,
+    refetchSituations,
+    situations,
+  ]);
 
   const isInitialRecoverableError =
     (!situations || !appSettings) &&

@@ -42,6 +42,38 @@ export const isRemoteImageUri = (uri?: string | null) => /^https?:\/\//i.test(ur
 export const getKnownCachedImageUri = (uri?: string | null) =>
   resolvedImageUriCache.get(uri?.trim() ?? '') ?? null;
 
+export async function clearRemoteImage(uri?: string | null): Promise<void> {
+  const normalizedUri = uri?.trim() ?? '';
+
+  if (!isRemoteImageUri(normalizedUri)) {
+    return;
+  }
+
+  resolvedImageUriCache.delete(normalizedUri);
+  pendingImageDownloads.delete(normalizedUri);
+
+  try {
+    ensureImageCacheDirectory();
+    const file = getCachedImageFile(normalizedUri);
+
+    if (file.exists) {
+      file.delete();
+    }
+  } catch {
+    // Ignore cache-clear failures so refresh can still continue.
+  }
+}
+
+export async function clearRemoteImages(
+  uris: (string | null | undefined)[],
+): Promise<void> {
+  const uniqueUris = Array.from(
+    new Set(uris.map((uri) => uri?.trim() ?? '').filter((uri) => isRemoteImageUri(uri))),
+  );
+
+  await Promise.allSettled(uniqueUris.map((uri) => clearRemoteImage(uri)));
+}
+
 export async function getCachedImageUri(uri?: string | null): Promise<string> {
   const normalizedUri = uri?.trim() ?? '';
 

@@ -11,6 +11,7 @@ import { EquipmentCard } from '@/features/drills/components/equipment-card';
 import { FocusPointCard } from '@/features/drills/components/focus-point-card';
 import { StepDirection } from '@/features/drills/components/step-direction';
 import { YouTubeVideo, getYouTubeWebView } from '@/features/drills/components/youtube-video';
+import { clearRemoteImages } from '@/lib/image-cache';
 import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
 import { getDrillInitialData } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
@@ -57,6 +58,7 @@ export default function DrillDetailScreen() {
             <RefreshControl
               colors={['#E35D21']}
               onRefresh={async () => {
+                await clearRemoteImages([data.image, data.imageUrl, data.coverUrl, data.coverPhotoUrl]);
                 const result = await refetch();
                 showOfflineNoticeAfterRefresh([result]);
               }}
@@ -187,6 +189,7 @@ export default function DrillDetailScreen() {
           <RefreshControl
             colors={['#E35D21']}
             onRefresh={async () => {
+              await clearRemoteImages([data.image, data.imageUrl, data.coverUrl, data.coverPhotoUrl]);
               const result = await refetch();
               showOfflineNoticeAfterRefresh([result]);
             }}

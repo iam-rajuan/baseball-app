@@ -13,6 +13,7 @@ import { typography } from '@/constants/typography';
 import { getCategoryEyebrow } from '@/features/drills/drill-media';
 import { PlaceholderBanner } from '@/features/drills/components/placeholder-banner';
 import { isRecoverableApiError } from '@/lib/api-client';
+import { clearRemoteImages } from '@/lib/image-cache';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
 import { drillsService } from '@/services';
 import { useAppStore } from '@/store/app-store';
@@ -59,6 +60,13 @@ export default function DrillCategoryScreen() {
     categoryQuery.isFetching || freeDrillsQuery.isFetching || premiumDrillsQuery.isFetching;
 
   const refreshCategory = useCallback(async () => {
+    await clearRemoteImages([
+      categoryQuery.data?.image,
+      categoryQuery.data?.imageUrl,
+      ...((freeDrillsQuery.data ?? []).flatMap((item) => [item.image, item.imageUrl, item.coverUrl, item.coverPhotoUrl])),
+      ...((premiumDrillsQuery.data ?? []).flatMap((item) => [item.image, item.imageUrl, item.coverUrl, item.coverPhotoUrl])),
+    ]);
+
     const results = await Promise.all([
       categoryQuery.refetch(),
       freeDrillsQuery.refetch(),
