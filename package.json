@@ -15,6 +15,7 @@
     "format": "prettier --check ."
   },
   "dependencies": {
+    "@expo/vector-icons": "^15.1.1",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-navigation/bottom-tabs": "7.15.9",
@@ -39,6 +40,7 @@
     "expo-linking": "~55.0.16",
     "expo-navigation-bar": "~55.0.14",
     "expo-router": "~55.0.16",
+    "expo-screen-capture": "~55.0.16",
     "expo-secure-store": "~55.0.15",
     "expo-splash-screen": "~55.0.22",
     "expo-status-bar": "~55.0.6",

@@ -1,5 +1,6 @@
 import '../global.css';
 
+import * as ScreenCapture from 'expo-screen-capture';
 import { ThemeProvider } from '@react-navigation/native';
 import { focusManager, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
@@ -24,6 +25,9 @@ import { navigationTheme } from '@/theme';
 import { CustomSplashScreen } from '@/components/custom-splash-screen';
 import { ServerDownModal } from '@/components/server-down-modal';
 
+// Toggle screenshot prevention globally (set to true to prevent screenshots, false to allow)
+const SCREENSHOT_PREVENTION_ENABLED = true;
+
 SplashScreen.preventAutoHideAsync().catch(() => null);
 LogBox.ignoreLogs([
   "Passing an object as the argument to 'navigate' is deprecated. Use 'navigate(name, params, options)' instead.",
@@ -38,6 +42,14 @@ export default function RootLayout() {
   const shouldShowServerDownNotice = useAppStore((state) => state.shouldShowServerDownNotice);
   const acknowledgeServerDownNotice = useAppStore((state) => state.acknowledgeServerDownNotice);
   const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (SCREENSHOT_PREVENTION_ENABLED) {
+      void ScreenCapture.preventScreenCaptureAsync();
+    } else {
+      void ScreenCapture.allowScreenCaptureAsync();
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
