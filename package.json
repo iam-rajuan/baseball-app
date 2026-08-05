@@ -3,13 +3,13 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --tunnel",
+    "start": "node init && expo start --tunnel",
     "android": "expo start --android --tunnel",
     "android:device": "node scripts/android-device.cjs",
     "android:native": "node scripts/run-android-native.cjs",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "build:android:preview": "eas build --profile preview --platform android",
+    "build:android:preview": "node init && eas build --profile preview --platform android",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --check ."
