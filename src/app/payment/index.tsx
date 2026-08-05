@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { PageHeader } from '@/components/layout/page-header';
 import { type PaymentPackageOption, paymentService } from '@/services';
 import { useAppStore } from '@/store/app-store';
+import { purchaseManagedCopy, purchaseSyncCopy } from './purchase-copy';
 
 export default function PaymentScreen() {
   const isPremium = useAppStore((state) => state.isPremium);
@@ -169,7 +170,7 @@ export default function PaymentScreen() {
             {[
               'Access every premium drill and position-specific training pack',
               'Restore your purchase any time on a new device',
-              'Premium status stays in sync with your App Store or Google Play account',
+              purchaseSyncCopy,
             ].map((item) => (
               <View key={item} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
                 <Ionicons name="checkmark-circle" size={20} color="#E35D21" style={{ marginTop: 1 }} />
@@ -410,7 +411,7 @@ export default function PaymentScreen() {
 
           <View style={{ alignItems: 'center', marginTop: 22 }}>
             <Text style={{ fontSize: 12.5, color: '#7C869B', fontWeight: '500', textAlign: 'center', lineHeight: 18 }}>
-              Your purchase is managed by the App Store or Google Play. Restore anytime if you reinstall the app.
+              {purchaseManagedCopy}
             </Text>
           </View>
         </View>
