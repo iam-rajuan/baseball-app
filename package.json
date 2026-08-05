@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start --tunnel",
+    "start": "node api.js && expo start --tunnel",
     "android": "expo start --android --tunnel",
     "android:device": "node scripts/android-device.cjs",
     "android:native": "node scripts/run-android-native.cjs",
