@@ -14,6 +14,7 @@ import { AppState, LogBox, Platform } from 'react-native';
 import { queryClient } from '@/lib/query-client';
 import {
   addRevenueCatCustomerInfoListener,
+  initAppsFlyer,
   authService,
   hasPremiumAccess,
   identifyRevenueCatUser,
@@ -22,6 +23,7 @@ import {
 } from '@/services';
 import { useAppStore } from '@/store/app-store';
 import { navigationTheme } from '@/theme';
+import { AppsFlyerUidTestPopup } from '@/components/appsflyer-uid-test-popup';
 import { CustomSplashScreen } from '@/components/custom-splash-screen';
 import { ServerDownModal } from '@/components/server-down-modal';
 
@@ -110,6 +112,10 @@ export default function RootLayout() {
       applyCustomerInfo(hasPremiumAccess(customerInfo));
     });
 
+    void initAppsFlyer().catch(() => {
+      // AppsFlyer should never block app startup.
+    });
+
     void bootstrapSession();
 
     return () => {
@@ -182,6 +188,7 @@ export default function RootLayout() {
           visible={shouldShowServerDownNotice}
           onClose={acknowledgeServerDownNotice}
         />
+        <AppsFlyerUidTestPopup />
       </ThemeProvider>
     </QueryClientProvider>
   );

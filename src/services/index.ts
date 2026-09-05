@@ -1,4 +1,5 @@
 export * from './auth-service';
+export * from './appsflyer-service';
 export * from './drills-service';
 export * from './featured-situations-service';
 export * from './payment-service';

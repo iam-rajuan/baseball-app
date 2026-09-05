@@ -2,7 +2,7 @@
   "expo": {
     "name": "Marietta Baseball Academy",
     "slug": "marietta-baseball-academy",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mariettabaseballacademy",
@@ -60,7 +60,16 @@
       "expo-font",
       "expo-image",
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "react-native-appsflyer",
+        {
+          "shouldUseStrictMode": false,
+          "shouldUsePurchaseConnector": false,
+          "preferAppsFlyerBackupRules": false
+        }
+      ],
+      "./plugins/with-secure-store-backup-rules"
     ],
     "experiments": {
       "typedRoutes": false,
