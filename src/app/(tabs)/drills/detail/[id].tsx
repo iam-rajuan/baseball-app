@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 
 import { EmptyState } from '@/components/empty-state';
@@ -15,7 +16,7 @@ import { clearRemoteImages } from '@/lib/image-cache';
 import { toYouTubeEmbedUrl } from '@/features/drills/youtube';
 import { getDrillInitialData } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
-import { drillsService } from '@/services';
+import { drillsService, trackContentView } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 export default function DrillDetailScreen() {
@@ -27,6 +28,21 @@ export default function DrillDetailScreen() {
     queryFn: () => drillsService.getById(routeId),
     initialData: () => getDrillInitialData(routeId),
   });
+  const trackedContentViewRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!data || trackedContentViewRef.current === data.id) {
+      return;
+    }
+
+    trackedContentViewRef.current = data.id;
+    void trackContentView({
+      category: data.category,
+      contentId: data.id,
+      contentName: data.name,
+      contentType: 'drill',
+    });
+  }, [data]);
 
   if (isLoading) {
     return (
