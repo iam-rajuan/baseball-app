@@ -1,17 +1,17 @@
 import { router } from 'expo-router';
+import { useRef } from 'react';
 import {
   Pressable,
   ScrollView,
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { OTPInput } from '@/components/form/otp-input';
 import { PageHeader } from '@/components/layout/page-header';
 import { LogoMark } from '@/components/logo-mark';
 import { typography } from '@/constants/typography';
-import { authService } from '@/services';
+import { authService, trackLogin } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 export default function OtpScreen() {
@@ -20,10 +20,17 @@ export default function OtpScreen() {
   const otpCode = useAppStore((state) => state.otpCode);
   const setOtpCode = useAppStore((state) => state.setOtpCode);
   const hydrateSession = useAppStore((state) => state.hydrateSession);
+  const trackedLoginRef = useRef(false);
 
   const onContinue = async () => {
     const result = await authService.verifyCode(authEmail, otpCode);
     hydrateSession(result.user);
+
+    if (!trackedLoginRef.current) {
+      trackedLoginRef.current = true;
+      void trackLogin();
+    }
+
     router.replace(isPremium ? '/(tabs)/drills' : '/payment');
   };
 

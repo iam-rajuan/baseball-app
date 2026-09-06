@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { Card } from '@/components/card';
@@ -10,7 +11,7 @@ import { SkeletonLoader } from '@/components/skeleton-loader';
 import { SituationArtwork } from '@/components/situation-artwork';
 import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { prefetchSituation } from '@/lib/prefetch';
-import { settingsService, situationsService } from '@/services';
+import { settingsService, situationsService, trackListView } from '@/services';
 
 export default function SituationsListScreen() {
   const { data, isLoading, error } = useQuery({
@@ -21,6 +22,20 @@ export default function SituationsListScreen() {
     queryKey: ['app-settings'],
     queryFn: settingsService.getAppSettings,
   });
+  const trackedListViewRef = useRef(false);
+
+  useEffect(() => {
+    if (!data || trackedListViewRef.current) {
+      return;
+    }
+
+    trackedListViewRef.current = true;
+    void trackListView({
+      contentType: 'situation_list',
+      itemCount: data.length,
+      listName: 'Defensive Situations',
+    });
+  }, [data]);
 
   return (
     <Screen header={<PageHeader title="Defensive Situations" />} contentClassName="pt-5">
