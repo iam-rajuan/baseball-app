@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,7 +14,7 @@ import { CategoryTile } from '@/features/drills/components/category-tile';
 import { isRecoverableApiError } from '@/lib/api-client';
 import { prefetchDrillCategory } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
-import { drillsService } from '@/services';
+import { drillsService, trackListView } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 function FrostedCard({ children }: { children: ReactNode }) {
@@ -41,6 +41,20 @@ export default function DrillsScreen() {
     queryKey: ['drill-categories'],
     queryFn: drillsService.getCategories,
   });
+  const trackedListViewRef = useRef(false);
+
+  useEffect(() => {
+    if (!data || trackedListViewRef.current) {
+      return;
+    }
+
+    trackedListViewRef.current = true;
+    void trackListView({
+      contentType: 'drill_category',
+      itemCount: data.length,
+      listName: 'Drill Categories',
+    });
+  }, [data]);
 
   if (isLoading || (!data && isRecoverableApiError(error))) {
     return (
