@@ -42,11 +42,6 @@ const getAppsFlyerUid = () =>
     });
   });
 
-export async function getAppsFlyerUidAfterInit(): Promise<string> {
-  await initAppsFlyer();
-  return getAppsFlyerUid();
-}
-
 export async function initAppsFlyer(): Promise<void> {
   if (!isSupportedPlatform()) {
     return;
@@ -93,5 +88,4 @@ export async function initAppsFlyer(): Promise<void> {
 
 export const appsFlyerService = {
   initAppsFlyer,
-  getAppsFlyerUidAfterInit,
 };

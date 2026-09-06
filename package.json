@@ -28,7 +28,6 @@
     "eslint-config-expo": "~55.0.1",
     "expo": "~55.0.28",
     "expo-blur": "~55.0.16",
-    "expo-clipboard": "~55.0.17",
     "expo-constants": "~55.0.17",
     "expo-dev-client": "~55.0.37",
     "expo-device": "~55.0.19",
