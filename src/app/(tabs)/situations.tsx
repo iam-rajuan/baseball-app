@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   Pressable,
   RefreshControl,
@@ -18,7 +18,7 @@ import { getActiveApiBaseUrl, isRecoverableApiError } from '@/lib/api-client';
 import { clearRemoteImages } from '@/lib/image-cache';
 import { prefetchSituation } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
-import { settingsService, situationsService } from '@/services';
+import { settingsService, situationsService, trackListView } from '@/services';
 
 export default function SituationsTabScreen() {
   const insets = useSafeAreaInsets();
@@ -45,6 +45,20 @@ export default function SituationsTabScreen() {
     queryFn: settingsService.getAppSettings,
   });
   const isRefreshing = situationsFetching || settingsFetching;
+  const trackedListViewRef = useRef(false);
+
+  useEffect(() => {
+    if (!situations || trackedListViewRef.current) {
+      return;
+    }
+
+    trackedListViewRef.current = true;
+    void trackListView({
+      contentType: 'situation_list',
+      itemCount: situations.length,
+      listName: 'Defensive Situations',
+    });
+  }, [situations]);
 
   const refreshSituations = useCallback(async () => {
     await clearRemoteImages(
