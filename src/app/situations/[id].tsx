@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import {
   Pressable,
   RefreshControl,
@@ -14,7 +15,7 @@ import { Loader } from '@/components/loader';
 import { clearRemoteImages } from '@/lib/image-cache';
 import { getSituationInitialData } from '@/lib/prefetch';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
-import { situationsService } from '@/services';
+import { situationsService, trackContentView } from '@/services';
 
 export default function SituationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -25,6 +26,21 @@ export default function SituationDetailsScreen() {
     queryFn: () => situationsService.getById(routeId),
     initialData: () => getSituationInitialData(routeId),
   });
+  const trackedContentViewRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!situation || trackedContentViewRef.current === situation.id) {
+      return;
+    }
+
+    trackedContentViewRef.current = situation.id;
+    void trackContentView({
+      category: situation.category,
+      contentId: situation.id,
+      contentName: situation.title,
+      contentType: 'situation',
+    });
+  }, [situation]);
 
   if (situationLoading) {
     return (

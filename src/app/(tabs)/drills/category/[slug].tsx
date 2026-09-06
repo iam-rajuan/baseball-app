@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
 import { BlurView } from 'expo-blur';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Platform, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,7 +15,7 @@ import { PlaceholderBanner } from '@/features/drills/components/placeholder-bann
 import { isRecoverableApiError } from '@/lib/api-client';
 import { clearRemoteImages } from '@/lib/image-cache';
 import { showOfflineNoticeAfterRefresh } from '@/lib/refresh-feedback';
-import { drillsService } from '@/services';
+import { drillsService, trackListView } from '@/services';
 import { useAppStore } from '@/store/app-store';
 
 function FrostedCard({ children }: { children: ReactNode }) {
@@ -58,6 +58,27 @@ export default function DrillCategoryScreen() {
 
   const isRefreshing =
     categoryQuery.isFetching || freeDrillsQuery.isFetching || premiumDrillsQuery.isFetching;
+  const trackedListViewRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!categoryQuery.data || !freeDrillsQuery.data || !premiumDrillsQuery.data) {
+      return;
+    }
+
+    const listKey = categoryQuery.data.id;
+
+    if (trackedListViewRef.current === listKey) {
+      return;
+    }
+
+    trackedListViewRef.current = listKey;
+    void trackListView({
+      categoryId: categoryQuery.data.id,
+      contentType: 'drill_list',
+      itemCount: freeDrillsQuery.data.length + premiumDrillsQuery.data.length,
+      listName: categoryQuery.data.name,
+    });
+  }, [categoryQuery.data, freeDrillsQuery.data, premiumDrillsQuery.data]);
 
   const refreshCategory = useCallback(async () => {
     await clearRemoteImages([
