@@ -7,6 +7,7 @@ import {
   purchaseRevenueCatPackage,
   restoreRevenueCatPurchases,
 } from '@/services/revenuecat-service';
+import { trackInitiatedCheckout, trackPurchase } from '@/services/appsflyer-service';
 
 export type PaymentPackageOption = {
   billingLabel: string;
@@ -81,6 +82,7 @@ export const paymentService = {
 
   async purchasePackage(selectedPackage: PurchasesPackage): Promise<PaymentActionResult> {
     try {
+      void trackInitiatedCheckout(selectedPackage);
       const result = await purchaseRevenueCatPackage(selectedPackage);
       const { customerInfo, premiumActive } = await resolvePremiumActivation(result.customerInfo);
 
@@ -91,6 +93,8 @@ export const paymentService = {
           message: 'Purchase completed, but premium access is not active yet. Please try Restore Purchases.',
         };
       }
+
+      void trackPurchase(selectedPackage, customerInfo);
 
       return {
         status: 'success',

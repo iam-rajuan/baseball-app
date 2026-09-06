@@ -31,8 +31,6 @@ yarn-error.*
 *.pem
 
 # local env files
-.env
-.env.*
 !.env.example
 .env*.local
 
@@ -51,3 +49,4 @@ temp_interactive_push.bat
 # Google Service Account Credentials
 google-service-account.json
 build-log.txt
+config.bat
